@@ -1,0 +1,70 @@
+/* E8F1F5
+005691
+004A7C */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+input,
+textarea,
+button,
+select {
+    font: inherit;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 0 20px 0 black;
+    background-color: #005691;
+    color: #fff;
+    z-index: 800;
+}
+header * {
+    display: inline-block;
+}
+header img {
+    height: 70px;
+    width: auto;
+    margin: 0 40px 0px 20px;
+}
+header li {
+    margin: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+header li a {
+    color: #fff;
+    text-decoration: none;
+    text-align: center;
+}
+
+body {
+    background-color: #fafafa;
+    font-family: nato-sans;
+}
+
+main {
+    margin: 80px;
+    padding: 30px;
+}
+
+.alrt {
+    z-index: 999;
+}
+.nothing {
+    height: 30px;
+    width: 30px !important;
+}
+
+@font-face {
+    font-family: 'nato-sans';
+    src: url(../fonts/NotoSansArabic-Regular.ttf);
+}

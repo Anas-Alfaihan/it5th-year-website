@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% block head_title %}create user{% endblock %}
+
+<!-- something here for nothing  -->
+
+{% block content %}
+<form class="register-form form" method="POST">
+    {% csrf_token %} {{form.as_p}}
+    <input type="submit" value="add" />
+</form>
+{% endblock %}

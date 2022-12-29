@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% block head_title %}Login{% endblock %}
+
+<!-- something here for nothing  -->
+
+{% block content %}
+<form class="form login-form" method="POST">
+    {% csrf_token %}
+    <div class="form-input">
+        <label for="">اسم المستخدم: </label>
+        <input type="text" name="username" />
+    </div>
+    <div class="form-input">
+        <label for="">كلمة المرور: </label>
+        <input type="password" name="password" />
+    </div>
+    <div class="form-input">
+        <input type="submit" value="دخول" />
+    </div>
+</form>
+{% endblock %}

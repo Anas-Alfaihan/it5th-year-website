@@ -1,0 +1,88 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+        <link
+            rel="stylesheet"
+            href="{% static 'bootstrap-5.2.0/dist/css/bootstrap.min.css' %}"
+        />
+        <title>{% block head_title %}STORE{% endblock %}</title>
+        <script src="{% static 'js/jquery-3.6.3.min.js' %}"></script>
+    </head>
+
+    <body>
+        {% if messages %}
+        <!-- asda  -->
+        {% for message in messages %}
+        <!-- asd -->
+        {% if message.tags == 'error' %}
+        <div class="alert alert-danger alrt">
+            <span
+                class="closebtn"
+                onclick="this.parentElement.style.display='none';"
+                >&times;</span
+            >
+            <i class="bi bi-exclamation-octagon"></i> {{message}}
+        </div>
+        {% endif %}
+        <!-- asdas -->
+        {% if message.tags == 'warning' %}
+        <div class="alert alert-warning alrt">
+            <span
+                class="closebtn"
+                onclick="this.parentElement.style.display='none';"
+                >&times;</span
+            >
+            <i class="bi bi-exclamation-octagon"></i> {{message}}
+        </div>
+        {% endif %}
+        <!-- asd -->
+        {% if message.tags == 'info' %}
+        <div class="alert alert-primary alrt">
+            <span
+                class="closebtn"
+                onclick="this.parentElement.style.display='none';"
+                >&times;</span
+            >
+            <i class="bi bi-info-circle"></i> {{message}}
+        </div>
+        {% endif %}
+        <!-- \asdas  -->
+        {% if message.tags == 'success' %}
+        <div class="alert alert-success alrt">
+            <span
+                class="closebtn"
+                onclick="this.parentElement.style.display='none';"
+                >&times;</span
+            >
+            <i class="bi bi-check-circle"></i> {{message}}
+        </div>
+        {% endif %}
+        <!-- asdas  -->
+        {% endfor %}
+        <!-- asdas -->
+        {% endif %}
+
+        <header>
+            <img src="{% static 'images/logo.png' %}" alt="university logo" />
+            <nav>
+                <ul>
+                    {% if user.is_authenticated %} {% if user.is_superuser %}
+                    <li><a href="{% url 'app:register' %}">إنشاء حساب</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'app:insert' %}">تسجيل معيد</a></li>
+                    <li><a href="{% url 'app:logout' %}">تسجيل الخروج</a></li>
+                    {% else %}
+                    <li><a href="{% url 'app:login' %}">تسجيل الدخول</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </header>
+        <main>{% block content %}{% endblock %}</main>
+    </body>
+</html>
