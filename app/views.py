@@ -365,7 +365,7 @@ def UniversityChangeInsert(request):
 def SpecializationChangeInsert(request):
     if request.method == 'POST':
         with transaction.atomic():
-
+            print('hello world!')
             savePoint= transaction.savepoint()
             dispatchId= None
 
