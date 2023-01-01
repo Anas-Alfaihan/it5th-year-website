@@ -1,5 +1,5 @@
 from django.db import models
-from app.constantVariables import*
+from app.constantVariables import *
 
 
 class Demonstrator(models.Model):
@@ -32,18 +32,21 @@ class Demonstrator(models.Model):
     specialization = models.CharField(max_length=100, null=True, blank=True)
     commencementAfterNominationDate = models.DateField(null=True, blank=True)
 
-    def __str__(self) :
+    def __str__(self):
         return f'{self.name} {self.fatherName} son of {self.motherName  }'
 
 
 class UniversityDegree(models.Model):
     universityDegree = models.OneToOneField(Demonstrator, on_delete=models.CASCADE,
                                             primary_key=True, related_name='universityDegree', default=0)
-    universityDegreeUniversity = models.CharField(max_length=100, null=True, blank=True)
-    universityDegreeCollege = models.CharField(max_length=100, null=True, blank=True)
-    universityDegreeSection = models.CharField(max_length=100, null=True, blank=True)
+    universityDegreeUniversity = models.CharField(
+        max_length=100, null=True, blank=True)
+    universityDegreeCollege = models.CharField(
+        max_length=100, null=True, blank=True)
+    universityDegreeSection = models.CharField(
+        max_length=100, null=True, blank=True)
     universityDegreeYear = models.CharField(max_length=10, validators=[
-                            YEAR_VALIDATOR], null=True, blank=True)
+        YEAR_VALIDATOR], null=True, blank=True)
     universityDegreeAverage = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, blank=True)
 
@@ -83,12 +86,16 @@ class GraduateStudies(models.Model):
         Demonstrator, on_delete=models.CASCADE, related_name='graduateStudies', null=True, blank=True)
     graduateStudiesDegree = models.CharField(
         max_length=10, choices=GRADUATE_STUDIES_DEGREE_CHOICES, null=True, blank=True)
-    graduateStudiesUniversity = models.CharField(max_length=100, null=True, blank=True)
-    graduateStudiesCollege = models.CharField(max_length=100, null=True, blank=True)
-    graduateStudiesSection = models.CharField(max_length=100, null=True, blank=True)
-    graduateStudiesSpecialzaion = models.CharField(max_length=100, null=True, blank=True)
+    graduateStudiesUniversity = models.CharField(
+        max_length=100, null=True, blank=True)
+    graduateStudiesCollege = models.CharField(
+        max_length=100, null=True, blank=True)
+    graduateStudiesSection = models.CharField(
+        max_length=100, null=True, blank=True)
+    graduateStudiesSpecialzaion = models.CharField(
+        max_length=100, null=True, blank=True)
     graduateStudiesYear = models.CharField(max_length=10, validators=[
-                            YEAR_VALIDATOR], null=True, blank=True)
+        YEAR_VALIDATOR], null=True, blank=True)
     graduateStudiesAverage = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, blank=True)
 
