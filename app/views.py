@@ -229,143 +229,153 @@ def SpecializationChangeInsert(request, dispatchId):
 
 
 def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint, i):
-    id = None
-    dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken']}
-    dic.update(baseDic)
-    for field in model._meta.local_fields:
-        if field.name in request.POST:
-            dic[field.name] = request.POST.getlist(field.name)[i]
-    form = addModel(dic, instance=obj)
-    if form.is_valid():
-        id = form.save()
-    else:
-        transaction.savepoint_rollback(savePoint)
-        return form.errors
-    return id
+    try:
+        id = None
+        if mainField in request.POST:
+            dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken']}
+            dic.update(baseDic)
+            for field in model._meta.local_fields:
+                if field.name in request.POST:
+                    dic[field.name] = request.POST.getlist(field.name)[i]
+            form = addModel(dic, instance=obj)
+            if form.is_valid():
+                id = form.save()
+            else:
+                transaction.savepoint_rollback(savePoint)
+                return form.errors
+        return id
+    except:
+        print('error')
 
 
 def UpdateDemonstrator(request, id):
-    demonstrator = Demonstrator.objects.filter(pk=id)
+    demonstrators = Demonstrator.objects.filter(pk=id)
     if request.method == 'POST':
         with transaction.atomic():
             savePoint= transaction.savepoint()
 
-            demonId= generalUpdate(request, 'name', {}, Demonstrator, AddDemonstrator, demonstrator, savePoint, 0)
-            if type(demonId) == ErrorDict: return render(request, 'registration/result.html', {'result': demonId})
+            for demonstrator in demonstrators:
+                demonId= generalUpdate(request, 'name', {}, Demonstrator, AddDemonstrator, demonstrator, savePoint, 0)
+                if type(demonId) == ErrorDict: return render(request, 'registration/result.html', {'result': demonId})
 
-            nomination= demonstrator.values('nominationDecision')
-            id = generalInsert(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, nomination, savePoint, 0)
-            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-
-            universityDegree= demonstrator.values('universityDegree')
-            id = generalInsert(request, 'universityDegreeUniversity', {'universityDegree': demonId}, UniversityDegree, AddUniversityDegree, universityDegree, savePoint, 0)
-            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-
-            graduateStudiesCount= 0 
-            graduateStudies= demonstrator.values('graduateStudies')
-            for model in graduateStudies:
-                id = generalInsert(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, model, savePoint, graduateStudiesCount)
-                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                graduateStudiesCount+= 1
-
-            certificateOfExcellenceCount= 0
-            certificateOfExcellence= demonstrator.values('certificateOfExcellence')
-            for model in certificateOfExcellence:
-                id = generalInsert(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, model, savePoint, certificateOfExcellenceCount)
-                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                certificateOfExcellenceCount+= 1
-
-            adjectiveChangeCount= 0
-            adjectiveChange= demonstrator.values('adjectiveChange')
-            for model in adjectiveChange:
-                id = generalInsert(request, 'adjectiveChangeDecisionNumber', {'studentId': demonId}, AdjectiveChange, AddAdjectiveChange, model, savePoint, adjectiveChangeCount)
-                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                adjectiveChangeCount+= 1
-                demonstrator.currentAdjective = request.POST['adjectiveChangeAdjective']
-                Demonstrator.full_clean(self=demonstrator)
-                Demonstrator.save()
-
-            dispatchCount= 0
-            regularizationCount= 0
-            extensionCount= 0
-            freezeCount= 0
-            durationCount= 0
-            dispatch= demonstrator.values('dispatch')
-            for model in dispatch:
-                dispatchId = generalInsert(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, model, savePoint, dispatchCount)
-                if type(dispatchId) == ErrorDict: return render(request, 'registration/result.html', {'result': dispatchId})
-
-                regularization= model.values('regularization')
-                id = generalInsert(request, 'regularizationDecisionNumber', {'regularizationDecisionId': dispatchId}, Regularization, AddRegularization, regularization, savePoint, regularizationCount)
-                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                regularizationCount+= 1
-
-                dispatchDuration= model.values('dispatchDuration')
-                id = generalInsert(request, 'durationYear', {'dispatchDuration': dispatchId}, Duration, AddDuration, dispatchDuration, savePoint, durationCount)
-                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                durationCount+= 1
-
-                languageCourseDuration= model.values('languageCourseDuration')
-                id = generalInsert(request, 'durationYear', {'languageCourseDuration': dispatchId}, Duration, AddDuration, languageCourseDuration, savePoint, durationCount)
-                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                durationCount+= 1
-
-                extensions= model.values('extension')
-                for extension in extensions:
-                    extensionId = generalInsert(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, extension, savePoint, extensionCount)
-                    if type(extensionId) == ErrorDict: return render(request, 'registration/result.html', {'result': extensionId})
-
-                    extensionDuration= extension.values('extensionDuration')
-                    id = generalInsert(request, 'durationYear', {'extensionDuration': extensionId}, Duration, AddDuration, extensionDuration, savePoint, durationCount)
+                nominations= Nomination.objects.filter(nominationDecision=demonId)
+                for nomination in nominations:
+                    id = generalUpdate(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, nomination, savePoint, 0)
                     if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                    durationCount+= 1
 
+                universityDegrees= UniversityDegree.objects.filter(universityDegree=demonId)
+                for universityDegree in universityDegrees:
+                    id = generalUpdate(request, 'universityDegreeUniversity', {'universityDegree': demonId}, UniversityDegree, AddUniversityDegree, universityDegree, savePoint, 0)
+                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-                    freezes= extension.values('freeze')
-                    for freeze in freezes:
-                        freezeId = generalInsert(request, 'freezeDecisionNumber', {'extensionDecisionId': extensionId}, Freeze, AddFreeze, freeze, savePoint, freezeCount)
-                        if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
+                graduateStudiesCount= 0 
+                graduateStudies= GraduateStudies.objects.filter(studentId=demonId)
+                for model in graduateStudies:
+                    id = generalUpdate(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, model, savePoint, graduateStudiesCount)
+                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                    graduateStudiesCount+= 1
 
-                        freezeDuration= freeze.values('freezeDuration')
-                        id = generalInsert(request, 'durationYear', {'freezeDuration': freezeId}, Duration, AddDuration, freezeDuration, savePoint, durationCount)
+                certificateOfExcellenceCount= 0
+                certificateOfExcellence= CertificateOfExcellence.objects.filter(studentId=demonId)
+                for model in certificateOfExcellence:
+                    id = generalUpdate(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, model, savePoint, certificateOfExcellenceCount)
+                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                    certificateOfExcellenceCount+= 1
+
+                adjectiveChangeCount= 0
+                adjectiveChange= AdjectiveChange.objects.filter(studentId=demonId)
+                for model in adjectiveChange:
+                    id = generalUpdate(request, 'adjectiveChangeDecisionNumber', {'studentId': demonId}, AdjectiveChange, AddAdjectiveChange, model, savePoint, adjectiveChangeCount)
+                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                    adjectiveChangeCount+= 1
+                    if 'adjectiveChangeAdjective' in request.POST:
+                        demonstrator.currentAdjective = request.POST['adjectiveChangeAdjective']
+                        Demonstrator.full_clean(self=demonstrator)
+                        Demonstrator.save()
+
+                dispatchCount= 0
+                regularizationCount= 0
+                extensionCount= 0
+                freezeCount= 0
+                durationCount= 0
+                dispatchs= Dispatch.objects.filter(studentId=demonId)
+                for dispatch in dispatchs:
+                    dispatchId = generalUpdate(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, dispatch, savePoint, dispatchCount)
+                    if type(dispatchId) == ErrorDict: return render(request, 'registration/result.html', {'result': dispatchId})
+
+                    regularizations= Regularization.objects.filter(regularizationDecisionId=dispatchId)
+                    for regularization in regularizations:
+                        id = generalUpdate(request, 'regularizationDecisionNumber', {'regularizationDecisionId': dispatchId}, Regularization, AddRegularization, regularization, savePoint, regularizationCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        regularizationCount+= 1
+
+                    dispatchDurations= Duration.objects.filter(dispatchDuration=dispatchId)
+                    for dispatchDuration in dispatchDurations:
+                        id = generalUpdate(request, 'durationYear', {'dispatchDuration': dispatchId}, Duration, AddDuration, dispatchDuration, savePoint, durationCount)
                         if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
                         durationCount+= 1
 
-                        freezeCount+= 1
-                        
+                    languageCourseDurations= Duration.objects.filter(languageCourseDuration=dispatchId)
+                    for languageCourseDuration in languageCourseDurations:
+                        id = generalUpdate(request, 'durationYear', {'languageCourseDuration': dispatchId}, Duration, AddDuration, languageCourseDuration, savePoint, durationCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        durationCount+= 1
 
-                    extensionCount+= 1
+                    alimonyChangeCount= 0
+                    alimonyChange= AlimonyChange.objects.filter(dispatchDecisionId=dispatchId)
+                    for model in alimonyChange:
+                        id = generalInsert(request, 'newAlimony', {'dispatchDecisionId': dispatchId}, AlimonyChange, AddAlimonyChange, model, savePoint, alimonyChangeCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        alimonyChangeCount+= 1
+
+                    universityChangeCount= 0
+                    universityChange= UniversityChange.objects.filter(dispatchDecisionId=dispatchId)
+                    for model in universityChange:
+                        id = generalInsert(request, 'newUniversity', {'dispatchDecisionId': dispatchId}, UniversityChange, AddUniversityChange, model, savePoint, universityChangeCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        universityChangeCount+= 1
+
+                    specializationChangeCount= 0
+                    specializationChange= SpecializationChange.objects.filter(dispatchDecisionId=dispatchId)
+                    for model in specializationChange:
+                        id = generalInsert(request, 'newSpecialization', {'dispatchDecisionId': dispatchId}, SpecializationChange, AddSpecializationChange, model, savePoint, specializationChangeCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        specializationChangeCount+= 1
+
+                    extensions= Extension.objects.filter(dispatchDecisionId=dispatchId)
+                    for extension in extensions:
+                        extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, extension, savePoint, extensionCount)
+                        if type(extensionId) == ErrorDict: return render(request, 'registration/result.html', {'result': extensionId})
+
+                        extensionDuration= Duration.objects.filter(extensionDuration=extensionId)
+                        id = generalUpdate(request, 'durationYear', {'extensionDuration': extensionId}, Duration, AddDuration, extensionDuration, savePoint, durationCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        durationCount+= 1
 
 
-                dispatchCount+= 1
-            
-            alimonyChangeCount= 0
-            alimonyChange= demonstrator.values('alimonyChange')
-            for model in alimonyChange:
-                id = generalInsert(request, 'newAlimony', {'dispatchDecisionId': dispatchId}, AlimonyChange, AddAlimonyChange, model, savePoint, alimonyChangeCount)
-                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                alimonyChangeCount+= 1
+                        freezes= Freeze.objects.filter(extensionDecisionId=extensionId)
+                        for freeze in freezes:
+                            freezeId = generalUpdate(request, 'freezeDecisionNumber', {'extensionDecisionId': extensionId}, Freeze, AddFreeze, freeze, savePoint, freezeCount)
+                            if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
 
-            universityChangeCount= 0
-            universityChange= demonstrator.values('universityChange')
-            for model in universityChange:
-                id = generalInsert(request, 'newUniversity', {'dispatchDecisionId': dispatchId}, UniversityChange, AddUniversityChange, model, savePoint, universityChangeCount)
-                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                universityChangeCount+= 1
+                            freezeDuration= Duration.objects.filter(freezeDuration=freezeId)
+                            id = generalUpdate(request, 'durationYear', {'freezeDuration': freezeId}, Duration, AddDuration, freezeDuration[0], savePoint, durationCount)
+                            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                            durationCount+= 1
 
-            specializationChangeCount= 0
-            specializationChange= demonstrator.values('specializationChange')
-            for model in specializationChange:
-                id = generalInsert(request, 'newSpecialization', {'dispatchDecisionId': dispatchId}, SpecializationChange, AddSpecializationChange, model, savePoint, specializationChangeCount)
-                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                specializationChangeCount+= 1
+                            freezeCount+= 1
+                            
+
+                        extensionCount+= 1
+
+
+                
+
+                    dispatchCount+= 1
+
 
         return render(request, 'registration/result.html', {'result': 'done'})
-        
+
     else:
-        return render(request, 'registration/insert2.html', {'form': demonstrator})
-
-
-
-
-    
+        return render(request, 'registration/update.html', {'form': demonstrators})
+   
