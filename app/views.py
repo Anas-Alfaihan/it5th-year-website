@@ -342,6 +342,19 @@ def UpdateDemonstrator(request, id):
                         if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
                         specializationChangeCount+= 1
 
+
+                        # heeeeeeeeeeeeeeeeeeeeeeeeeeere
+
+                    durationChanges= DurationChange.objects.filter(dispatchDecisionId=dispatchId)
+                    for durationChange in durationChanges:
+                        durationChangeId= durationChange.id
+                        durationObject = Duration.objects.filter(newDuration=durationChangeId)
+                        for obj in durationObject:
+                            id = generalUpdate(request, 'durationYear', {'newDuration': durationChangeId}, Duration, AddDuration, durationObject, savePoint, durationCount)
+                            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                            durationCount+= 1
+
+ 
                     extensions= Extension.objects.filter(dispatchDecisionId=dispatchId)
                     for extension in extensions:
                         extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, extension, savePoint, extensionCount)
@@ -358,18 +371,17 @@ def UpdateDemonstrator(request, id):
                             freezeId = generalUpdate(request, 'freezeDecisionNumber', {'extensionDecisionId': extensionId}, Freeze, AddFreeze, freeze, savePoint, freezeCount)
                             if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
 
-                            freezeDuration= Duration.objects.filter(freezeDuration=freezeId)
-                            id = generalUpdate(request, 'durationYear', {'freezeDuration': freezeId}, Duration, AddDuration, freezeDuration[0], savePoint, durationCount)
-                            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                            durationCount+= 1
+                            freezeDurations= Duration.objects.filter(freezeDuration=freezeId)
+                            for freezeDuration in freezeDurations:
+                                id = generalUpdate(request, 'durationYear', {'freezeDuration': freezeId}, Duration, AddDuration, freezeDuration, savePoint, durationCount)
+                                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                                durationCount+= 1
 
                             freezeCount+= 1
                             
 
                         extensionCount+= 1
-
-
-                
+      
 
                     dispatchCount+= 1
 
@@ -379,3 +391,4 @@ def UpdateDemonstrator(request, id):
     else:
         return render(request, 'registration/update.html', {'form': demonstrators})
    
+
