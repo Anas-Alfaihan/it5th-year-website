@@ -392,3 +392,11 @@ def UpdateDemonstrator(request, id):
         return render(request, 'registration/update.html', {'form': demonstrators})
    
 
+def QueryDemonstrator(request):
+    if request.method=='POST':
+        keysList= list(request.POST.keys())
+        keysList.pop(0)
+        result = Demonstrator.objects.filter(**{fieldName: request.POST[fieldName] for fieldName in keysList} )
+        print(result)
+    
+    return render(request, 'registration/query.html')
