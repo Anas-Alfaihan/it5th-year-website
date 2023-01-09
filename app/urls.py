@@ -9,5 +9,7 @@ urlpatterns = [
     path('logout/', views.Logout, name='logout'),
     path('insert/', views.DemonstratorInsert2, name='insert'),
     path('update/<int:id>', views.UpdateDemonstrator, name='update'),
+    path('query/', views.QueryDemonstrator, name='query'),
+    path('allDemonstrators/', views.getAllDemonstrators, name='allDemonstrators'),
 
 ]
