@@ -4,8 +4,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from .models import*
-from .forms import*
+from django.forms.utils import ErrorDict
+from .models import *
+from .forms import *
+
 
 @login_required(login_url='app:login')
 def Register(request):
@@ -49,334 +51,344 @@ def Logout(request):
     return redirect('app:login')
 
 
+def generalInsert(request, mainField, baseDic, model, addModel, savePoint):
+    id = None
+    for i in range(len(request.POST.getlist(mainField))):
+        dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken']}
+        dic.update(baseDic)
+        for field in model._meta.local_fields:
+            if field.name in request.POST:
+                dic[field.name] = request.POST.getlist(field.name)[i]
+        form = addModel(dic)
+        if form.is_valid():
+            id = form.save()
+        else:
+            transaction.savepoint_rollback(savePoint)
+            return form.errors
+    return id
+
+
 def DemonstratorInsert2(request):
     if request.method == 'POST':
-
         with transaction.atomic():
+            savePoint = transaction.savepoint()
 
-            savePoint= transaction.savepoint()
-            demonId= None
+            demonId = generalInsert(request, 'name', {}, Demonstrator, AddDemonstrator, savePoint)
+            if type(demonId) == ErrorDict: return render(request, 'registration/result.html', {'result': demonId})
 
-            if 'name' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken']}
-                for field in Demonstrator._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST[field.name]
-                form = AddDemonstrator(dic)
-                if form.is_valid():
-                    demonId=form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
+            id = generalInsert(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-            if 'nominationDecisionNumber' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'nominationDecision': demonId}
-                for field in Nomination._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST[field.name]
-                form = AddNomination(dic)
-                if form.is_valid():
-                    form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
+            id = generalInsert(request, 'universityDegreeUniversity', {'universityDegree': demonId}, UniversityDegree, AddUniversityDegree, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-            if 'universityDegreeUniversity' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'universityDegree': demonId}
-                for field in UniversityDegree._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST[field.name]
-                form = AddUniversityDegree(dic)
-                if form.is_valid():
-                    form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
+            id = generalInsert(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-            
-            for i in range(len(request.POST.getlist('graduateStudiesDegree'))):
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'studentId':demonId}
-                for field in GraduateStudies._meta.local_fields:
-                    if field.name in request.POST:
-                        dic[field.name]=request.POST.getlist(field.name)[i]
-                form = AddGraduateStudies(dic)
-                if form.is_valid():
-                    form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
-            
-            for i in range(len(request.POST.getlist('certificateOfExcellenceYear'))):
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'studentId':demonId}
-                for field in CertificateOfExcellence._meta.local_fields:
-                    if field.name in request.POST:
-                        dic[field.name]=request.POST.getlist(field.name)[i]
-                form = AddCertificateOfExcellence(dic)
-                if form.is_valid():
-                    form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
+            id = generalInsert(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-            return render(request, 'registration/result.html', {'result': 'done'})
+        return render(request, 'registration/result.html', {'result': 'done'})
     else:
         return render(request, 'registration/insert.html')
 
 
-def AdjectiveChangeInsert(request):
+def AdjectiveChangeInsert(request, demonId):
     if request.method == 'POST':
         with transaction.atomic():
+            savePoint = transaction.savepoint()
 
-            savePoint= transaction.savepoint()
-            demonId= None
+            id = generalInsert(request, 'adjectiveChangeDecisionNumber', {'studentId': demonId}, AdjectiveChange, AddAdjectiveChange, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-            if 'adjectiveChangeDecisionNumber' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'studentId': demonId}
-                for field in AdjectiveChange._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST[field.name]
-                form = AddAdjectiveChange(dic)
-                if form.is_valid():
-                    form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
-            
-            demonstrator=Demonstrator.objects.get(pk=demonId)
-            demonstrator.currentAdjective=request.POST['adjectiveChangeAdjective']
+            demonstrator = Demonstrator.objects.get(pk=demonId)
+            demonstrator.currentAdjective = request.POST['adjectiveChangeAdjective']
             Demonstrator.full_clean(self=demonstrator)
             Demonstrator.save()
 
-            return render(request, 'registration/result.html', {'result': 'done'})      
+            return render(request, 'registration/result.html', {'result': 'done'})
     else:
         return render(request, 'registration/dispathInsert.html')
 
 
-def DispatchInsert(request):
+def DispatchInsert(request, demonId):
     if request.method == 'POST':
         with transaction.atomic():
 
-            savePoint= transaction.savepoint()
-            demonId= None
-            dispatchId=None
+            savePoint = transaction.savepoint()
 
-            if 'dispatchDecisionNumber' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'studentId': demonId}
-                for field in Dispatch._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST[field.name]
-                form = AddDispatch(dic)
-                if form.is_valid():
-                    dispatchId=form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
+            dispatchId = generalInsert(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, savePoint)
+            if type(dispatchId) == ErrorDict: return render(request, 'registration/result.html', {'result': dispatchId})
 
-            if 'regularizationDecisionNumber' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'regularizationDecisionId': dispatchId}
-                for field in Regularization._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST[field.name]
-                form = AddRegularization(dic)
-                if form.is_valid():
-                    form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
+            id = generalInsert(request, 'regularizationDecisionNumber', {'regularizationDecisionId': dispatchId}, Regularization, AddRegularization, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-            if 'durationYear' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'dispatchDuration': dispatchId}
-                for field in Duration._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST.getlist(field.name)[0]
-                form = AddDuration(dic)
-                if form.is_valid():
-                    form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
+            id = generalInsert(request, 'durationYear', {'dispatchDuration': dispatchId}, Duration, AddDuration, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-            if 'durationYear' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'languageCourseDuration': dispatchId}
-                for field in Duration._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST.getlist(field.name)[0]
-                form = AddDuration(dic)
-                if form.is_valid():
-                    form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
+            id = generalInsert(request, 'durationYear', {'languageCourseDuration': dispatchId}, Duration, AddDuration, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-            return render(request, 'registration/result.html', {'result': 'done'})      
+            return render(request, 'registration/result.html', {'result': 'done'})
     else:
         return render(request, 'registration/dispathInsert.html')
 
 
-def ExtensionInsert(request):
+def ExtensionInsert(request, dispatchId):
     if request.method == 'POST':
         with transaction.atomic():
+            savePoint = transaction.savepoint()
 
-            savePoint= transaction.savepoint()
-            dispatchId= None
-            extensionId=None
+            extensionId = generalInsert(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, savePoint)
+            if type(extensionId) == ErrorDict: return render(request, 'registration/result.html', {'result': extensionId})
 
-            if 'extensionDecisionNumber' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'dispatchDecisionId': dispatchId}
-                for field in Extension._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST[field.name]
-                form = AddExtension(dic)
-                if form.is_valid():
-                    extensionId= form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
+            id = generalInsert(request, 'durationYear', {'extensionDuration': extensionId}, Duration, AddDuration, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-            if 'durationYear' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'extensionDuration': extensionId}
-                for field in Duration._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST[field.name]
-                form = AddDuration(dic)
-                if form.is_valid():
-                    form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
-
-            return render(request, 'registration/result.html', {'result': 'done'})      
+            return render(request, 'registration/result.html', {'result': 'done'})
     else:
         return render(request, 'registration/dispathInsert.html')
 
 
-def FreezeInsert(request):
+def FreezeInsert(request, extensionId):
     if request.method == 'POST':
         with transaction.atomic():
+            savePoint = transaction.savepoint()
 
-            savePoint= transaction.savepoint()
-            extensionId= None
-            freezeId=None
+            freezeId = generalInsert(request, 'freezeDecisionNumber', {'extensionDecisionId': extensionId}, Freeze, AddFreeze, savePoint)
+            if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
 
-            if 'extensionDecisionNumber' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'extensionDecisionId': extensionId}
-                for field in Freeze._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST[field.name]
-                form = AddFreeze(dic)
-                if form.is_valid():
-                    freezeId= form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
+            id = generalInsert(request, 'durationYear', {'freezeDuration': freezeId}, Duration, AddDuration, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-            if 'durationYear' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'freezeDuration': freezeId}
-                for field in Duration._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST[field.name]
-                form = AddDuration(dic)
-                if form.is_valid():
-                    form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
-
-
-            return render(request, 'registration/result.html', {'result': 'done'})      
+            return render(request, 'registration/result.html', {'result': 'done'})
     else:
         return render(request, 'registration/dispathInsert.html')
 
 
-def DurationChangeInsert(request):
+def DurationChangeInsert(request, dispatchId):
     if request.method == 'POST':
         with transaction.atomic():
 
-            savePoint= transaction.savepoint()
-            dispatchId= None
-            durationDhangeId=None
+            savePoint = transaction.savepoint()
+            durationDhangeId = None
 
-            dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'dispatchDecisionId': dispatchId}
+            dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken'], 'dispatchDecisionId': dispatchId}
             form = AddDurationChange(dic)
             if form.is_valid():
-                durationDhangeId= form.save()
+                durationDhangeId = form.save()
             else:
                 transaction.savepoint_rollback(savePoint)
                 return render(request, 'registration/result.html', {'result': form.errors})
 
-            if 'durationYear' in request.POST:
-                dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'newDuration': durationDhangeId}
-                for field in Duration._meta.local_fields:
-                    if field.name in request.POST:
-                            dic[field.name]=request.POST[field.name]
-                form = AddDuration(dic)
-                if form.is_valid():
-                    form.save()
-                else:
-                    transaction.savepoint_rollback(savePoint)
-                    return render(request, 'registration/result.html', {'result': form.errors})
+            id = generalInsert(request, 'durationYear', {'newDuration': durationDhangeId}, Duration, AddDuration, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-
-            return render(request, 'registration/result.html', {'result': 'done'})      
+            return render(request, 'registration/result.html', {'result': 'done'})
     else:
         return render(request, 'registration/dispathInsert.html')
 
 
-def AlimonyChangeInsert(request):
+def AlimonyChangeInsert(request, dispatchId):
     if request.method == 'POST':
         with transaction.atomic():
+            savePoint = transaction.savepoint()
 
-            savePoint= transaction.savepoint()
-            dispatchId= None
+            id = generalInsert(request, 'newAlimony', {'dispatchDecisionId': dispatchId}, AlimonyChange, AddAlimonyChange, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-            dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'dispatchDecisionId': dispatchId, 'newAlimony': request.POST['newAlimony']}
-            form = AddAlimonyChange(dic)
-            if form.is_valid():
-                form.save()
-            else:
-                transaction.savepoint_rollback(savePoint)
-                return render(request, 'registration/result.html', {'result': form.errors})
- 
-            return render(request, 'registration/result.html', {'result': 'done'})      
+            return render(request, 'registration/result.html', {'result': 'done'})
     else:
         return render(request, 'registration/dispathInsert.html')
 
 
-def UniversityChangeInsert(request):
+def UniversityChangeInsert(request, dispatchId):
     if request.method == 'POST':
         with transaction.atomic():
+            savePoint = transaction.savepoint()
 
-            savePoint= transaction.savepoint()
-            dispatchId= None
+            id = generalInsert(request, 'newUniversity', {'dispatchDecisionId': dispatchId}, UniversityChange, AddUniversityChange, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-            dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'dispatchDecisionId': dispatchId, 'newUniversity': request.POST['newUniversity']}
-            form = AddUniversityChange(dic)
-            if form.is_valid():
-                form.save()
-            else:
-                transaction.savepoint_rollback(savePoint)
-                return render(request, 'registration/result.html', {'result': form.errors})
- 
-            return render(request, 'registration/result.html', {'result': 'done'})      
+            return render(request, 'registration/result.html', {'result': 'done'})
     else:
         return render(request, 'registration/dispathInsert.html')
 
 
-def SpecializationChangeInsert(request):
+def SpecializationChangeInsert(request, dispatchId):
     if request.method == 'POST':
         with transaction.atomic():
-            print('hello world!')
-            savePoint= transaction.savepoint()
-            dispatchId= None
+            savePoint = transaction.savepoint()
 
-            dic={'csrfmiddlewaretoken':request.POST['csrfmiddlewaretoken'], 'dispatchDecisionId': dispatchId, 'newSpecialization': request.POST['newSpecialization']}
-            form = AddSpecializationChange(dic)
-            if form.is_valid():
-                form.save()
-            else:
-                transaction.savepoint_rollback(savePoint)
-                return render(request, 'registration/result.html', {'result': form.errors})
- 
-            return render(request, 'registration/result.html', {'result': 'done'})      
+            id = generalInsert(request, 'newSpecialization', {'dispatchDecisionId': dispatchId}, SpecializationChange, AddSpecializationChange, savePoint)
+            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+
+            return render(request, 'registration/result.html', {'result': 'done'})
     else:
         return render(request, 'registration/dispathInsert.html')
+
+
+def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint, i):
+    try:
+        id = None
+        if mainField in request.POST:
+            dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken']}
+            dic.update(baseDic)
+            for field in model._meta.local_fields:
+                if field.name in request.POST:
+                    dic[field.name] = request.POST.getlist(field.name)[i]
+            form = addModel(dic, instance=obj)
+            if form.is_valid():
+                id = form.save()
+            else:
+                transaction.savepoint_rollback(savePoint)
+                return form.errors
+        return id
+    except:
+        print('error')
+
+
+def UpdateDemonstrator(request, id):
+    demonstrators = Demonstrator.objects.filter(pk=id)
+    if request.method == 'POST':
+        with transaction.atomic():
+            savePoint= transaction.savepoint()
+
+            for demonstrator in demonstrators:
+                demonId= generalUpdate(request, 'name', {}, Demonstrator, AddDemonstrator, demonstrator, savePoint, 0)
+                if type(demonId) == ErrorDict: return render(request, 'registration/result.html', {'result': demonId})
+
+                nominations= Nomination.objects.filter(nominationDecision=demonId)
+                for nomination in nominations:
+                    id = generalUpdate(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, nomination, savePoint, 0)
+                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+
+                universityDegrees= UniversityDegree.objects.filter(universityDegree=demonId)
+                for universityDegree in universityDegrees:
+                    id = generalUpdate(request, 'universityDegreeUniversity', {'universityDegree': demonId}, UniversityDegree, AddUniversityDegree, universityDegree, savePoint, 0)
+                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+
+                graduateStudiesCount= 0 
+                graduateStudies= GraduateStudies.objects.filter(studentId=demonId)
+                for model in graduateStudies:
+                    id = generalUpdate(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, model, savePoint, graduateStudiesCount)
+                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                    graduateStudiesCount+= 1
+
+                certificateOfExcellenceCount= 0
+                certificateOfExcellence= CertificateOfExcellence.objects.filter(studentId=demonId)
+                for model in certificateOfExcellence:
+                    id = generalUpdate(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, model, savePoint, certificateOfExcellenceCount)
+                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                    certificateOfExcellenceCount+= 1
+
+                adjectiveChangeCount= 0
+                adjectiveChange= AdjectiveChange.objects.filter(studentId=demonId)
+                for model in adjectiveChange:
+                    id = generalUpdate(request, 'adjectiveChangeDecisionNumber', {'studentId': demonId}, AdjectiveChange, AddAdjectiveChange, model, savePoint, adjectiveChangeCount)
+                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                    adjectiveChangeCount+= 1
+                    if 'adjectiveChangeAdjective' in request.POST:
+                        demonstrator.currentAdjective = request.POST['adjectiveChangeAdjective']
+                        Demonstrator.full_clean(self=demonstrator)
+                        Demonstrator.save()
+
+                dispatchCount= 0
+                regularizationCount= 0
+                extensionCount= 0
+                freezeCount= 0
+                durationCount= 0
+                dispatchs= Dispatch.objects.filter(studentId=demonId)
+                for dispatch in dispatchs:
+                    dispatchId = generalUpdate(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, dispatch, savePoint, dispatchCount)
+                    if type(dispatchId) == ErrorDict: return render(request, 'registration/result.html', {'result': dispatchId})
+
+                    regularizations= Regularization.objects.filter(regularizationDecisionId=dispatchId)
+                    for regularization in regularizations:
+                        id = generalUpdate(request, 'regularizationDecisionNumber', {'regularizationDecisionId': dispatchId}, Regularization, AddRegularization, regularization, savePoint, regularizationCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        regularizationCount+= 1
+
+                    dispatchDurations= Duration.objects.filter(dispatchDuration=dispatchId)
+                    for dispatchDuration in dispatchDurations:
+                        id = generalUpdate(request, 'durationYear', {'dispatchDuration': dispatchId}, Duration, AddDuration, dispatchDuration, savePoint, durationCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        durationCount+= 1
+
+                    languageCourseDurations= Duration.objects.filter(languageCourseDuration=dispatchId)
+                    for languageCourseDuration in languageCourseDurations:
+                        id = generalUpdate(request, 'durationYear', {'languageCourseDuration': dispatchId}, Duration, AddDuration, languageCourseDuration, savePoint, durationCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        durationCount+= 1
+
+                    alimonyChangeCount= 0
+                    alimonyChange= AlimonyChange.objects.filter(dispatchDecisionId=dispatchId)
+                    for model in alimonyChange:
+                        id = generalInsert(request, 'newAlimony', {'dispatchDecisionId': dispatchId}, AlimonyChange, AddAlimonyChange, model, savePoint, alimonyChangeCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        alimonyChangeCount+= 1
+
+                    universityChangeCount= 0
+                    universityChange= UniversityChange.objects.filter(dispatchDecisionId=dispatchId)
+                    for model in universityChange:
+                        id = generalInsert(request, 'newUniversity', {'dispatchDecisionId': dispatchId}, UniversityChange, AddUniversityChange, model, savePoint, universityChangeCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        universityChangeCount+= 1
+
+                    specializationChangeCount= 0
+                    specializationChange= SpecializationChange.objects.filter(dispatchDecisionId=dispatchId)
+                    for model in specializationChange:
+                        id = generalInsert(request, 'newSpecialization', {'dispatchDecisionId': dispatchId}, SpecializationChange, AddSpecializationChange, model, savePoint, specializationChangeCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        specializationChangeCount+= 1
+
+
+                        # heeeeeeeeeeeeeeeeeeeeeeeeeeere
+
+                    durationChanges= DurationChange.objects.filter(dispatchDecisionId=dispatchId)
+                    for durationChange in durationChanges:
+                        durationChangeId= durationChange.id
+                        durationObject = Duration.objects.filter(newDuration=durationChangeId)
+                        for obj in durationObject:
+                            id = generalUpdate(request, 'durationYear', {'newDuration': durationChangeId}, Duration, AddDuration, durationObject, savePoint, durationCount)
+                            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                            durationCount+= 1
+
+ 
+                    extensions= Extension.objects.filter(dispatchDecisionId=dispatchId)
+                    for extension in extensions:
+                        extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, extension, savePoint, extensionCount)
+                        if type(extensionId) == ErrorDict: return render(request, 'registration/result.html', {'result': extensionId})
+
+                        extensionDuration= Duration.objects.filter(extensionDuration=extensionId)
+                        id = generalUpdate(request, 'durationYear', {'extensionDuration': extensionId}, Duration, AddDuration, extensionDuration, savePoint, durationCount)
+                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        durationCount+= 1
+
+
+                        freezes= Freeze.objects.filter(extensionDecisionId=extensionId)
+                        for freeze in freezes:
+                            freezeId = generalUpdate(request, 'freezeDecisionNumber', {'extensionDecisionId': extensionId}, Freeze, AddFreeze, freeze, savePoint, freezeCount)
+                            if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
+
+                            freezeDurations= Duration.objects.filter(freezeDuration=freezeId)
+                            for freezeDuration in freezeDurations:
+                                id = generalUpdate(request, 'durationYear', {'freezeDuration': freezeId}, Duration, AddDuration, freezeDuration, savePoint, durationCount)
+                                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                                durationCount+= 1
+
+                            freezeCount+= 1
+                            
+
+                        extensionCount+= 1
+      
+
+                    dispatchCount+= 1
+
+
+        return render(request, 'registration/result.html', {'result': 'done'})
+
+    else:
+        return render(request, 'registration/update.html', {'form': demonstrators})
+   
+
