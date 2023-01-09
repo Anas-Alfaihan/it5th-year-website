@@ -228,6 +228,10 @@ def SpecializationChangeInsert(request, dispatchId):
         return render(request, 'registration/dispathInsert.html')
 
 
+def getAllDemonstrators(request):
+    return render(request, 'registration/allDemonstrators.html', {'result': Demonstrator.objects.all().values('id', 'name', 'fatherName', 'motherName', 'college')})
+    
+
 def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint, i):
     try:
         id = None
@@ -396,7 +400,8 @@ def QueryDemonstrator(request):
     if request.method=='POST':
         keysList= list(request.POST.keys())
         keysList.pop(0)
-        result = Demonstrator.objects.filter(**{fieldName: request.POST[fieldName] for fieldName in keysList} )
+        result = Demonstrator.objects.filter(**{fieldName: request.POST[fieldName] for fieldName in keysList if request.POST[fieldName] != ""} )
         print(result)
     
     return render(request, 'registration/query.html')
+
