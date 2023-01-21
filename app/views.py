@@ -48,7 +48,7 @@ def Login(request):
 
 def Logout(request):
     logout(request)
-    return redirect('app:login')
+    return redirect('app:home')
 
 
 def generalInsert(request, mainField, baseDic, model, addModel, savePoint):
