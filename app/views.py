@@ -405,3 +405,6 @@ def QueryDemonstrator(request):
     
     return render(request, 'registration/query.html')
 
+
+def home(request):
+    return render(request, 'home/home.html')

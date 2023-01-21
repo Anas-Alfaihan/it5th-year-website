@@ -77,13 +77,13 @@
         <nav>
             <ul>
                 <li>
-                    <a href="#" class="logo"
+                    <a href="{% url 'app:home' %}" class="logo"
                         ><img src="{% static 'images/logo.png' %}" alt="" />
                         <span class="n-i">إدارة العلاقات الثقافية</span></a
                     >
                 </li>
                 <li>
-                    <a href=""
+                    <a href="{% url 'app:home' %}"
                         ><i class="fa-solid fa-house"></i
                         ><span class="n-i">الرئيسية</span></a
                     >
@@ -100,6 +100,12 @@
                     <a href="{% url 'app:insert' %}"
                         ><i class="fa-solid fa-user"></i
                         ><span class="n-i">تسجيل معيد</span></a
+                    >
+                </li>
+                <li>
+                    <a href="{% url 'app:allDemonstrators' %}"
+                        ><i class="fa-solid fa-users"></i
+                        ><span class="n-i">المعيدين</span></a
                     >
                 </li>
                 <li>
