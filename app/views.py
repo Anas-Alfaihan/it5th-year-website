@@ -396,6 +396,10 @@ def UpdateDemonstrator(request, id):
         return render(request, 'registration/update.html', {'form': demonstrators})
    
 
+def deleteDemonstrator(request, id):
+    a= Demonstrator.objects.filter(pk=id).delete()
+
+
 def QueryDemonstrator(request):
     if request.method=='POST':
         keysList= list(request.POST.keys())
@@ -404,4 +408,5 @@ def QueryDemonstrator(request):
         print(result)
     
     return render(request, 'registration/query.html')
+
 
