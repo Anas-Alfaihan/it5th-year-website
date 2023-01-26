@@ -1,33 +1,11 @@
-{% extends "base.html" %} {% block head_title %}Login{% endblock %}
+{% extends "base.html" %} {% block head_title %}المعيدين{% endblock %}
 
 <!-- something here for nothing  -->
-
-{% block content %}
+{% load static %} {% block content %}
 <h2 class="tit">جميع المعيدين</h2>
 <section class="sec">
-    <div class="table-responsive">
-        <table class="table table-striped table-sm">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">الاسم</th>
-                    <th scope="col">اسم الأب</th>
-                    <th scope="col">اسم الأم</th>
-                    <th scope="col">الكلية</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for st in result %}
-                <tr>
-                    <td>{{st.id}}</td>
-                    <td>{{st.name}}</td>
-                    <td>{{st.fatherName}}</td>
-                    <td>{{st.motherName}}</td>
-                    <td>{{st.colleage}}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <data-table src="{{result}} "></data-table>
 </section>
-{% endblock %}
+{% block files %}
+<script src="{% static 'js/table.js' %}" type="module"></script>
+{% endblock %} {% endblock %}

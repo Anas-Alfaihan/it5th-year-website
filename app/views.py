@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -7,6 +7,7 @@ from django.db import transaction
 from django.forms.utils import ErrorDict
 from .models import *
 from .forms import *
+from django.core import serializers
 
 
 @login_required(login_url='app:login')
@@ -229,7 +230,12 @@ def SpecializationChangeInsert(request, dispatchId):
 
 
 def getAllDemonstrators(request):
-    return render(request, 'registration/allDemonstrators.html', {'result': Demonstrator.objects.all().values('id', 'name', 'fatherName', 'motherName', 'college')})
+    # data1 = Demonstrator.objects.all().values()
+    data2 = serializers.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college'))
+    print(data2)
+    
+    
+    return render(request, 'registration/allDemonstrators.html', {'result': data2})
     
 
 def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint, i):
