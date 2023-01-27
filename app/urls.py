@@ -12,5 +12,6 @@ urlpatterns = [
     path('update/<int:id>', views.UpdateDemonstrator, name='update'),
     path('query/', views.QueryDemonstrator, name='query'),
     path('allDemonstrators/', views.getAllDemonstrators, name='allDemonstrators'),
+    path('demonstrator/<int:id>/', views.getDemonstrator, name='demonstrator'),
 
 ]

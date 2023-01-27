@@ -233,9 +233,14 @@ def getAllDemonstrators(request):
     # data1 = Demonstrator.objects.all().values()
     data2 = serializers.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college'))
     print(data2)
-    
-    
     return render(request, 'registration/allDemonstrators.html', {'result': data2})
+
+def getDemonstrator(request, id):
+    demonstrator = serializers.serialize('json',Demonstrator.objects.filter(pk=id))
+    print("hello")
+    print(demonstrator)
+    return render(request, 'registration/allDemonstrators.html', {'demonstrator': demonstrator})
+
     
 
 def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint, i):

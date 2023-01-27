@@ -4,8 +4,9 @@
 {% load static %} {% block content %}
 <h2 class="tit">جميع المعيدين</h2>
 <section class="sec">
-    <data-table src="{{result}} "></data-table>
+  <data-table src="{{result}} "></data-table>
 </section>
-{% block files %}
+
+{{demonstrator}} {% block files %}
 <script src="{% static 'js/table.js' %}" type="module"></script>
 {% endblock %} {% endblock %}
