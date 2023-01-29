@@ -1,0 +1,83 @@
+.bbutton-glow {
+    --glow-length: 20px; /* 50px or less */
+    --glow-inner-color: #fff;
+    --glow-inner-thickness: 2px;
+    --glow-outer-color: hsl(349 100% 90%);
+    --glow-outer-size: 8px;
+    --glow-offset: 0px;
+    --animation-speed: 1200ms;
+    --border-radius: 1.25rem;
+    --svg-offset: 100px; /* no need to change, used for calculations */
+
+    position: relative;
+}
+
+.bbutton-glow svg {
+    position: absolute;
+    inset: calc(var(--svg-offset) / -2);
+    width: calc(100% + var(--svg-offset) + var(--glow-offset));
+    height: calc(100% + var(--svg-offset) + var(--glow-offset));
+    opacity: 0;
+    pointer-events: none;
+}
+
+.gglow,
+.bborder {
+    width: calc(100% - var(--svg-offset) + var(--glow-offset));
+    height: calc(100% - var(--svg-offset) + var(--glow-offset));
+
+    x: calc(var(--svg-offset) / 2 - (var(--glow-offset) / 2));
+    y: calc(var(--svg-offset) / 2 - (var(--glow-offset) / 2));
+    fill: transparent;
+
+    // rx: calc(var(--border-radius) * 1.5);
+    rx: var(--border-radius);
+    //add up to 50
+    stroke-dasharray: var(--glow-length) calc(50px - var(--glow-length));
+    stroke-dashoffset: 0;
+}
+
+.bborder {
+    stroke-width: var(--glow-inner-thickness);
+    stroke: var(--glow-inner-color);
+}
+
+.gglow {
+    stroke-width: var(--glow-outer-size);
+    stroke: var(--glow-outer-color);
+    filter: blur(var(--glow-outer-size));
+}
+
+.bbutton-glow:is(:hover, :focus) svg {
+    animation: glow-visibility var(--animation-speed) ease-in-out forwards;
+}
+
+.bbutton-glow:is(:hover, :focus) :is(.gglow, .bborder) {
+    animation: glow-movement var(--animation-speed) ease-in forwards;
+}
+
+@keyframes glow-visibility {
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    25%,
+    40% {
+        opacity: 1;
+    }
+}
+
+@keyframes glow-movement {
+    0% {
+        stroke-dashoffset: 0px;
+    }
+
+    100% {
+        stroke-dashoffset: -120px;
+    }
+}
+
+.bbutton-glow :is(.bborder, .gglow) {
+    --glow-offset: 10px;
+}

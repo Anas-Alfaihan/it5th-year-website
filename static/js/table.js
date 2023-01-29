@@ -118,10 +118,12 @@ class DataTabler extends HTMLElement {
                 if (index >= start && index < end) return true;
             })
             .forEach((c) => {
-                let r = '<tr>';
+                let r = `<tr>`;
                 r += `<td>${c['pk']}</td>`;
                 this.cols.forEach((col) => {
-                    r += `<td>${c['fields'][col] ? c['fields'][col] : ''}</td>`;
+                    r += `<td><a class="text-decoration-none text-reset" href="/app/demonstrator/${
+                        c['pk']
+                    }">${c['fields'][col] ? c['fields'][col] : ''}</a></td>`;
                 });
                 r += '</tr>';
                 result += r;
