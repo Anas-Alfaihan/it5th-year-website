@@ -1,0 +1,185 @@
+{% extends "base.html" %} {% block head_title %} {{demonstrator.name}}
+{%endblock %} {% load static %} {% block style %}
+<link rel="stylesheet" href="{% static 'css/demonstrator.css' %}" />
+{% endblock %}
+
+<!-- something here for nothing  -->
+{% load static %} {% block content %}
+<h2 class="tit">{{demonstrator.name}}</h2>
+<section class="sec">
+    <class class="container">
+        <div id="nav">
+            <ul>
+                <li class="aactive first">
+                    <button type="button">المعلومات الشخصية</button>
+                </li>
+                <li class="second">
+                    <button type="button">معلومات الاتصال</button>
+                </li>
+                <li class="third">
+                    <button type="button">الحالة الاجتماعية</button>
+                </li>
+                <li class="forth">
+                    <button type="button">الشهادة الجامعية</button>
+                </li>
+            </ul>
+        </div>
+    </class>
+    <div class="container" id="content">
+        <div class="first">
+            <p class="ct">
+                <span> اسم الأب:</span> {{demonstrator.fatherName}}
+            </p>
+            <p class="ct">
+                <span> اسم الأم:</span> {{demonstrator.motherName}}
+            </p>
+            <p class="ct">
+                <span> الجنس:</span>
+                {% if demonstrator.gender == 'male'%} ذكر {% else %} أنثى
+                {%endif%}
+            </p>
+            <p class="ct">
+                <span> تاريخ الميلاد:</span> {{demonstrator.birthDate}}
+            </p>
+        </div>
+        <div class="second" style="display: none">
+            <p class="ct"><span> الإيميل:</span> {{demonstrator.email}}</p>
+            <p class="ct"><span> مكان الإقامة:</span> {{demonstrator.home}}</p>
+            <p class="ct">
+                <span> العنوان الحالي:</span>
+                {{demonstrator.residence}}
+            </p>
+            <p class="ct">
+                <span> رقم الهاتف المحمول:</span> {{demonstrator.mobile}}
+            </p>
+            <p class="ct">
+                <span> رقم الهاتف الأرضي:</span> {{demonstrator.telephone}}
+            </p>
+        </div>
+        <div class="third" style="display: none">
+            <p class="ct">
+                <span> الحالة العائلية:</span> {{demonstrator.maritalStatus}}
+            </p>
+            <p class="ct">
+                <span> الوضع العسكري:</span> {{demonstrator.militarySituation}}
+            </p>
+        </div>
+        <div class="forth" style="display: none">
+            <p class="ct">
+                <span> اسم الأب:</span> {{demonstrator.fatherName}}
+            </p>
+            <p class="ct">
+                <span> اسم الأم:</span> {{demonstrator.motherName}}
+            </p>
+            <p class="ct">
+                <span> الجنس:</span>
+                {% if demonstrator.gender == 'male'%} ذكر {% else %} أنثى
+                {%endif%}
+            </p>
+            <p class="ct">
+                <span> تاريخ الميلاد:</span> {{demonstrator.fatherName}}
+            </p>
+            <p class="ct">
+                <span> تاريخ الميلاد:</span> {{demonstrator.fatherName}}
+            </p>
+        </div>
+    </div>
+</section>
+
+<script>
+    $(document).ready(function () {
+        var nav = $('#nav');
+        var line = $('<div />').addClass('line');
+        line.appendTo(nav);
+        console.log(line);
+
+        var active = nav.find('.aactive');
+        var pos = 0;
+        var wid = 0;
+        let div = $('div.first');
+
+        if (active.length) {
+            pos = active.position().left;
+            wid = active.width();
+            line.css({
+                left: pos,
+                width: wid,
+            });
+        }
+
+        nav.find('ul li button').click(function (e) {
+            e.preventDefault();
+
+            if (
+                !$(this).parent().hasClass('aactive') &&
+                !nav.hasClass('animate')
+            ) {
+                nav.addClass('animate');
+
+                var _this = $(this);
+
+                let div2 = $(
+                    `div.${_this.parent().prop('class').split(' ')[0]}`
+                );
+                div.fadeOut(300, function () {
+                    div2.fadeIn(150);
+                    console.log(_this.parent().prop('class').split(' ')[0]);
+                    div = div2;
+                });
+
+                nav.find('ul li').removeClass('aactive');
+
+                var position = _this.parent().position();
+                var width = _this.parent().width();
+
+                if (position.left >= pos) {
+                    line.animate(
+                        {
+                            width: position.left - pos + width,
+                        },
+                        300,
+                        function () {
+                            line.animate(
+                                {
+                                    width: width,
+                                    left: position.left,
+                                },
+                                150,
+                                function () {
+                                    nav.removeClass('animate');
+                                }
+                            );
+                            _this.parent().addClass('aactive');
+                        }
+                    );
+                } else {
+                    line.animate(
+                        {
+                            left: position.left,
+                            width: pos - position.left + wid,
+                        },
+                        300,
+                        function () {
+                            line.animate(
+                                {
+                                    width: width,
+                                },
+                                150,
+                                function () {
+                                    nav.removeClass('animate');
+                                }
+                            );
+
+                            _this.parent().addClass('aactive');
+                        }
+                    );
+                }
+
+                pos = position.left;
+                wid = width;
+            }
+        });
+    });
+</script>
+
+{% endblock %}
