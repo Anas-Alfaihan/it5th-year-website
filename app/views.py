@@ -97,7 +97,7 @@ def DemonstratorInsert2(request):
 
         return render(request, 'registration/result.html', {'result': 'done'})
     else:
-        return render(request, 'registration/insert.html')
+        return render(request, 'home/insert.html')
 
 
 def AdjectiveChangeInsert(request, demonId):
@@ -239,13 +239,13 @@ def getAllDemonstrators(request):
     # data1 = Demonstrator.objects.all().values()
     data2 = serializers.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college'))
     print(data2)
-    return render(request, 'registration/allDemonstrators.html', {'result': data2})
+    return render(request, 'home/allDemonstrators.html', {'result': data2})
 
 def getDemonstrator(request, id):
-    demonstrator = serializers.serialize('json',Demonstrator.objects.filter(pk=id))
-    print("hello")
+    demonstrator = Demonstrator.objects.filter(pk=id).values()
+    
     print(demonstrator)
-    return render(request, 'registration/allDemonstrators.html', {'demonstrator': demonstrator})
+    return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator[0]})
 
     
 
@@ -420,7 +420,7 @@ def QueryDemonstrator(request):
         result = Demonstrator.objects.filter(**{fieldName: request.POST[fieldName] for fieldName in keysList if request.POST[fieldName] != ""} )
         print(result)
     
-    return render(request, 'registration/query.html')
+    return render(request, 'home/query.html')
 
 
 def home(request):

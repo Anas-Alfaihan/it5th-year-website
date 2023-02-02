@@ -6,4 +6,9 @@
 .fe > div > .card:hover {
     box-shadow: 5px 6px 6px 2px #e9ecef;
     transform: scale(1.1);
+    border-color: #e71d36 !important;
+}
+.fe > div > .card:hover,
+.fe > div > .card > .fa-solid {
+    color: #e71d36;
 }
