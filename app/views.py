@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -8,6 +7,7 @@ from django.forms.utils import ErrorDict
 from .models import *
 from .forms import *
 from django.core import serializers
+from django.contrib import messages
 
 
 @login_required(login_url='app:login')
@@ -40,7 +40,10 @@ def Login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return render(request, 'registration/result.html', {'result': 'admin' if request.user.is_superuser else 'user'})
+            messages.add_message(
+                request, messages.SUCCESS,
+                "أهلاً و سهلاً")
+            return redirect('app:home')
         else:
             return render(request, 'registration/result.html', {'result': 'no such a user'})
 
@@ -49,6 +52,9 @@ def Login(request):
 
 def Logout(request):
     logout(request)
+    messages.add_message(
+                request, messages.ERROR,
+                "تم تسجيل الخروج")
     return redirect('app:home')
 
 

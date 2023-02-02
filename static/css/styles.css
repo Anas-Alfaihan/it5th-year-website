@@ -36,10 +36,12 @@ nav {
     background: rgba(54, 55, 64, 1);
     opacity: 1;
     overflow: hidden;
-    z-index: 999;
+    z-index: 998;
     transition: width 0.2s linear;
     box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
     color: rgb(211, 214, 230);
+    border-top-left-radius: 1rem;
+    border-bottom-left-radius: 1 rem;
 }
 .logo {
     text-align: center;
@@ -121,11 +123,13 @@ main {
 .tit {
     margin: 35px;
 }
-
 .alrt {
-    z-index: 999;
+    position: absolute;
+    top: 0;
+    left: 5px;
+    width: 300px;
+    z-index: 9999;
 }
-
 @font-face {
     font-family: 'nato-sans';
     src: url(../fonts/NotoSansArabic-Regular.ttf);
