@@ -132,7 +132,7 @@ class DataTabler extends HTMLElement {
         let tbody = this.shadowRoot.querySelector('tbody');
         tbody.innerHTML = result;
     }
-
+    
     renderHeader() {
         let header = '<tr>';
         header += `<th scope='col' data-sort="id">#</th>`;
