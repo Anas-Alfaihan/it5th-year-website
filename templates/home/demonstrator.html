@@ -66,24 +66,28 @@
         </div>
         <div class="forth" style="display: none">
             <p class="ct">
-                <span> اسم الأب:</span> {{demonstrator.fatherName}}
+                <span> الكلية:</span>
+                {{demonstrator.universityDegree.universityDegreeCollege}}
             </p>
             <p class="ct">
-                <span> اسم الأم:</span> {{demonstrator.motherName}}
+                <span> الجامعة:</span>
+                {{demonstrator.universityDegree.universityDegreeUniversity}}
             </p>
             <p class="ct">
-                <span> الجنس:</span>
-                {% if demonstrator.gender == 'male'%} ذكر {% else %} أنثى
-                {%endif%}
+                <span> القسم:</span>
+                {{demonstrator.universityDegree.universityDegreeSection}}
             </p>
             <p class="ct">
-                <span> تاريخ الميلاد:</span> {{demonstrator.fatherName}}
+                <span> السنة:</span>
+                {{demonstrator.universityDegree.universityDegreeYear}}
             </p>
             <p class="ct">
-                <span> تاريخ الميلاد:</span> {{demonstrator.fatherName}}
+                <span> المعدل:</span>
+                {{demonstrator.universityDegree.universityDegreeAverage}}
             </p>
         </div>
     </div>
+    
 </section>
 
 <script>

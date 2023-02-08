@@ -10,6 +10,7 @@
     text-decoration: none !important;
     box-sizing: border-box;
     list-style: none;
+    font-family: tajawal;
 }
 
 input,
@@ -21,7 +22,7 @@ select {
 
 body {
     min-height: 100vh;
-    background-color: #dcdcdc;
+    background-color: #f9f9fc;
 }
 ul {
     padding: 0 !important;
@@ -33,13 +34,13 @@ nav {
     bottom: 0;
     width: 90px;
     height: 100%;
-    background: #011627;
+    background: #15074e;
     opacity: 1;
     overflow: hidden;
     z-index: 998;
     transition: width 0.2s linear;
     box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
-    color: rgb(211, 214, 230);
+    color: #f9f9fc;
     border-top-left-radius: 1rem;
     border-bottom-left-radius: 1 rem;
 }
@@ -51,7 +52,7 @@ nav {
 }
 .n-i {
     position: relative;
-    top: 12px;
+    top: 6px;
     margin-right: 10px;
 }
 .logo img {
@@ -67,26 +68,30 @@ nav {
 }
 a {
     position: relative;
-    color: rgb(211, 214, 230);
+    color: #f9f9fc;
     font-size: 14px;
     display: table;
     width: 300px;
     padding: 10px;
     text-decoration: none !important;
 }
+nav > ul > li {
+    margin-bottom: 10px;
+}
 nav > ul > li > a > .fa-solid {
     position: relative;
     width: 70px;
     height: 40px;
-    top: 14px;
-    font-size: 20;
+    top: 10px;
+    font-size: 25px;
     text-align: center;
 }
 a:hover {
-    background: rgba(255, 255, 255, 1);
+    background: #f9f9fc;
+    color: #705fcc;
 }
 nav:hover {
-    width: 280px;
+    width: 290px;
     transition: all 0.5s ease;
 }
 nav:hover + main {
@@ -105,22 +110,22 @@ main {
     padding-right: 100px;
     width: 100%;
     height: 100vh;
-    background: #dcdcdc;
+    background: #f9f9fc;
     opacity: 1;
     overflow: auto;
     transition: all 0.2s linear;
 }
 
 .sec {
-    background: rgba(255, 255, 255, 0.7);
+    background: #f1effa;
     margin: 40px;
     margin-bottom: 100px;
     padding: 20px;
-    border: 1px solid #dcdcdc;
+    border: 1px solid #f9f9fc;
     border-radius: 8px;
     width: 1500px;
     margin: auto;
-    height: 90vh;
+    min-height: 90vh;
 }
 .tit {
     margin: 35px;
@@ -133,6 +138,6 @@ main {
     z-index: 9999;
 }
 @font-face {
-    font-family: 'nato-sans';
-    src: url(../fonts/NotoSansArabic-Regular.ttf);
+    font-family: tajawal;
+    src: url(../fonts/Tajawal-Bold.ttf);
 }

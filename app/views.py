@@ -242,10 +242,10 @@ def getAllDemonstrators(request):
     return render(request, 'home/allDemonstrators.html', {'result': data2})
 
 def getDemonstrator(request, id):
-    demonstrator = Demonstrator.objects.filter(pk=id).values()
-    
+    demonstrator = Demonstrator.objects.select_related('universityDegree').get(pk=id)
+
     print(demonstrator)
-    return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator[0]})
+    return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator})
 
     
 
