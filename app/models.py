@@ -122,13 +122,17 @@ class Dispatch(models.Model):
     backDate = models.DateField(null=True, blank=True)
     innerSupervisor = models.CharField(max_length=50, null=True, blank=True)
     outerSupervisor = models.CharField(max_length=50, null=True, blank=True)
-    lastReport = models.TextField(null=True, blank=True)
-    lastReportDate = models.DateField(null=True, blank=True)
     defenseDate = models.DateField(null=True, blank=True)
     gettingCertificateDate = models.DateField(null=True, blank=True)
     commencementDate = models.DateField(null=True, blank=True)
     atDisposalOfUniversityDate = models.DateField(null=True, blank=True)
     dispatchNotes = models.TextField(null=True, blank=True)
+
+
+class Report(models.Model):
+    dispatchDecisionId = models.ForeignKey(Dispatch, on_delete=models.CASCADE, related_name='report', null=True, blank=True)
+    report = models.TextField(null=True, blank=True)
+    reportDate = models.DateField(null=True, blank=True)
 
 
 class Regularization(models.Model):

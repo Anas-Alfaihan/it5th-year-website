@@ -45,6 +45,12 @@ class AddDispatch(ModelForm):
         exclude = []
 
 
+class AddReport(ModelForm):
+    class Meta:
+        model = Report
+        exclude = []
+
+
 class AddRegularization(ModelForm):
     class Meta:
         model = Regularization

@@ -140,9 +140,20 @@ def DispatchInsert(request, demonId):
     else:
         return render(request, 'home/insert-dispatch.html')
 
+
 def Dispatchget(request, dispatchId):
     ans = Dispatch.objects.get(pk = dispatchId)
     return render(request, 'home/show-dispatch.html', {'dispatch': ans})
+
+
+def ReportInsert(request, dispatchId):
+    if request.method == 'POST':
+        with transaction.atomic():
+            savePoint = transaction.savepoint()
+
+            reportId = generalInsert(request, 'report', {'dispatchDecisionId': dispatchId}, Report, AddReport, savePoint)
+            if type(reportId) == ErrorDict: return render(request, 'registration/result.html', {'result': reportId})
+
 
 def ExtensionInsert(request, dispatchId):
     if request.method == 'POST':
@@ -322,6 +333,7 @@ def UpdateDemonstrator(request, id):
                 extensionCount= 0
                 freezeCount= 0
                 durationCount= 0
+                reportCount= 0
                 dispatchs= Dispatch.objects.filter(studentId=demonId)
                 for dispatch in dispatchs:
                     dispatchId = generalUpdate(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, dispatch, savePoint, dispatchCount)
@@ -377,6 +389,13 @@ def UpdateDemonstrator(request, id):
                             id = generalUpdate(request, 'durationYear', {'newDuration': durationChangeId}, Duration, AddDuration, durationObject, savePoint, durationCount)
                             if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
                             durationCount+= 1
+
+                    
+                    reports= Report.objects.filter(dispatchDecisionId= dispatchId)
+                    for report in reports:
+                        reportId= generalUpdate(request, 'report', {'dispatchDecisionId': dispatchId}, Report, AddReport, report, savePoint, reportCount)
+                        if type(reportId) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        reportCount+=1
 
  
                     extensions= Extension.objects.filter(dispatchDecisionId=dispatchId)
