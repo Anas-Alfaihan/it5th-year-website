@@ -1,0 +1,71 @@
+{% extends "base.html" %} {% block head_title %}create user{% endblock %}
+<!-- something here for nothing  -->
+{% load static %} {% block content %}
+
+<h2>تسجيل قرار إيفاد للطالب</h2>
+
+<section class="sec">
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label for="">رقم القرار</label
+            ><input type="text" name="dispatchDecisionNumber" />
+        </div>
+        <div>
+            <label for="">تاريخ القرار</label
+            ><input type="date" name="dispatchDecisionDate" />
+        </div>
+        <div>
+            <label for="">نوع القرار</label
+            ><select name="dispatchDecisionType" id="">
+                <option value="">...</option>
+                <option value="s">ش.ع</option>
+                <option value="o">و</option>
+                <option value="b">ب</option>
+            </select>
+        </div>
+        <div>
+            <label for="">شهادة الإيفاد</label
+            ><select name="requiredCertificate" id="">
+                <option value="">...</option>
+                <option value="language">لغة</option>
+                <option value="master">ماجستير</option>
+                <option value="ph.d">دكتوراه</option>
+            </select>
+        </div>
+        <div>
+            <label for="">نوع الإيفاد</label
+            ><select name="dispatchType" id="">
+                <option value="">...</option>
+                <option value="inner">داخلي</option>
+                <option value="outer">خارجي</option>
+            </select>
+        </div>
+        <div>
+            <label for="">النفقة</label
+            ><select name="alimony" id="">
+                <option value="">...</option>
+                <option value="grant">منحة</option>
+            </select>
+        </div>
+        <div>
+            <label for="">بلد الإيفاد</label
+            ><input type="text" name="dispatchCountry" />
+        </div>
+        <div>
+            <label for="">جامعة الإيفاد</label
+            ><input type="text" name="dispatchUniversity" />
+        </div>
+        <div>
+            <label for="">المشرف الداخلي</label
+            ><input type="text" name="innerSupervisor" />
+        </div>
+        <div>
+            <label for="">المشرف الخارجي</label
+            ><input type="text" name="outerSupervisor" />
+        </div>
+        <button type="submit">إدخال</button>
+    </form>
+</section>
+
+{% endblock %}

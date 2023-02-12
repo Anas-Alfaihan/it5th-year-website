@@ -138,8 +138,11 @@ def DispatchInsert(request, demonId):
 
             return render(request, 'registration/result.html', {'result': 'done'})
     else:
-        return render(request, 'registration/dispathInsert.html')
+        return render(request, 'home/insert-dispatch.html')
 
+def Dispatchget(request, dispatchId):
+    ans = Dispatch.objects.get(pk = dispatchId)
+    return render(request, 'home/show-dispatch.html', {'dispatch': ans})
 
 def ExtensionInsert(request, dispatchId):
     if request.method == 'POST':
@@ -242,7 +245,7 @@ def getAllDemonstrators(request):
     return render(request, 'home/allDemonstrators.html', {'result': data2})
 
 def getDemonstrator(request, id):
-    demonstrator = Demonstrator.objects.select_related('universityDegree').get(pk=id)
+    demonstrator = Demonstrator.objects.select_related('universityDegree').prefetch_related('dispatch').all().get(pk=id)
 
     print(demonstrator)
     return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator})
@@ -425,3 +428,6 @@ def QueryDemonstrator(request):
 
 def home(request):
     return render(request, 'home/home.html')
+
+def goToHome(request):
+    return redirect('app:home')

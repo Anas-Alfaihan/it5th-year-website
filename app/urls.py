@@ -13,5 +13,8 @@ urlpatterns = [
     path('query/', views.QueryDemonstrator, name='query'),
     path('allDemonstrators/', views.getAllDemonstrators, name='allDemonstrators'),
     path('demonstrator/<int:id>/', views.getDemonstrator, name='demonstrator'),
+    path('dispatch/<int:demonId>/', views.DispatchInsert, name='dispatch'),
+    path('getdispatch/<int:dispatchId>/', views.Dispatchget, name='getdispatch'),
+
 
 ]

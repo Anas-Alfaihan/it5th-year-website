@@ -53,10 +53,10 @@ class DataTabler extends HTMLElement {
         const nav = document.createElement('div');
         const prevButton = document.createElement('button');
         prevButton.classList.add('btn', 'btn-outline-secondary');
-        prevButton.innerHTML = 'Previous';
+        prevButton.innerHTML = 'السابق';
         const nextButton = document.createElement('button');
         nextButton.classList.add('btn', 'btn-outline-secondary', 'mx-2');
-        nextButton.innerHTML = 'Next';
+        nextButton.innerHTML = 'التالي';
         nav.append(prevButton, nextButton);
 
         const div2 = document.createElement('div');
@@ -132,7 +132,7 @@ class DataTabler extends HTMLElement {
         let tbody = this.shadowRoot.querySelector('tbody');
         tbody.innerHTML = result;
     }
-    
+
     renderHeader() {
         let header = '<tr>';
         header += `<th scope='col' data-sort="id">#</th>`;

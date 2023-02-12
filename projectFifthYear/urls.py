@@ -16,10 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.generic.base import RedirectView
+from app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('app/', include('app.urls', namespace='app'),),
+    path('', views.goToHome, name='goToHome'),
     
 ]
 #re_path('', RedirectView.as_view(url='app', permanent=False), name='index'),

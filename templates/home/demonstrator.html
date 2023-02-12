@@ -22,6 +22,9 @@
                 <li class="forth">
                     <button type="button">الشهادة الجامعية</button>
                 </li>
+                <li class="fifth">
+                    <button type="button">الإيفادات</button>
+                </li>
             </ul>
         </div>
     </class>
@@ -35,8 +38,7 @@
             </p>
             <p class="ct">
                 <span> الجنس:</span>
-                {% if demonstrator.gender == 'male'%} ذكر {% else %} أنثى
-                {%endif%}
+                {{demonstrator.get_gender_display}}
             </p>
             <p class="ct">
                 <span> تاريخ الميلاد:</span> {{demonstrator.birthDate}}
@@ -58,10 +60,12 @@
         </div>
         <div class="third" style="display: none">
             <p class="ct">
-                <span> الحالة العائلية:</span> {{demonstrator.maritalStatus}}
+                <span> الحالة العائلية:</span>
+                {{demonstrator.get_maritalStatus_display}}
             </p>
             <p class="ct">
-                <span> الوضع العسكري:</span> {{demonstrator.militarySituation}}
+                <span> الوضع العسكري:</span>
+                {{demonstrator.get_militarySituation_display}}
             </p>
         </div>
         <div class="forth" style="display: none">
@@ -86,11 +90,50 @@
                 {{demonstrator.universityDegree.universityDegreeAverage}}
             </p>
         </div>
+        <div class="fifth" style="display: none">
+            <div class="row justify-content-center">
+                {% for i in demonstrator.dispatch.all %}
+                <div class="ccard col-10" onclick="goto('{{i.id}}')">
+                    <p class="ct">
+                        <span>شهادة الإيفاد:</span
+                        >{{i.get_dispatchType_display}}
+                    </p>
+                    <p class="ct">
+                        <span>نوع الإيفاد:</span
+                        >{{i.get_requiredCertificate_display}}
+                    </p>
+                    <p class="ct">
+                        <span>النفقة:</span>{{i.get_alimony_display}}
+                    </p>
+                    <p class="ct">
+                        <span>بلد الإيفاد:</span>{{i.dispatchCountry}}
+                    </p>
+                    <p class="ct">
+                        <span>جامعة الإيفاد:</span>{{i.dispatchUniversity}}
+                    </p>
+                    <p class="ct">
+                        <span>تاريخ آخر تقرير:</span>{{i.lastReportDate}}
+                    </p>
+                </div>
+                {% endfor %} {% if not demonstrator.dispatch.all%} لا يوجد إيفاد
+                بعد
+            </div>
+            {% endif %}
+        </div>
+        <div class="row justify-content-center">
+            <a
+                href="/app/dispatch/{{demonstrator.id}}"
+                class="btn btn-outline-primary col-4 mb-5 mt-3"
+                >إضافة إيفاد جديد</a
+            >
+        </div>
     </div>
-    
 </section>
 
 <script>
+    function goto(id) {
+        window.location.href = `/app/getdispatch/${id}`;
+    }
     $(document).ready(function () {
         var nav = $('#nav');
         var line = $('<div />').addClass('line');

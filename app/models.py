@@ -101,6 +101,8 @@ class GraduateStudies(models.Model):
 
 
 class Dispatch(models.Model):
+
+
     studentId = models.ForeignKey(
         Demonstrator, on_delete=models.CASCADE, related_name='dispatch', null=True, blank=True)
     dispatchDecisionNumber = models.IntegerField(null=True, blank=True)

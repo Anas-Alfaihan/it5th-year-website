@@ -39,12 +39,27 @@
     font-size: 14px;
 }
 
-#content > div {
-    border: 1px solid #ff9f1c;
-    padding: 20px 20px 0 0;
+#content {
+    border: 1px solid #f1effa;
+    background-color: #f9f9fc;
+    padding: 30px 30px 0 0;
     border-radius: 0.5rem;
+    min-height: 50vh;
     font-size: 24px;
 }
+
+.ccard {
+    border: 2px solid #8675eb;
+    margin: 5px 5px 10px 0;
+    padding: 30px;
+    border-radius: 0.5rem;
+    transition: 0.5s;
+    cursor: pointer;
+}
+.ccard:hover {
+    border-color: #ff1847;
+}
+
 .ct > span {
     display: inline-block;
     margin-left: 13px;
