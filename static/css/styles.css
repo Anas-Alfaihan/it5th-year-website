@@ -74,6 +74,7 @@ a {
     width: 300px;
     padding: 10px;
     text-decoration: none !important;
+    font-weight: bold;
 }
 nav > ul > li {
     margin-bottom: 10px;
@@ -139,5 +140,5 @@ main {
 }
 @font-face {
     font-family: tajawal;
-    src: url(../fonts/Tajawal-Bold.ttf);
+    src: url(../fonts/Tajawal-Regular.ttf);
 }

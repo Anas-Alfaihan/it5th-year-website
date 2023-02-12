@@ -5,6 +5,9 @@ templater.innerHTML = `
 <style>
 @import "/static/bootstrap-5.2.0/dist/css/bootstrap.rtl.min.css";
 @import "/static/fontawesome-free-6.2.1-web/css/all.css";
+table{
+    background-color: #f9f9fc
+}
 button{
     width: 100px
 }
@@ -40,7 +43,7 @@ class DataTabler extends HTMLElement {
         this.shadowRoot.appendChild(templater.content.cloneNode(true));
         const div1 = document.createElement('div');
         const table = document.createElement('table');
-        table.classList.add('table', 'table-striped');
+        table.classList.add('table', 'table-hover');
         const thead = document.createElement('thead');
         const tbody = document.createElement('tbody');
         tbody.classList.add('table-group-divider');
@@ -52,10 +55,10 @@ class DataTabler extends HTMLElement {
 
         const nav = document.createElement('div');
         const prevButton = document.createElement('button');
-        prevButton.classList.add('btn', 'btn-outline-secondary');
+        prevButton.classList.add('btn', 'btn-outline-primary');
         prevButton.innerHTML = 'السابق';
         const nextButton = document.createElement('button');
-        nextButton.classList.add('btn', 'btn-outline-secondary', 'mx-2');
+        nextButton.classList.add('btn', 'btn-outline-primary', 'mx-2');
         nextButton.innerHTML = 'التالي';
         nav.append(prevButton, nextButton);
 

@@ -30,95 +30,180 @@
     </class>
     <div class="container" id="content">
         <div class="first">
-            <p class="ct">
-                <span> اسم الأب:</span> {{demonstrator.fatherName}}
-            </p>
-            <p class="ct">
-                <span> اسم الأم:</span> {{demonstrator.motherName}}
-            </p>
-            <p class="ct">
-                <span> الجنس:</span>
-                {{demonstrator.get_gender_display}}
-            </p>
-            <p class="ct">
-                <span> تاريخ الميلاد:</span> {{demonstrator.birthDate}}
-            </p>
-        </div>
-        <div class="second" style="display: none">
-            <p class="ct"><span> الإيميل:</span> {{demonstrator.email}}</p>
-            <p class="ct"><span> مكان الإقامة:</span> {{demonstrator.home}}</p>
-            <p class="ct">
-                <span> العنوان الحالي:</span>
-                {{demonstrator.residence}}
-            </p>
-            <p class="ct">
-                <span> رقم الهاتف المحمول:</span> {{demonstrator.mobile}}
-            </p>
-            <p class="ct">
-                <span> رقم الهاتف الأرضي:</span> {{demonstrator.telephone}}
-            </p>
-        </div>
-        <div class="third" style="display: none">
-            <p class="ct">
-                <span> الحالة العائلية:</span>
-                {{demonstrator.get_maritalStatus_display}}
-            </p>
-            <p class="ct">
-                <span> الوضع العسكري:</span>
-                {{demonstrator.get_militarySituation_display}}
-            </p>
-        </div>
-        <div class="forth" style="display: none">
-            <p class="ct">
-                <span> الكلية:</span>
-                {{demonstrator.universityDegree.universityDegreeCollege}}
-            </p>
-            <p class="ct">
-                <span> الجامعة:</span>
-                {{demonstrator.universityDegree.universityDegreeUniversity}}
-            </p>
-            <p class="ct">
-                <span> القسم:</span>
-                {{demonstrator.universityDegree.universityDegreeSection}}
-            </p>
-            <p class="ct">
-                <span> السنة:</span>
-                {{demonstrator.universityDegree.universityDegreeYear}}
-            </p>
-            <p class="ct">
-                <span> المعدل:</span>
-                {{demonstrator.universityDegree.universityDegreeAverage}}
-            </p>
-        </div>
-        <div class="fifth" style="display: none">
-            <div class="row justify-content-center">
-                {% for i in demonstrator.dispatch.all %}
-                <div class="ccard col-10" onclick="goto('{{i.id}}')">
+            <div class="grd">
+                <div class="gr-1">
                     <p class="ct">
-                        <span>شهادة الإيفاد:</span
-                        >{{i.get_dispatchType_display}}
+                        <span> اسم الأب:</span>
                     </p>
                     <p class="ct">
-                        <span>نوع الإيفاد:</span
-                        >{{i.get_requiredCertificate_display}}
+                        <span> اسم الأم:</span>
                     </p>
                     <p class="ct">
-                        <span>النفقة:</span>{{i.get_alimony_display}}
+                        <span> الجنس:</span>
                     </p>
                     <p class="ct">
-                        <span>بلد الإيفاد:</span>{{i.dispatchCountry}}
-                    </p>
-                    <p class="ct">
-                        <span>جامعة الإيفاد:</span>{{i.dispatchUniversity}}
-                    </p>
-                    <p class="ct">
-                        <span>تاريخ آخر تقرير:</span>{{i.lastReportDate}}
+                        <span> تاريخ الميلاد:</span>
                     </p>
                 </div>
-                {% endfor %} {% if not demonstrator.dispatch.all%} لا يوجد إيفاد
-                بعد
+                <div class="gr-2">
+                    <p class="ct">{{demonstrator.fatherName}}</p>
+                    <p class="ct">{{demonstrator.motherName}}</p>
+                    <p class="ct">{{demonstrator.get_gender_display}}</p>
+                    <p class="ct">
+                        {{demonstrator.birthDate|date:"SHORT_DATE_FORMAT"}}
+                    </p>
+                </div>
             </div>
-            {% endif %}
+        </div>
+        <div class="second" style="display: none">
+            <div class="grd">
+                <div class="gr-1">
+                    <p class="ct"><span> الإيميل:</span></p>
+                    <p class="ct"><span> مكان الإقامة:</span></p>
+                    <p class="ct">
+                        <span> العنوان الحالي:</span>
+                    </p>
+                    <p class="ct">
+                        <span> الهاتف المحمول:</span>
+                    </p>
+                    <p class="ct">
+                        <span> رقم الهاتف الأرضي:</span>
+                    </p>
+                </div>
+                <div class="gr-2">
+                    <p class="ct">{{demonstrator.email}}</p>
+                    <p class="ct">{{demonstrator.home}}</p>
+                    <p class="ct">{{demonstrator.residence}}</p>
+                    <p class="ct">{{demonstrator.mobile}}</p>
+                    <p class="ct">{{demonstrator.telephone}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="third" style="display: none">
+            <div class="grd">
+                <div class="gr-1">
+                    <p class="ct">
+                        <span> الحالة العائلية:</span>
+                    </p>
+                    <p class="ct">
+                        <span> الوضع العسكري:</span>
+                    </p>
+                </div>
+                <div class="gr-2">
+                    <p class="ct">{{demonstrator.get_maritalStatus_display}}</p>
+                    <p class="ct">
+                        {{demonstrator.get_militarySituation_display}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="forth" style="display: none">
+            <div class="grd">
+                <div class="gr-1">
+                    <p class="ct">
+                        <span> الكلية:</span>
+                    </p>
+                    <p class="ct">
+                        <span> الجامعة:</span>
+                    </p>
+                    <p class="ct">
+                        <span> القسم:</span>
+                    </p>
+                    <p class="ct">
+                        <span> السنة:</span>
+                    </p>
+                    <p class="ct">
+                        <span> المعدل:</span>
+                    </p>
+                </div>
+                <div class="gr-2">
+                    <p class="ct">
+                        {{demonstrator.universityDegree.universityDegreeCollege}}
+                    </p>
+                    <p class="ct">
+                        {{demonstrator.universityDegree.universityDegreeUniversity}}
+                    </p>
+                    <p class="ct">
+                        {{demonstrator.universityDegree.universityDegreeSection}}
+                    </p>
+                    <p class="ct">
+                        {{demonstrator.universityDegree.universityDegreeYear}}
+                    </p>
+                    <p class="ct">
+                        {{demonstrator.universityDegree.universityDegreeAverage}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="fifth" style="display: none">
+            <div class="row justify-content-center mx-auto">
+                <div class="accordion" id="efads">
+                    {% for i in demonstrator.dispatch.all %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="efad-{{i.id}}">
+                            <button
+                                class="accordion-button collapsed ct"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#info-{{i.id}}"
+                                aria-expanded="false"
+                                aria-controls="info-{{i.id}}"
+                            >
+                                <span>نوع الإيفاد:</span
+                                >{{i.get_requiredCertificate_display}}
+                            </button>
+                        </h2>
+                        <div
+                            class="accordion-collapse collapse"
+                            id="info-{{i.id}}"
+                            aria-labelledby="efad-{{i.id}}"
+                            data-bs-parent="#efads"
+                        >
+                            <div class="accordion-body">
+                                <div class="row">
+                                    <div class="col-12 row g-0">
+                                        <p
+                                            class="text-lead text-muted fs-6 col-2"
+                                        >
+                                            رقم القرار
+                                            /{{i.dispatchDecisionNumber}}/{{i.dispatchDecisionType}}
+                                        </p>
+                                        <p
+                                            class="text-lead text-muted fs-6 col-2"
+                                        >
+                                            تاريخ
+                                            {{i.dispatchDecisionDate|date:"SHORT_DATE_FORMAT"}}
+                                        </p>
+                                    </div>
+                                </div>
+                                <p class="ct">
+                                    <span>شهادة الإيفاد:</span
+                                    >{{i.get_dispatchType_display}}
+                                </p>
+                                <p class="ct">
+                                    <span>النفقة:</span
+                                    >{{i.get_alimony_display}}
+                                </p>
+                                <p class="ct">
+                                    <span>بلد الإيفاد:</span
+                                    >{{i.dispatchCountry}}
+                                </p>
+                                <p class="ct">
+                                    <span>جامعة الإيفاد:</span
+                                    >{{i.dispatchUniversity}}
+                                </p>
+                                <p class="ct">
+                                    <span>تاريخ آخر تقرير:</span
+                                    >{{i.lastReportDate}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %} {% if not demonstrator.dispatch.all%} لا يوجد
+                    إيفاد بعد
+                </div>
+                {% endif %}
+            </div>
         </div>
         <div class="row justify-content-center">
             <a
