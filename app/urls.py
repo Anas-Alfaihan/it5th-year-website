@@ -4,6 +4,7 @@ from . import views
 app_name = 'app'
 
 urlpatterns = [
+    path('', views.home, name='home'),
     path('register/', views.Register, name='register'),
     path('login/', views.Login, name='login'),
     path('logout/', views.Logout, name='logout'),
@@ -11,5 +12,9 @@ urlpatterns = [
     path('update/<int:id>', views.UpdateDemonstrator, name='update'),
     path('query/', views.QueryDemonstrator, name='query'),
     path('allDemonstrators/', views.getAllDemonstrators, name='allDemonstrators'),
+    path('demonstrator/<int:id>/', views.getDemonstrator, name='demonstrator'),
+    path('dispatch/<int:demonId>/', views.DispatchInsert, name='dispatch'),
+    path('getdispatch/<int:dispatchId>/', views.Dispatchget, name='getdispatch'),
+
 
 ]

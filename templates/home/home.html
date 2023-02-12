@@ -1,0 +1,124 @@
+{% extends "base.html" %} {% block head_title %}الصفحة الرئيسية{% endblock %}
+<!-- something not usefull -->
+{% load static %} {% block style %}
+<link rel="stylesheet" href="{% static 'css/home.css'%}" /> {% endblock %}
+{%block content %}
+
+<h2 class="tit">الصفحة الرئيسية</h2>
+
+<section class="sec">
+    <div class="container w-100 text-center my-5">
+        <div class="row">
+            <div class="col-4">
+                <div class="card shadow">
+                    <div class="card-content">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div class="text-right">
+                                    <h3>278</h3>
+                                    <span>المعيدين</span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i
+                                        class="fa-solid fa-user fs-2"
+                                        style="color: #8675eb"
+                                    ></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card shadow">
+                    <div class="card-content">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div class="text-right">
+                                    <h3>278</h3>
+                                    <span>ماجستير</span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i
+                                        class="fa-solid fa-user fs-2"
+                                        style="color: #8675eb"
+                                    ></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card shadow">
+                    <div class="card-content">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div class="text-right">
+                                    <h3>278</h3>
+                                    <span>دكتوراه</span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i
+                                        class="fa-solid fa-user fs-2"
+                                        style="color: #8675eb"
+                                    ></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="opacity-25" style="margin-top: 100px; border-color: #2ec4b6" />
+
+    <div class="container mt-5 w-100">
+        <div class="row fe">
+            <div class="col-4">
+                <div class="card border-dark mb-3 mx-auto">
+                    <h5 class="card-header">
+                        <i class="fa-solid fa-user-tie"></i>
+                        <span class="mr-3"> تسجيل موظف </span>
+                    </h5>
+                    <div class="card-body text-dark">
+                        <p class="card-text">
+                            Some quick example text to build on the card title
+                            and make up the bulk of the card's content.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card border-dark mb-3 mx-auto">
+                    <h5 class="card-header">
+                        <i class="fa-solid fa-user"></i>
+                        <span class="mr-3"> تسجيل معيد </span>
+                    </h5>
+                    <div class="card-body text-dark">
+                        <p class="card-text">
+                            Some quick example text to build on the card title
+                            and make up the bulk of the card's content.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card border-dark mb-3 mx-auto align-baseline">
+                    <h5 class="card-header">
+                        <i class="fa-solid fa-users"></i>
+                        <span class="mr-3"> المعيدين</span>
+                    </h5>
+                    <div class="card-body text-dark">
+                        <p class="card-text">
+                            Some quick example text to build on the card title
+                            and make up the bulk of the card's content.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

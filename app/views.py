@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -7,6 +6,8 @@ from django.db import transaction
 from django.forms.utils import ErrorDict
 from .models import *
 from .forms import *
+from django.core import serializers
+from django.contrib import messages
 
 
 @login_required(login_url='app:login')
@@ -39,7 +40,10 @@ def Login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return render(request, 'registration/result.html', {'result': 'admin' if request.user.is_superuser else 'user'})
+            messages.add_message(
+                request, messages.SUCCESS,
+                "أهلاً و سهلاً")
+            return redirect('app:home')
         else:
             return render(request, 'registration/result.html', {'result': 'no such a user'})
 
@@ -48,7 +52,10 @@ def Login(request):
 
 def Logout(request):
     logout(request)
-    return redirect('app:login')
+    messages.add_message(
+                request, messages.ERROR,
+                "تم تسجيل الخروج")
+    return redirect('app:home')
 
 
 def generalInsert(request, mainField, baseDic, model, addModel, savePoint):
@@ -90,7 +97,7 @@ def DemonstratorInsert2(request):
 
         return render(request, 'registration/result.html', {'result': 'done'})
     else:
-        return render(request, 'registration/insert.html')
+        return render(request, 'home/insert.html')
 
 
 def AdjectiveChangeInsert(request, demonId):
@@ -131,7 +138,21 @@ def DispatchInsert(request, demonId):
 
             return render(request, 'registration/result.html', {'result': 'done'})
     else:
-        return render(request, 'registration/dispathInsert.html')
+        return render(request, 'home/insert-dispatch.html')
+
+
+def Dispatchget(request, dispatchId):
+    ans = Dispatch.objects.get(pk = dispatchId)
+    return render(request, 'home/show-dispatch.html', {'dispatch': ans})
+
+
+def ReportInsert(request, dispatchId):
+    if request.method == 'POST':
+        with transaction.atomic():
+            savePoint = transaction.savepoint()
+
+            reportId = generalInsert(request, 'report', {'dispatchDecisionId': dispatchId}, Report, AddReport, savePoint)
+            if type(reportId) == ErrorDict: return render(request, 'registration/result.html', {'result': reportId})
 
 
 def ExtensionInsert(request, dispatchId):
@@ -229,7 +250,17 @@ def SpecializationChangeInsert(request, dispatchId):
 
 
 def getAllDemonstrators(request):
-    return render(request, 'registration/allDemonstrators.html', {'result': Demonstrator.objects.all().values('id', 'name', 'fatherName', 'motherName', 'college')})
+    # data1 = Demonstrator.objects.all().values()
+    data2 = serializers.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college'))
+    print(data2)
+    return render(request, 'home/allDemonstrators.html', {'result': data2})
+
+def getDemonstrator(request, id):
+    demonstrator = Demonstrator.objects.select_related('universityDegree').prefetch_related('dispatch').all().get(pk=id)
+
+    print(demonstrator)
+    return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator})
+
     
 
 def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint, i):
@@ -302,6 +333,7 @@ def UpdateDemonstrator(request, id):
                 extensionCount= 0
                 freezeCount= 0
                 durationCount= 0
+                reportCount= 0
                 dispatchs= Dispatch.objects.filter(studentId=demonId)
                 for dispatch in dispatchs:
                     dispatchId = generalUpdate(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, dispatch, savePoint, dispatchCount)
@@ -358,6 +390,13 @@ def UpdateDemonstrator(request, id):
                             if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
                             durationCount+= 1
 
+                    
+                    reports= Report.objects.filter(dispatchDecisionId= dispatchId)
+                    for report in reports:
+                        reportId= generalUpdate(request, 'report', {'dispatchDecisionId': dispatchId}, Report, AddReport, report, savePoint, reportCount)
+                        if type(reportId) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                        reportCount+=1
+
  
                     extensions= Extension.objects.filter(dispatchDecisionId=dispatchId)
                     for extension in extensions:
@@ -396,10 +435,6 @@ def UpdateDemonstrator(request, id):
         return render(request, 'registration/update.html', {'form': demonstrators})
    
 
-def deleteDemonstrator(request, id):
-    a= Demonstrator.objects.filter(pk=id).delete()
-
-
 def QueryDemonstrator(request):
     if request.method=='POST':
         keysList= list(request.POST.keys())
@@ -407,6 +442,11 @@ def QueryDemonstrator(request):
         result = Demonstrator.objects.filter(**{fieldName: request.POST[fieldName] for fieldName in keysList if request.POST[fieldName] != ""} )
         print(result)
     
-    return render(request, 'registration/query.html')
+    return render(request, 'home/query.html')
 
 
+def home(request):
+    return render(request, 'home/home.html')
+
+def goToHome(request):
+    return redirect('app:home')
