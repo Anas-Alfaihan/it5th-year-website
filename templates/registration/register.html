@@ -4,30 +4,34 @@
 
 {% block content %}
 <form class="register-form form" method="POST">
-    {% csrf_token %}
+  {% csrf_token %}
 
-    <div class="form-input">
-        <label for="">اسم المستخدم: </label>
-        <input type="text" name="username" required />
-    </div>
-    <div class="form-input">
-        <label for="">الاسم الأول: </label>
-        <input type="text" name="firstName" required />
-    </div>
-    <div class="form-input">
-        <label for="">الاسم الأخير: </label>
-        <input type="text" name="lastName" required />
-    </div>
-    <div class="form-input">
-        <label for="">الإيميل: </label>
-        <input type="email" name="email" required />
-    </div>
-    <div class="form-input">
-        <label for="">كلمة السر: </label>
-        <input type="password" name="password" required />
-    </div>
-    <div class="form-input">
-        <input type="submit" value="إنشاء حساب" />
-    </div>
+  <div class="form-input">
+    <label for="">اسم المستخدم: </label>
+    <input type="text" name="username" required />
+  </div>
+  <div class="form-input">
+    <label for="">الاسم الأول: </label>
+    <input type="text" name="firstName" required />
+  </div>
+  <div class="form-input">
+    <label for="">الاسم الأخير: </label>
+    <input type="text" name="lastName" required />
+  </div>
+  <div class="form-input">
+    <label for="">السماحية: </label>
+    <input type="text" name="permissions" required />
+  </div>
+  <div class="form-input">
+    <label for="">الإيميل: </label>
+    <input type="email" name="email" required />
+  </div>
+  <div class="form-input">
+    <label for="">كلمة السر: </label>
+    <input type="password" name="password" required />
+  </div>
+  <div class="form-input">
+    <input type="submit" value="إنشاء حساب" />
+  </div>
 </form>
 {% endblock %}
