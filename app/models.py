@@ -1,5 +1,11 @@
 from django.db import models
 from app.constantVariables import *
+from django.contrib.auth.models import User
+
+
+class Permissions(models.Model):
+    userId= models.ManyToManyField(User, related_name='permissions', blank=True)
+    permissionsCollege = models.CharField(max_length=100, null=True, blank=True)
 
 
 class Demonstrator(models.Model):

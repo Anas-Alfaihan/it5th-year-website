@@ -22,6 +22,9 @@ def Register(request):
                 password=request.POST['password'],
                 email=request.POST['email']
             )
+            for perm in request.POST.getlist('permissions'):
+                permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
+                user.permissions.add(permission.id)
             return render(request, 'registration/result.html', {'result': 'registeration success'})
         else:
             return render(request, 'registration/result.html', {'result': 'denied'})
@@ -255,13 +258,13 @@ def getAllDemonstrators(request):
     print(data2)
     return render(request, 'home/allDemonstrators.html', {'result': data2})
 
+
 def getDemonstrator(request, id):
     demonstrator = Demonstrator.objects.select_related('universityDegree').prefetch_related('dispatch').all().get(pk=id)
 
     print(demonstrator)
     return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator})
-
-    
+   
 
 def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint, i):
     try:
@@ -360,26 +363,23 @@ def UpdateDemonstrator(request, id):
                     alimonyChangeCount= 0
                     alimonyChange= AlimonyChange.objects.filter(dispatchDecisionId=dispatchId)
                     for model in alimonyChange:
-                        id = generalInsert(request, 'newAlimony', {'dispatchDecisionId': dispatchId}, AlimonyChange, AddAlimonyChange, model, savePoint, alimonyChangeCount)
+                        id = generalUpdate(request, 'newAlimony', {'dispatchDecisionId': dispatchId}, AlimonyChange, AddAlimonyChange, model, savePoint, alimonyChangeCount)
                         if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
                         alimonyChangeCount+= 1
 
                     universityChangeCount= 0
                     universityChange= UniversityChange.objects.filter(dispatchDecisionId=dispatchId)
                     for model in universityChange:
-                        id = generalInsert(request, 'newUniversity', {'dispatchDecisionId': dispatchId}, UniversityChange, AddUniversityChange, model, savePoint, universityChangeCount)
+                        id = generalUpdate(request, 'newUniversity', {'dispatchDecisionId': dispatchId}, UniversityChange, AddUniversityChange, model, savePoint, universityChangeCount)
                         if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
                         universityChangeCount+= 1
 
                     specializationChangeCount= 0
                     specializationChange= SpecializationChange.objects.filter(dispatchDecisionId=dispatchId)
                     for model in specializationChange:
-                        id = generalInsert(request, 'newSpecialization', {'dispatchDecisionId': dispatchId}, SpecializationChange, AddSpecializationChange, model, savePoint, specializationChangeCount)
+                        id = generalUpdate(request, 'newSpecialization', {'dispatchDecisionId': dispatchId}, SpecializationChange, AddSpecializationChange, model, savePoint, specializationChangeCount)
                         if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
                         specializationChangeCount+= 1
-
-
-                        # heeeeeeeeeeeeeeeeeeeeeeeeeeere
 
                     durationChanges= DurationChange.objects.filter(dispatchDecisionId=dispatchId)
                     for durationChange in durationChanges:
@@ -447,6 +447,11 @@ def QueryDemonstrator(request):
 
 def home(request):
     return render(request, 'home/home.html')
+
+def Test(request):
+    permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+    print('permissions: ' , permissionList)
+    return render(request, 'registration/result.html', {'result': 'done'})
 
 def goToHome(request):
     return redirect('app:home')
