@@ -6,7 +6,7 @@ app_name = 'app'
 urlpatterns = [
     path('', views.home, name='home'),
     path('register/', views.Register, name='register'),
-    path('test/', views.Test, name='test'),
+    path('test/<int:id>', views.Test, name='test'),
     path('login/', views.Login, name='login'),
     path('logout/', views.Logout, name='logout'),
     path('insert/', views.DemonstratorInsert2, name='insert'),
@@ -15,7 +15,7 @@ urlpatterns = [
     path('allDemonstrators/', views.getAllDemonstrators, name='allDemonstrators'),
     path('demonstrator/<int:id>/', views.getDemonstrator, name='demonstrator'),
     path('dispatch/<int:demonId>/', views.DispatchInsert, name='dispatch'),
-    path('getdispatch/<int:dispatchId>/', views.Dispatchget, name='getdispatch'),
+    path('getdispatch/<int:dispatchId>/', views.getDispatch, name='getdispatch'),
 
 
 ]
