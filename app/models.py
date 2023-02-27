@@ -108,7 +108,6 @@ class GraduateStudies(models.Model):
 
 class Dispatch(models.Model):
 
-
     studentId = models.ForeignKey(
         Demonstrator, on_delete=models.CASCADE, related_name='dispatch', null=True, blank=True)
     dispatchDecisionNumber = models.IntegerField(null=True, blank=True)
@@ -124,6 +123,12 @@ class Dispatch(models.Model):
     dispatchCountry = models.CharField(max_length=100, null=True, blank=True)
     dispatchUniversity = models.CharField(
         max_length=100, null=True, blank=True)
+    dispatchDurationYear = models.IntegerField(null=True, blank=True)
+    dispatchDurationMonth = models.IntegerField(null=True, blank=True)
+    dispatchDurationDay = models.IntegerField(null=True, blank=True)
+    languageCourseDurationYear = models.IntegerField(null=True, blank=True)
+    languageCourseDurationMonth = models.IntegerField(null=True, blank=True)
+    languageCourseDurationDay = models.IntegerField(null=True, blank=True)
     dispatchEndDate = models.DateField(null=True, blank=True)
     backDate = models.DateField(null=True, blank=True)
     innerSupervisor = models.CharField(max_length=50, null=True, blank=True)
@@ -158,6 +163,9 @@ class Extension(models.Model):
     extensionDecisionDate = models.DateField(null=True, blank=True)
     extensionDecisionType = models.CharField(
         max_length=10, choices=DECISION_TYPE_CHOICES, null=True, blank=True)
+    extensionDurationYear = models.IntegerField(null=True, blank=True)
+    extensionDurationMonth = models.IntegerField(null=True, blank=True)
+    extensionDurationDay = models.IntegerField(null=True, blank=True)
 
 
 class Freeze(models.Model):
@@ -167,11 +175,17 @@ class Freeze(models.Model):
     freezeDecisionDate = models.DateField(null=True, blank=True)
     freezeDecisionType = models.CharField(
         max_length=10, choices=DECISION_TYPE_CHOICES, null=True, blank=True)
+    freezeDurationYear = models.IntegerField(null=True, blank=True)
+    freezeDurationMonth = models.IntegerField(null=True, blank=True)
+    freezeDurationDay = models.IntegerField(null=True, blank=True)
 
 
 class DurationChange(models.Model):
     dispatchDecisionId = models.ForeignKey(
         Dispatch, on_delete=models.CASCADE, related_name='durationChange', null=True, blank=True)
+    durationChangeDurationYear = models.IntegerField(null=True, blank=True)
+    durationChangeDurationMonth = models.IntegerField(null=True, blank=True)
+    durationChangeDurationDay = models.IntegerField(null=True, blank=True)
 
 
 class AlimonyChange(models.Model):
@@ -192,18 +206,3 @@ class SpecializationChange(models.Model):
         Dispatch, on_delete=models.CASCADE, related_name='specializationChange', null=True, blank=True)
     newSpecialization = models.CharField(max_length=100, null=True, blank=True)
 
-
-class Duration(models.Model):
-    dispatchDuration = models.OneToOneField(
-        Dispatch, on_delete=models.CASCADE, related_name='dispatchDuration', null=True, blank=True)
-    languageCourseDuration = models.OneToOneField(
-        Dispatch, on_delete=models.CASCADE, related_name='languageCourseDuration', null=True, blank=True)
-    extensionDuration = models.OneToOneField(
-        Extension, on_delete=models.CASCADE, related_name='extensionDuration', null=True, blank=True)
-    freezeDuration = models.OneToOneField(
-        Freeze, on_delete=models.CASCADE, related_name='freezeDuration', null=True, blank=True)
-    newDuration = models.OneToOneField(
-        DurationChange, on_delete=models.CASCADE, related_name='newDuration', null=True, blank=True)
-    durationYear = models.IntegerField(null=True, blank=True)
-    durationMonth = models.IntegerField(null=True, blank=True)
-    durationDay = models.IntegerField(null=True, blank=True)

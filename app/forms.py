@@ -92,9 +92,3 @@ class AddSpecializationChange(ModelForm):
         model = SpecializationChange
         exclude = []
 
-
-class AddDuration(ModelForm):
-    class Meta:
-        model = Duration
-        exclude = []
-        
