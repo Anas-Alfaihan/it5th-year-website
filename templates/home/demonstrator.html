@@ -149,7 +149,7 @@
                                 aria-expanded="false"
                                 aria-controls="info-{{i.id}}"
                             >
-                                <span>نوع الإيفاد:</span
+                                <span>شهادة الإيفاد:</span
                                 >{{i.get_requiredCertificate_display}}
                             </button>
                         </h2>
@@ -176,41 +176,169 @@
                                         </p>
                                     </div>
                                 </div>
-                                <p class="ct">
-                                    <span>شهادة الإيفاد:</span
-                                    >{{i.get_dispatchType_display}}
-                                </p>
-                                <p class="ct">
-                                    <span>النفقة:</span
-                                    >{{i.get_alimony_display}}
-                                </p>
-                                <p class="ct">
-                                    <span>بلد الإيفاد:</span
-                                    >{{i.dispatchCountry}}
-                                </p>
-                                <p class="ct">
-                                    <span>جامعة الإيفاد:</span
-                                    >{{i.dispatchUniversity}}
-                                </p>
+                                <div class="row">
+                                    <p class="ct col-6">
+                                        <span>نوع الإيفاد:</span
+                                        >{{i.get_dispatchType_display}}
+                                    </p>
+                                    <p class="ct col-6">
+                                        <span>النفقة:</span
+                                        >{{i.get_alimony_display|default:""}}
+                                    </p>
+                                    <p class="ct col-6">
+                                        <span>بلد الإيفاد:</span
+                                        >{{i.dispatchCountry}}
+                                    </p>
+                                    <p class="ct col-6">
+                                        <span>جامعة الإيفاد:</span
+                                        >{{i.dispatchUniversity}}
+                                    </p>
+                                    <p class="ct col-6">
+                                        <span>المشرف الداخلي:</span
+                                        >{{i.innerSupervisor}}
+                                    </p>
+                                    <p class="ct col-6">
+                                        <span>المشرف الخارجي:</span
+                                        >{{i.outerSupervisor}}
+                                    </p>
+                                    <p class="ct col-6">
+                                        <span>تاريخ العودة:</span
+                                        >{{i.backDate|default:""}}
+                                    </p>
+                                </div>
                                 <p class="ct">
                                     <span>تاريخ آخر تقرير:</span
                                     >{{i.lastReportDate}}
                                 </p>
+
+                                <button type="button">إضافة تجميد</button>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#Modal{{i.id}}"
+                                >
+                                    إضافة تمديد
+                                </button>
+                                <div
+                                    class="modal fade"
+                                    id="Modal{{i.id}}"
+                                    tabindex="-1"
+                                    aria-labelledby="ModalLabel{{i.id}}"
+                                    aria-hidden="true"
+                                >
+                                    <div
+                                        class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg"
+                                    >
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1
+                                                    class="modal-title fs-5"
+                                                    id="ModalLabel{{i.id}}"
+                                                >
+                                                    إضافة تمديد
+                                                </h1>
+                                                <button
+                                                    type="button"
+                                                    class="btn-close"
+                                                    data-bs-dismiss="modal"
+                                                    aria-label="Close"
+                                                ></button>
+                                            </div>
+                                            <div class="modal-body fs-6">
+                                                <form
+                                                    method="post"
+                                                    action="/app/extinsert/{{i.id}}"
+                                                >
+                                                    {% csrf_token %}
+                                                    <input
+                                                        type="text"
+                                                        name="dispatchDecisionId"
+                                                        hidden
+                                                        value="{{i.id}}"
+                                                    />
+                                                    <div
+                                                        class="form-floating mb-3"
+                                                    >
+                                                        <input
+                                                            type="text"
+                                                            class="form-control"
+                                                            id="floatingInput"
+                                                            placeholder="210"
+                                                            name="extensionDecisionNumber"
+                                                        />
+                                                        <label
+                                                            for="floatingInput"
+                                                            >رقم القرار
+                                                        </label>
+                                                    </div>
+                                                    <div
+                                                        class="form-floating mb-3"
+                                                    >
+                                                        <select
+                                                            name="extensionDecisionType"
+                                                            class="form-control"
+                                                            id="floatingPassword"
+                                                        >
+                                                            <option value="">
+                                                                ...
+                                                            </option>
+                                                            <option value="s">
+                                                                ش.ع
+                                                            </option>
+                                                            <option value="o">
+                                                                و
+                                                            </option>
+                                                            <option value="b">
+                                                                ب
+                                                            </option>
+                                                        </select>
+                                                        <label
+                                                            for="floatingPassword"
+                                                            >نوع القرار</label
+                                                        >
+                                                    </div>
+                                                    <div
+                                                        class="form-floating mb-3"
+                                                    >
+                                                        <input
+                                                            type="date"
+                                                            class="form-control"
+                                                            id="floatingd"
+                                                            placeholder="02/15/2023"
+                                                            name="extensionDecisionDate"
+                                                        />
+                                                        <label for="floatingd"
+                                                            >تاريخ
+                                                            التمديد</label
+                                                        >
+                                                    </div>
+                                                    <input
+                                                        type="submit"
+                                                        value="إضافة"
+                                                        class="btn btn-outline-primary"
+                                                    />
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button">تعديل</button>
+                                <button type="button">إضافة ملاحظات</button>
                             </div>
                         </div>
                     </div>
                     {% endfor %} {% if not demonstrator.dispatch.all%} لا يوجد
-                    إيفاد بعد
+                    إيفاد بعد {% endif %}
                 </div>
-                {% endif %}
             </div>
-        </div>
-        <div class="row justify-content-center">
-            <a
-                href="/app/dispatch/{{demonstrator.id}}"
-                class="btn btn-outline-primary col-4 mb-5 mt-3"
-                >إضافة إيفاد جديد</a
-            >
+            <div class="row justify-content-center">
+                <a
+                    href="/app/dispatch/{{demonstrator.id}}"
+                    class="btn btn-outline-primary col-4 mb-5 mt-3"
+                    >إضافة إيفاد جديد</a
+                >
+            </div>
         </div>
     </div>
 </section>

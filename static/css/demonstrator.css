@@ -59,7 +59,12 @@
 .ccard:hover {
     border-color: #ff1847;
 }
-
+.ct {
+    font-size: 18px;
+}
+.fifth .ct {
+    font-size: 16px;
+}
 .ct > span {
     display: inline-block;
     margin-left: 13px;

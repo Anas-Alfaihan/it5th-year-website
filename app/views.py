@@ -196,7 +196,7 @@ def ExtensionInsert(request, dispatchId):
                 id = generalInsert(request, 'durationYear', {'extensionDuration': extensionId}, Duration, AddDuration, savePoint)
                 if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
 
-                return render(request, 'registration/result.html', {'result': 'done'})
+                return redirect("app:demonstrator", id=dispatchId)
         else:
          return render(request, 'registration/result.html', {'result': 'you are not allowed to edit in this college'})
         
