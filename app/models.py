@@ -1,11 +1,19 @@
 from django.db import models
 from app.constantVariables import *
 from django.contrib.auth.models import User
+import datetime
+
+
+class LastPull(models.Model):
+    userId= models.OneToOneField(User,on_delete=models.CASCADE, related_name='lastPull', blank=True)
+    lastPullDate= models.DateTimeField(default=datetime.datetime(2000, 5, 12))
 
 
 class Permissions(models.Model):
     userId= models.ManyToManyField(User, related_name='permissions', blank=True)
     permissionsCollege = models.CharField(max_length=100, null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class Demonstrator(models.Model):
@@ -37,6 +45,8 @@ class Demonstrator(models.Model):
     secion = models.CharField(max_length=100, null=True, blank=True)
     specialization = models.CharField(max_length=100, null=True, blank=True)
     commencementAfterNominationDate = models.DateField(null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.name} {self.fatherName} son of {self.motherName  }'
@@ -55,6 +65,8 @@ class UniversityDegree(models.Model):
         YEAR_VALIDATOR], null=True, blank=True)
     universityDegreeAverage = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class Nomination(models.Model):
@@ -64,6 +76,8 @@ class Nomination(models.Model):
     nominationDecisionDate = models.DateField(null=True, blank=True)
     nominationDecisionType = models.CharField(
         max_length=10, choices=DECISION_TYPE_CHOICES, null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class AdjectiveChange(models.Model):
@@ -76,6 +90,8 @@ class AdjectiveChange(models.Model):
     adjectiveChangeAdjective = models.CharField(
         max_length=50, choices=ADJECTIVE_CHOICES, null=True, blank=True)
     adjectiveChangeReason = models.TextField(null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class CertificateOfExcellence(models.Model):
@@ -85,6 +101,8 @@ class CertificateOfExcellence(models.Model):
         max_length=1, choices=EXCELLENCE_YEAR_CHOICES, null=True, blank=True)
     certificateOfExcellenceDegree = models.CharField(
         max_length=1, choices=EXCELLENCE_DEGREE_CHOICES, null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class GraduateStudies(models.Model):
@@ -104,6 +122,8 @@ class GraduateStudies(models.Model):
         YEAR_VALIDATOR], null=True, blank=True)
     graduateStudiesAverage = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class Dispatch(models.Model):
@@ -138,12 +158,16 @@ class Dispatch(models.Model):
     commencementDate = models.DateField(null=True, blank=True)
     atDisposalOfUniversityDate = models.DateField(null=True, blank=True)
     dispatchNotes = models.TextField(null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class Report(models.Model):
     dispatchDecisionId = models.ForeignKey(Dispatch, on_delete=models.CASCADE, related_name='report', null=True, blank=True)
     report = models.TextField(null=True, blank=True)
     reportDate = models.DateField(null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class Regularization(models.Model):
@@ -154,6 +178,8 @@ class Regularization(models.Model):
     regularizationDecisionType = models.CharField(
         max_length=10, choices=DECISION_TYPE_CHOICES, null=True, blank=True)
     regularizationDecisionNotes = models.TextField(null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class Extension(models.Model):
@@ -166,6 +192,8 @@ class Extension(models.Model):
     extensionDurationYear = models.IntegerField(null=True, blank=True)
     extensionDurationMonth = models.IntegerField(null=True, blank=True)
     extensionDurationDay = models.IntegerField(null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class Freeze(models.Model):
@@ -178,6 +206,8 @@ class Freeze(models.Model):
     freezeDurationYear = models.IntegerField(null=True, blank=True)
     freezeDurationMonth = models.IntegerField(null=True, blank=True)
     freezeDurationDay = models.IntegerField(null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class DurationChange(models.Model):
@@ -186,6 +216,8 @@ class DurationChange(models.Model):
     durationChangeDurationYear = models.IntegerField(null=True, blank=True)
     durationChangeDurationMonth = models.IntegerField(null=True, blank=True)
     durationChangeDurationDay = models.IntegerField(null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class AlimonyChange(models.Model):
@@ -193,16 +225,22 @@ class AlimonyChange(models.Model):
         Dispatch, on_delete=models.CASCADE, related_name='alimonyChange', null=True, blank=True)
     newAlimony = models.CharField(
         max_length=25, choices=ALIMONY, null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class UniversityChange(models.Model):
     dispatchDecisionId = models.ForeignKey(
         Dispatch, on_delete=models.CASCADE, related_name='universityChange', null=True, blank=True)
     newUniversity = models.CharField(max_length=100, null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
 
 class SpecializationChange(models.Model):
     dispatchDecisionId = models.ForeignKey(
         Dispatch, on_delete=models.CASCADE, related_name='specializationChange', null=True, blank=True)
     newSpecialization = models.CharField(max_length=100, null=True, blank=True)
+    createdDate = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
 
