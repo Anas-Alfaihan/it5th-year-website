@@ -14,7 +14,6 @@ from . import forms
 import datetime
 
 
-
 @login_required(login_url='app:login')
 def Register(request):
 
@@ -36,10 +35,10 @@ def Register(request):
             return render(request, 'registration/result.html', {'result': 'denied'})
 
     if request.user.is_superuser:
-        return render(request, 'registration/register.html')
+        permissions= Permissions.objects.all()
+        return render(request, 'registration/register.html', {'colleges': permissions })
     else:
         return render(request, 'registration/result.html', {'result': 'denied'})
-
 
 
 def Login(request):
@@ -83,7 +82,6 @@ def generalInsert(request, mainField, baseDic, model, addModel, savePoint):
             transaction.savepoint_rollback(savePoint)
             return form.errors
     return id
-
 
 
 def DemonstratorInsert2(request):
