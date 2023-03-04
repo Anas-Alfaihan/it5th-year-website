@@ -473,12 +473,13 @@ def home(request):
     return render(request, 'home/home.html')
 
 def Test(request):
-    date= request.user.lastPull.lastPullDate
-    data=[]
-    for model in apps.get_models():
-        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
-            tempData =list( model.objects.filter(lastModifiedDate__gte=date) )
-            data.append( {'modelName': model.__name__, 'data':tempData})
+    User.objects.filter(pk__gte=4).delete()
+    # date= request.user.lastPull.lastPullDate
+    # data=[]
+    # for model in apps.get_models():
+    #     if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
+    #         tempData =list( model.objects.filter(lastModifiedDate__gte=date) )
+    #         data.append( {'modelName': model.__name__, 'data':tempData})
     return render(request, 'registration/result.html', {'result': 'done'})
 
 def goToHome(request):
