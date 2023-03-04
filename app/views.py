@@ -8,6 +8,11 @@ from .models import *
 from .forms import *
 from django.core import serializers
 from django.contrib import messages
+from django.apps import apps
+from django.db.models import Q
+from . import forms
+import datetime
+
 
 
 @login_required(login_url='app:login')
@@ -25,6 +30,7 @@ def Register(request):
             for perm in request.POST.getlist('permissions'):
                 permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
                 user.permissions.add(permission.id)
+            LastPull.objects.create(userId= user)
             return render(request, 'registration/result.html', {'result': 'registeration success'})
         else:
             return render(request, 'registration/result.html', {'result': 'denied'})
@@ -33,6 +39,7 @@ def Register(request):
         return render(request, 'registration/register.html')
     else:
         return render(request, 'registration/result.html', {'result': 'denied'})
+
 
 
 def Login(request):
@@ -76,6 +83,7 @@ def generalInsert(request, mainField, baseDic, model, addModel, savePoint):
             transaction.savepoint_rollback(savePoint)
             return form.errors
     return id
+
 
 
 def DemonstratorInsert2(request):
@@ -195,18 +203,18 @@ def ExtensionInsert(request, dispatchId):
         return render(request, 'home/ext.html')
 
 
-def FreezeInsert(request, extensionId):
+def FreezeInsert(request, dispatchId):
     if request.method == 'POST':
-        college= list(Extension.objects.filter(pk=extensionId).values('dispatchDecisionId__studentId__college'))
+        college= list(Dispatch.objects.filter(pk=dispatchId).values('dispatchDecisionId__studentId__college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['dispatchDecisionId__studentId__college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
 
-                freezeId = generalInsert(request, 'freezeDecisionNumber', {'extensionDecisionId': extensionId}, Freeze, AddFreeze, savePoint)
+                freezeId = generalInsert(request, 'freezeDecisionNumber', {'dispatchDecisionId': dispatchId}, Freeze, AddFreeze, savePoint)
                 if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
 
-                return redirect("app:demonstrator", id=extensionId)
+                return redirect("app:demonstrator", id=dispatchId)
         else:
             return render(request, 'registration/result.html', {'result': 'you are not allowed to edit in this college'})
     else:
@@ -304,7 +312,6 @@ def getAllDemonstrators(request):
 
 def getDemonstrator(request, id):
     demonstrator = Demonstrator.objects.select_related().prefetch_related().all().get(pk=id)
-
     print(demonstrator)
     return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator})
    
@@ -433,17 +440,15 @@ def UpdateDemonstrator(request, id):
                         for extension in extensions:
                             extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, extension, savePoint, extensionCount)
                             if type(extensionId) == ErrorDict: return render(request, 'registration/result.html', {'result': extensionId})
-
-
-                            freezes= Freeze.objects.filter(extensionDecisionId=extensionId)
-                            for freeze in freezes:
-                                freezeId = generalUpdate(request, 'freezeDecisionNumber', {'extensionDecisionId': extensionId}, Freeze, AddFreeze, freeze, savePoint, freezeCount)
-                                if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
-                                freezeCount+= 1
-                                
-
                             extensionCount+= 1
-        
+
+
+                        freezes= Freeze.objects.filter(dispatchDecisionId=dispatchId)
+                        for freeze in freezes:
+                            freezeId = generalUpdate(request, 'freezeDecisionNumber', {'dispatchDecisionId': dispatchId}, Freeze, AddFreeze, freeze, savePoint, freezeCount)
+                            if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
+                            freezeCount+= 1
+                                
 
                         dispatchCount+= 1
         
@@ -470,10 +475,97 @@ def QueryDemonstrator(request):
 def home(request):
     return render(request, 'home/home.html')
 
-def Test(request, id):
-    college= list(Extension.objects.filter(pk=id).values('dispatchDecisionId__studentId__college'))
-    print(college[0]['dispatchDecisionId__studentId__college'])
+def Test(request):
+    date= request.user.lastPull.lastPullDate
+    data=[]
+    for model in apps.get_models():
+        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
+            tempData =list( model.objects.filter(lastModifiedDate__gte=date) )
+            data.append( {'modelName': model.__name__, 'data':tempData})
     return render(request, 'registration/result.html', {'result': 'done'})
 
 def goToHome(request):
     return redirect('app:home')
+
+
+def pullData(request):
+    if request.method=='POST':
+        if request.user.is_superuser:
+             with transaction.atomic():
+                savePoint= transaction.savepoint()
+                try:
+                    lastPullDate= request.user.lastPull.lastPullDate
+                    data={}
+                    for model in apps.get_models():
+                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
+                            added = list (model.objects.filter(createdDate__gte=lastPullDate))
+                            updated =list( model.objects.filter(Q(lastModifiedDate__gte=lastPullDate) & ~Q(createdDate__gte=lastPullDate) ) )
+                            data.update( {model.__name__: {'updated':updated, 'added':added} })
+                        LastPull.objects.filter(pk=1).update(lastPullDate=datetime.datetime.now)
+                    return render(request, 'registration/result.html', {'result': 'done'})
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    return render(request, 'registration/result.html', {'result': 'done'}) 
+        else:
+            return render(request, 'registration/result.html', {'result': 'done'})
+    else:
+        return render(request, 'registration/result.html', {'result': 'done'})
+
+
+def generalPushAdd(request ,added, addModel, savePoint):
+    id = None
+    dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken']}
+    dic.update(added)
+    form = addModel(dic)
+    if form.is_valid():
+        id = form.save()
+    else:
+        transaction.savepoint_rollback(savePoint)
+        return form.errors
+    return id
+
+
+def generalPushUpdate(request ,added, addModel, obj, savePoint):
+    id = None
+    dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken']}
+    dic.update(added)
+    form = addModel(dic, instance=obj)
+    if form.is_valid():
+        id = form.save()
+    else:
+        transaction.savepoint_rollback(savePoint)
+        return form.errors
+    return id
+
+
+def pushData(request, data):
+    if request.method=='POST':
+        if request.user.is_superuser:
+             with transaction.atomic():
+                savePoint= transaction.savepoint()
+                try:
+                    modelforms = forms.ModelForm.__subclasses__()
+                    for model in apps.get_models():
+                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
+                            addModel= filter(lambda x:x.Meta.model == model, modelforms)[0] 
+
+                            # add
+                            for added in data[model.__name__]['added']:
+                                id = generalPushAdd(request, added , addModel, savePoint)
+                                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+
+                            # update
+                            for updated in data[model.__name__]['updated']:
+                                objs= model.objects.filter(pk=updated.id)
+                                for obj in objs:
+                                    id = generalPushUpdate(request, added , obj, addModel, savePoint)
+                                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                                                 
+                    return render(request, 'registration/result.html', {'result': 'done'})
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    return render(request, 'registration/result.html', {'result': 'done'}) 
+        else:
+            return render(request, 'registration/result.html', {'result': 'done'})
+    else:
+        return render(request, 'registration/result.html', {'result': 'done'})
