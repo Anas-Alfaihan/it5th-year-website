@@ -3,35 +3,91 @@
 <!-- something here for nothing  -->
 
 {% block content %}
-<form class="register-form form" method="POST">
-  {% csrf_token %}
 
-  <div class="form-input">
-    <label for="">اسم المستخدم: </label>
-    <input type="text" name="username" required />
+<h2 class="tit">تسجيل موظف</h2>
+
+<section class="sec">
+
+
+
+  <div class="m-5">
+    <form class="needs-validation" novalidate method="POST">
+      {% csrf_token %}
+
+      <div class="row">
+        <div class="col-4">
+          <div class="form-floating mb-3">
+            <input id="floatingUsername" type="text" name="username" placeholder="anas" required class="form-control" />
+            <label for="floatingUsername">اسم المستخدم </label>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="form-floating mb-3">
+            <input id="floatingFirst" type="text" placeholder="anas" name="firstName" class="form-control" required />
+            <label for="floatingFirst">الاسم الأول </label>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="form-floating mb-3 ">
+            <input id="floatingLast" type="text" name="lastName" placeholder="anas" class="form-control" required />
+            <label for="floatingLast">الاسم الأخير </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-floating mb-3">
+        <input id="floatingEmail" type="email" name="email" placeholder="anas@anas.com" class="form-control" required />
+        <label for="floatingEmail">الإيميل </label>
+      </div>
+
+      <div class="row">
+        <div class="col-6">
+          <div class="form-floating mb-3">
+            <input id="floatingP" type="text" name="permissions" placeholder="nothing" class="form-control" required />
+            <label for="floatingP">السماحية </label>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="form-floating mb-3">
+            <input id="floatingPassword" type="password" name="password" placeholder="password" class="form-control"
+              required />
+            <label for="floatingPassword">كلمة السر </label>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+      <input type="submit" class="btn btn-lg btn-primary" value="إنشاء حساب" />
+
+    </form>
   </div>
-  <div class="form-input">
-    <label for="">الاسم الأول: </label>
-    <input type="text" name="firstName" required />
-  </div>
-  <div class="form-input">
-    <label for="">الاسم الأخير: </label>
-    <input type="text" name="lastName" required />
-  </div>
-  <div class="form-input">
-    <label for="">السماحية: </label>
-    <input type="text" name="permissions" required />
-  </div>
-  <div class="form-input">
-    <label for="">الإيميل: </label>
-    <input type="email" name="email" required />
-  </div>
-  <div class="form-input">
-    <label for="">كلمة السر: </label>
-    <input type="password" name="password" required />
-  </div>
-  <div class="form-input">
-    <input type="submit" value="إنشاء حساب" />
-  </div>
-</form>
+
+</section>
+
+<script>
+  (() => {
+    'use strict';
+
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    const forms = document.querySelectorAll('.needs-validation');
+
+    // Loop over them and prevent submission
+    Array.from(forms).forEach((form) => {
+      form.addEventListener(
+        'submit',
+        (event) => {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+
+          form.classList.add('was-validated');
+        },
+        false
+      );
+    });
+  })();
+</script>
 {% endblock %}

@@ -206,7 +206,7 @@ def FreezeInsert(request, extensionId):
                 freezeId = generalInsert(request, 'freezeDecisionNumber', {'extensionDecisionId': extensionId}, Freeze, AddFreeze, savePoint)
                 if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
 
-                return render(request, 'registration/result.html', {'result': 'done'})
+                return redirect("app:demonstrator", id=extensionId)
         else:
             return render(request, 'registration/result.html', {'result': 'you are not allowed to edit in this college'})
     else:
@@ -303,7 +303,7 @@ def getAllDemonstrators(request):
 
 
 def getDemonstrator(request, id):
-    demonstrator = Demonstrator.objects.select_related('universityDegree').prefetch_related('dispatch').all().get(pk=id)
+    demonstrator = Demonstrator.objects.select_related().prefetch_related().all().get(pk=id)
 
     print(demonstrator)
     return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator})
