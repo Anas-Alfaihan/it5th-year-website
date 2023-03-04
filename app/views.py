@@ -10,7 +10,7 @@ from django.core import serializers
 from django.contrib import messages
 from django.apps import apps
 from django.db.models import Q
-import forms
+from . import forms
 import datetime
 
 @login_required(login_url='app:login')
@@ -199,15 +199,15 @@ def ExtensionInsert(request, dispatchId):
         return render(request, 'home/ext.html')
 
 
-def FreezeInsert(request, extensionId):
+def FreezeInsert(request, dispatchId):
     if request.method == 'POST':
-        college= list(Extension.objects.filter(pk=extensionId).values('dispatchDecisionId__studentId__college'))
+        college= list(Dispatch.objects.filter(pk=dispatchId).values('dispatchDecisionId__studentId__college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['dispatchDecisionId__studentId__college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
 
-                freezeId = generalInsert(request, 'freezeDecisionNumber', {'extensionDecisionId': extensionId}, Freeze, AddFreeze, savePoint)
+                freezeId = generalInsert(request, 'freezeDecisionNumber', {'dispatchDecisionId': dispatchId}, Freeze, AddFreeze, savePoint)
                 if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
 
                 return render(request, 'registration/result.html', {'result': 'done'})
@@ -437,17 +437,15 @@ def UpdateDemonstrator(request, id):
                         for extension in extensions:
                             extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, extension, savePoint, extensionCount)
                             if type(extensionId) == ErrorDict: return render(request, 'registration/result.html', {'result': extensionId})
-
-
-                            freezes= Freeze.objects.filter(extensionDecisionId=extensionId)
-                            for freeze in freezes:
-                                freezeId = generalUpdate(request, 'freezeDecisionNumber', {'extensionDecisionId': extensionId}, Freeze, AddFreeze, freeze, savePoint, freezeCount)
-                                if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
-                                freezeCount+= 1
-                                
-
                             extensionCount+= 1
-        
+
+
+                        freezes= Freeze.objects.filter(dispatchDecisionId=dispatchId)
+                        for freeze in freezes:
+                            freezeId = generalUpdate(request, 'freezeDecisionNumber', {'dispatchDecisionId': dispatchId}, Freeze, AddFreeze, freeze, savePoint, freezeCount)
+                            if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
+                            freezeCount+= 1
+                                
 
                         dispatchCount+= 1
         
