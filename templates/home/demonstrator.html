@@ -165,9 +165,11 @@
                                         </p>
                                     </div>
                                 </div>
+
                                 <div class="row">
+
                                     <p class="ct col-6">
-                                        <span>نوع الإيفاد:</span><span class="editable"
+                                        <span>نوع الإيفاد:</span><span class="editable d-inline-block"
                                             name="dispatchType">{{i.get_dispatchType_display}}</span>
                                     </p>
                                     <p class="ct col-6">
@@ -202,7 +204,7 @@
                                 <div class="row">
                                     <div class="col-6">
                                         {% for ex in i.extension.all %}
-                                        <div class="card border-success mb-3">
+                                        <div class="card border-info mb-3">
                                             <div class="card-header">
 
                                                 <div class="text-lead text-muted fs-6 d-inline-block"
@@ -248,8 +250,7 @@
                                         {% endfor %}
                                     </div>
                                     <div class="col-6">
-                                        {{i}}
-                                        {{i.freeze}}
+
                                         {% for fr in i.freeze.all %}
                                         <div class="card border-warning mb-3">
                                             <div class="card-header">
@@ -308,7 +309,7 @@
                                             إضافة تمديد
                                         </button>
                                         <button type="button" class="btn btn-outline-success"
-                                            onclick="edit(event,'{{i.id}}')">تعديل</button>
+                                            onclick="edit(event,'{{i.id}}')" id="efeb-{{i.id}}">تعديل</button>
                                         <button type="button" class="btn btn-outline-info">إضافة ملاحظات</button>
                                     </div>
                                 </div>
@@ -489,32 +490,65 @@
 
 <script>
 
+    $(document).keydown(function () {
+        
+    })
+
 
 
 
     function edit(e, id) {
-
         let form = document.getElementById(`info-${id}`).getElementsByTagName('div')
         let items1 = Array.prototype.slice.call(form[1].getElementsByClassName('editable'), 0)
         let items2 = Array.prototype.slice.call(form[3].getElementsByClassName('editable'), 0)
         items1 = items1.concat(items2)
 
+        original = {}
+
         if (e.target.innerHTML === 'تعديل') {
-            console.log('تعديل')
             e.target.innerHTML = 'حفظ'
 
-            console.log(items1);
+            // e.target.addEventListener('keydown', (event) => {
+            //     event.preventDefault();
+            //     console.log(event);
+            //     if (event.isComposing || event.keyCode === 27 && event.target.innerHTML === 'حفظ') {
+
+            //         e.target.innerHTML = 'تعديل';
+            //         for (let i = 0; i < items1.length; i++) {
+            //             items1[i].innerHTML = original[items1[i].getAttribute('name')]
+            //             items1[i].className = 'editable'
+            //             items1[i].setAttribute("contenteditable", "false")
+
+            //         }
+
+            //     }
+            // })
+
+
             for (let i = 0; i < items1.length; i++) {
-                if (items1[i].hasAttribute('name')) {
-                    console.log(items1[i].getAttribute('name'));
-                }
+                original[items1[i].getAttribute('name')] = items1[i].innerHTML
                 items1[i].setAttribute("contenteditable", "true")
-                items1[i].className = 'editable border'
+                items1[i].className = 'editable border border-dark p-2'
             }
+
+            $(document).keydown(function (event) {
+
+
+                if (event.isComposing || event.keyCode === 27 && event.target.innerHTML === 'حفظ') {
+                    $(`#efeb-${id}`).text('تعديل')
+                    for (let i = 0; i < items1.length; i++) {
+                        items1[i].innerHTML = original[items1[i].getAttribute('name')]
+                        items1[i].className = 'editable'
+                        items1[i].setAttribute("contenteditable", "false")
+
+                    }
+
+                }
+            })
+
 
 
         } else if (e.target.innerHTML === 'حفظ') {
-            console.log('حفظ')
 
             e.target.innerHTML = 'تعديل'
 
@@ -523,12 +557,15 @@
             let values = {}
             for (let i = 0; i < items1.length; i++) {
                 values[items1[i].getAttribute('name')] = items1[i].innerHTML
+                items1[i].className = 'editable'
+                items1[i].setAttribute("contenteditable", "false")
 
             }
             console.log(values);
         }
 
     }
+
 </script>
 
 <script>
