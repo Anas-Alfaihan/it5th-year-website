@@ -12,6 +12,7 @@ from django.apps import apps
 from django.db.models import Q
 from . import forms
 import datetime
+from json import dumps
 
 
 @login_required(login_url='app:login')
@@ -35,7 +36,8 @@ def Register(request):
             return render(request, 'registration/result.html', {'result': 'denied'})
 
     if request.user.is_superuser:
-        permissions= Permissions.objects.all()
+        permissions= serializers.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
+        
         return render(request, 'registration/register.html', {'colleges': permissions })
     else:
         return render(request, 'registration/result.html', {'result': 'denied'})
@@ -202,9 +204,9 @@ def ExtensionInsert(request, dispatchId):
 
 def FreezeInsert(request, dispatchId):
     if request.method == 'POST':
-        college= list(Dispatch.objects.filter(pk=dispatchId).values('dispatchDecisionId__studentId__college'))
+        college= list(Dispatch.objects.filter(pk=dispatchId).values('studentId__college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
-        if college[0]['dispatchDecisionId__studentId__college'] in permissionList or request.user.is_superuser:
+        if college[0]['studentId__college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
 
@@ -303,7 +305,7 @@ def SpecializationChangeInsert(request, dispatchId):
 
 def getAllDemonstrators(request):
     data2 = serializers.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college'))
-    print(data2)
+    
     return render(request, 'home/allDemonstrators.html', {'result': data2})
 
 

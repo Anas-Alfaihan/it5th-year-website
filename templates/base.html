@@ -2,115 +2,93 @@
 
 <!DOCTYPE html>
 <html lang="en" dir="rtl">
-    <head>
-        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link
-            rel="stylesheet"
-            href="{% static 'bootstrap-5.2.0/dist/css/bootstrap.rtl.min.css' %}"
-        />
-        <link
-            rel="stylesheet"
-            href="{% static 'fontawesome-free-6.2.1-web/css/all.css' %}"
-        />
-        <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
-        <link rel="stylesheet" href="{% static 'css/toastify.min.css' %}" />
 
-        <title>{% block head_title %}STORE{% endblock %}</title>
-        {% block style %}{% endblock %}
+<head>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'bootstrap-5.2.0/dist/css/bootstrap.rtl.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'fontawesome-free-6.2.1-web/css/all.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/toastify.min.css' %}" />
 
-        <script src="{% static 'js/jquery-3.6.3.min.js' %}"></script>
-    </head>
+    <title>{% block head_title %}STORE{% endblock %}</title>
+    {% block style %}{% endblock %}
 
-    <body>
-        <nav>
-            <ul>
-                <li>
-                    <a href="{% url 'app:home' %}" class="logo"
-                        ><img src="{% static 'images/logo.png' %}" alt="" />
-                        <span class="n-i">إدارة العلاقات الثقافية</span></a
-                    >
-                </li>
-                <li>
-                    <a href="{% url 'app:home' %}"
-                        ><i class="fa-solid fa-house active"></i
-                        ><span class="n-i">الرئيسية</span></a
-                    >
-                </li>
-                {% if user.is_authenticated %} {% if user.is_superuser %}
-                <li>
-                    <a href="{% url 'app:register' %}"
-                        ><i class="fa-solid fa-user-tie"></i
-                        ><span class="n-i">تسجيل موظف</span></a
-                    >
-                </li>
-                {% endif %}
-                <li>
-                    <a href="{% url 'app:insert' %}"
-                        ><i class="fa-solid fa-user"></i
-                        ><span class="n-i">تسجيل معيد</span></a
-                    >
-                </li>
-                <li>
-                    <a href="{% url 'app:allDemonstrators' %}"
-                        ><i class="fa-solid fa-users"></i
-                        ><span class="n-i">المعيدين</span></a
-                    >
-                </li>
-                <li>
-                    <a href="{% url 'app:logout' %}" class="logout"
-                        ><i class="fa-solid fa-right-from-bracket"></i
-                        ><span class="n-i">تسجيل الخروج</span></a
-                    >
-                </li>
-                {% else %}
-                <li>
-                    <a href="{% url 'app:login' %} " class="logout"
-                        ><i class="fa-solid fa-right-to-bracket"></i
-                        ><span class="n-i">تسجيل الدخول</span></a
-                    >
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
+    <script src="{% static 'js/jquery-3.6.3.min.js' %}"></script>
+</head>
 
-        <main>{% block content %}{% endblock %}</main>
-        {% block files %}{% endblock %}
-        <script
-            type="text/javascript"
-            src="{% static 'js/toastify-js' %}"
-        ></script>
+<body>
+    <nav>
+        <ul>
+            <li>
+                <a href="{% url 'app:home' %}" class="logo"><img src="{% static 'images/logo.png' %}" alt="" />
+                    <span class="n-i">إدارة العلاقات الثقافية</span></a>
+            </li>
+            <li>
+                <a href="{% url 'app:home' %}"><i class="fa-solid fa-house active"></i><span
+                        class="n-i">الرئيسية</span></a>
+            </li>
+            {% if user.is_authenticated %} {% if user.is_superuser %}
+            <li>
+                <a href="{% url 'app:register' %}"><i class="fa-solid fa-user-tie"></i><span class="n-i">تسجيل
+                        موظف</span></a>
+            </li>
+            {% endif %}
+            <li>
+                <a href="{% url 'app:insert' %}"><i class="fa-solid fa-user"></i><span class="n-i">تسجيل معيد</span></a>
+            </li>
+            <li>
+                <a href="{% url 'app:allDemonstrators' %}"><i class="fa-solid fa-users"></i><span
+                        class="n-i">المعيدين</span></a>
+            </li>
+            <li>
+                <a href="{% url 'app:logout' %}" class="logout"><i class="fa-solid fa-right-from-bracket"></i><span
+                        class="n-i">تسجيل الخروج</span></a>
+            </li>
+            {% else %}
+            <li>
+                <a href="{% url 'app:login' %} " class="logout"><i class="fa-solid fa-right-to-bracket"></i><span
+                        class="n-i">تسجيل الدخول</span></a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
 
-        {% if messages %}
-        <!-- asda  -->
-        {% for message in messages %}
-        <script type="text/javascript" language="JavaScript">
-            let grad = [
-                'linear-gradient(-120deg, #D62121, #C72C2C, #3a1111)',
-                'linear-gradient(to right, #00b09b, #96c93d)',
-            ];
-            let k = '{{message.tags}}';
+    <main>{% block content %}{% endblock %}</main>
+    {% block files %}{% endblock %}
+    <script type="text/javascript" src="{% static 'js/toastify-js' %}"></script>
 
-            Toastify({
-                text: '{{message}}',
-                duration: 3000,
-                close: true,
-                gravity: 'top', // `top` or `bottom`
-                position: 'left', // `left`, `center` or `right`
-                stopOnFocus: true, // Prevents dismissing of toast on hover
-                style: {
-                    background: k === 'error' ? grad[0] : grad[1],
-                    width: '300px',
-                    border: '16px',
-                },
-            }).showToast();
-        </script>
+    {% if messages %}
+    <!-- asda  -->
+    {% for message in messages %}
+    <script type="text/javascript" language="JavaScript">
+        let grad = [
+            'linear-gradient(-120deg, #D62121, #C72C2C, #3a1111)',
+            'linear-gradient(to right, #00b09b, #96c93d)',
+        ];
+        let k = '{{message.tags}}';
 
-        {% endfor %}
-        <!-- asdas -->
-        {% endif %}
+        Toastify({
+            text: '{{message}}',
+            duration: 3000,
+            close: true,
+            gravity: 'top', // `top` or `bottom`
+            position: 'left', // `left`, `center` or `right`
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+                background: k === 'error' ? grad[0] : grad[1],
+                width: '300px',
+                border: '16px',
+            },
+        }).showToast();
+    </script>
 
-        <script src="{% static 'bootstrap-5.2.0/dist/js/bootstrap.min.js' %}"></script>
-    </body>
+    {% endfor %}
+    <!-- asdas -->
+    {% endif %}
+
+    <script src="{% static 'bootstrap-5.2.0/dist/js/bootstrap.min.js' %}"></script>
+</body>
+
 </html>

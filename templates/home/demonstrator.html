@@ -1,9 +1,11 @@
 {% extends "base.html" %} {% block head_title %} {{demonstrator.name}}
 {%endblock %} {% load static %} {% block style %}
 <link rel="stylesheet" href="{% static 'css/demonstrator.css' %}" />
+
 {% endblock %}
 
 <!-- something here for nothing  -->
+
 {% load static %} {% block content %}
 <h2 class="tit">{{demonstrator.name}}</h2>
 <section class="sec">
@@ -150,59 +152,84 @@
                             data-bs-parent="#efads">
                             <div class="accordion-body">
                                 <div class="row">
-                                    <div class="col-12 row g-0">
-                                        <p class="text-lead text-muted fs-6 col-2">
+                                    <div class="col-12 row g-0 ct">
+                                        <div class="text-lead text-muted fs-6 col-2 mb-4">
                                             رقم القرار
-                                            /<span class="editable"
+                                            /<span class="efad-info-{{i.id}} editable"
                                                 name="dispatchDecisionNumber">{{i.dispatchDecisionNumber}}</span>/<span
-                                                class="editable"
-                                                name="dispatchDecisionType">{{i.get_dispatchDecisionType_display}}</span>
-                                        </p>
+                                                class=" efad-info-{{i.id}} editable mul" name="dispatchDecisionType"
+                                                value="{{i.dispatchDecisionType}}">{{i.get_dispatchDecisionType_display}}
+                                            </span>
+                                            <div class="d-none choises dispatchDecisionType">
+                                                <div><strong value="s">ش.ع</strong></div>
+                                                <div><strong value="o">و</strong></div>
+                                                <div><strong value="b">ب</strong></div>
+                                            </div>
+                                        </div>
                                         <p class="text-lead text-muted fs-6 col-2">
                                             تاريخ
-                                            <span class="editable"
+
+                                            <span class="efad-info-{{i.id}} editable"
                                                 name="dispatchDecisionDate">{{i.dispatchDecisionDate|date:"SHORT_DATE_FORMAT"}}</span>
                                         </p>
                                     </div>
                                 </div>
+
                                 <div class="row">
+
+                                    <div class="ct col-6 mb-4">
+                                        <span>نوع الإيفاد:</span><span class="efad-info-{{i.id}} editable mul"
+                                            name="dispatchType"
+                                            value="{{i.dispatchType}}">{{i.get_dispatchType_display}}</span>
+                                        <div class="d-none choises dispatchType">
+                                            <div>
+                                                <strong value="inner">داخلي</strong>
+                                            </div>
+                                            <div><strong value="outer">خارجي</strong></div>
+                                        </div>
+                                    </div>
+                                    <div class="ct col-6 mb-4">
+                                        <span>النفقة:</span><span class="efad-info-{{i.id}} editable mul" name="alimony"
+                                            value="{{i.alimony}}">
+                                            {{i.get_alimony_display|default:""}}
+                                        </span>
+                                        <div class="d-none choises alimony">
+                                            <div>
+                                                <strong value="grant">منحة</strong>
+                                            </div>
+                                            <div><strong value="seat">مقعد</strong></div>
+                                        </div>
+                                    </div>
                                     <p class="ct col-6">
-                                        <span>نوع الإيفاد:</span><span class="editable"
-                                            name="dispatchType">{{i.get_dispatchType_display}}</span>
-                                    </p>
-                                    <p class="ct col-6">
-                                        <span>النفقة:</span><span class="editable"
-                                            name="alimony">{{i.get_alimony_display|default:""}}</span>
-                                    </p>
-                                    <p class="ct col-6">
-                                        <span>بلد الإيفاد:</span><span class="editable"
+                                        <span>بلد الإيفاد:</span><span class="efad-info-{{i.id}} editable"
                                             name="dispatchCountry">{{i.dispatchCountry}}</span>
                                     </p>
                                     <p class="ct col-6">
-                                        <span>جامعة الإيفاد:</span><span class="editable"
+                                        <span>جامعة الإيفاد:</span><span class="efad-info-{{i.id}} editable"
                                             name="dispatchUniversity">{{i.dispatchUniversity}}</span>
                                     </p>
                                     <p class="ct col-6">
-                                        <span>المشرف الداخلي:</span><span class="editable"
+                                        <span>المشرف الداخلي:</span><span class="efad-info-{{i.id}} editable"
                                             name="innerSupervisor">{{i.innerSupervisor}}</span>
                                     </p>
                                     <p class="ct col-6">
-                                        <span>المشرف الخارجي:</span><span class="editable"
+                                        <span>المشرف الخارجي:</span><span class="efad-info-{{i.id}} editable"
                                             name="outerSupervisor">{{i.outerSupervisor}}</span>
                                     </p>
                                     <p class="ct col-6">
-                                        <span>تاريخ العودة:</span><span class="editable"
+                                        <span>تاريخ العودة:</span><span class="efad-info-{{i.id}} editable"
                                             name="backDate">{{i.backDate|default:""}}</span>
                                     </p>
                                 </div>
 
                                 <p class="ct">
-                                    <span>تاريخ آخر تقرير:</span><span class="editable">{{i.lastReportDate}}</span>
+                                    <span>تاريخ آخر تقرير:</span><span
+                                        class="efad-info-{{i.id}} editable">{{i.lastReportDate}}</span>
                                 </p>
                                 <div class="row">
                                     <div class="col-6">
                                         {% for ex in i.extension.all %}
-                                        <div class="card border-success mb-3">
+                                        <div class="card border-info mb-3">
                                             <div class="card-header">
 
                                                 <div class="text-lead text-muted fs-6 d-inline-block"
@@ -248,8 +275,7 @@
                                         {% endfor %}
                                     </div>
                                     <div class="col-6">
-                                        {{i}}
-                                        {{i.freeze}}
+
                                         {% for fr in i.freeze.all %}
                                         <div class="card border-warning mb-3">
                                             <div class="card-header">
@@ -308,7 +334,7 @@
                                             إضافة تمديد
                                         </button>
                                         <button type="button" class="btn btn-outline-success"
-                                            onclick="edit(event,'{{i.id}}')">تعديل</button>
+                                            onclick="edit(event,'{{i.id}}')" id="efeb-{{i.id}}">تعديل</button>
                                         <button type="button" class="btn btn-outline-info">إضافة ملاحظات</button>
                                     </div>
                                 </div>
@@ -485,50 +511,124 @@
             </div>
         </div>
     </div>
+
 </section>
 
 <script>
 
 
+    let editMode = false, efadId = "", btnId = "", originals = {}
+
+    $(document).keydown(function (e) {
+
+        if (e.keyCode === 27) {
+            resetEfad()
+        }
+    })
+
+    function resetChoise() {
+        let ch = Array.prototype.slice.call(document.getElementsByClassName("choises"), 0)
+        for (let i = 0; i < ch.length; i++) {
+            !ch[i].classList.add("d-none")
+
+        }
+    }
+
+    function resetEfad() {
+        if (editMode) {
+            resetChoise()
+            btn = document.getElementById(btnId)
+            btn.innerHTML = 'تعديل'
+
+            let items1 = Array.prototype.slice.call(document.getElementsByClassName(efadId), 0)
+
+
+            for (let i = 0; i < items1.length; i++) {
+                items1[i].innerHTML = originals[items1[i].getAttribute('name')]
+                items1[i].className = `editable ${efadId}`
+                items1[i].setAttribute("contenteditable", "false")
+
+            }
+            editMode = false; efadId = ""; btnId = ""; originals = {}
+        }
+
+
+    }
 
 
     function edit(e, id) {
 
-        let form = document.getElementById(`info-${id}`).getElementsByTagName('div')
-        let items1 = Array.prototype.slice.call(form[1].getElementsByClassName('editable'), 0)
-        let items2 = Array.prototype.slice.call(form[3].getElementsByClassName('editable'), 0)
-        items1 = items1.concat(items2)
+        if (editMode && efadId !== `efad-info-${id}`) {
+            resetEfad()
+        }
+        editMode = true
+        efadId = `efad-info-${id}`
+        btnId = `efeb-${id}`
+
+        let items1 = Array.prototype.slice.call(document.getElementsByClassName(efadId), 0)
 
         if (e.target.innerHTML === 'تعديل') {
-            console.log('تعديل')
             e.target.innerHTML = 'حفظ'
 
-            console.log(items1);
+
             for (let i = 0; i < items1.length; i++) {
-                if (items1[i].hasAttribute('name')) {
-                    console.log(items1[i].getAttribute('name'));
-                }
+                originals[items1[i].getAttribute('name')] = items1[i].innerHTML
                 items1[i].setAttribute("contenteditable", "true")
-                items1[i].className = 'editable border'
+                if (items1[i].classList.contains("mul")) {
+                    items1[i].className = `editable border border-dark p-2 efad-info-${id} mul activee`
+                    $(`.activee`).on({
+                        focusin: function () {
+                            $(`~ .${items1[i].getAttribute('name')}`, this).removeClass("d-none")
+                            $(this).addClass("changeable")
+                        },
+                        blur: function () {
+                            $(`~ .${items1[i].getAttribute('name')}`, this).addClass("d-none")
+                            $(this).removeClass("changeable")
+
+
+                        },
+                    }
+                    )
+
+
+                    $(`.activee + .${items1[i].getAttribute('name')} > div`).mousedown(function () {
+                        $(`.changeable`).text($("> strong", this).text()).attr("value", $("> strong", this).attr("value"))
+
+
+                    })
+                } else {
+                    items1[i].className = `editable border border-dark p-2 efad-info-${id}`
+                }
+
             }
 
 
         } else if (e.target.innerHTML === 'حفظ') {
-            console.log('حفظ')
 
             e.target.innerHTML = 'تعديل'
 
 
-
+            editMode = false; efadId = ""; btnId = ""; orignals = {}
             let values = {}
             for (let i = 0; i < items1.length; i++) {
                 values[items1[i].getAttribute('name')] = items1[i].innerHTML
+                if (items1[i].hasAttribute('value')) {
+                    values[items1[i].getAttribute('name')] = items1[i].getAttribute('value')
+                }
+                if (items1[i].classList.contains("mul")) {
+                    items1[i].className = `editable efad-info-${id} mul`
+                } else {
+                    items1[i].className = `editable efad-info-${id}`
+                }
+
+                items1[i].setAttribute("contenteditable", "false")
 
             }
             console.log(values);
         }
 
     }
+
 </script>
 
 <script>
