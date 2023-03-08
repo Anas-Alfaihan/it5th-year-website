@@ -237,34 +237,52 @@
                                                 <div class="text-lead text-muted fs-6 d-inline-block"
                                                     style="margin-left: 20px;">
                                                     رقم القرار
-                                                    /<span class="editable"
+                                                    /<span class="ex-{{ex.id}} editable"
                                                         name="extensionDecisionNumber">{{ex.extensionDecisionNumber}}</span>/<span
-                                                        class="editable"
-                                                        name="extensionDecisionType">{{ex.get_extensionDecisionType_display}}</span>
+                                                        class="ex-{{ex.id}} editable" name="extensionDecisionType"
+                                                        name="extensionDecisionType"
+                                                        value="{{ex.extensionDecisionType}}">{{ex.get_extensionDecisionType_display}}</span>
+                                                    <div class="d-none choises extensionDecisionType">
+                                                        <div><strong value="s">ش.ع</strong></div>
+                                                        <div><strong value="o">و</strong></div>
+                                                        <div><strong value="b">ب</strong></div>
+                                                    </div>
                                                 </div>
                                                 <div class="text-lead text-muted fs-6 d-inline-block">
                                                     تاريخ
-                                                    <span class="editable"
-                                                        name="extensionDecisionDate">{{ex.extensionDecisionDate|date:"SHORT_DATE_FORMAT"}}</span>
+                                                    <span class="ex-{{ex.id}} editable" name="extensionDecisionDate"
+                                                        data-toggle="datepicker">{{ex.extensionDecisionDate|date:"SHORT_DATE_FORMAT"}}</span>
                                                 </div>
 
                                             </div>
                                             <div class="card-body">
-                                                <p class="fs-5">مدة التمديد</p>
+                                                <div class="row align-items-center justify-content-between mb-2">
+                                                    <div class="col-4 pt-3">
+                                                        <p class="fs-5">مدة التمديد</p>
+                                                    </div>
+                                                    <div class="col-4 text-end"><button type="button"
+                                                            class="btn btn-sm btn-outline-success"
+                                                            onclick="editEx(event,'{{ex.id}}', '{{demonstrator.id}}')"
+                                                            id="exeb-{{ex.id}}">تعديل</button></div>
+                                                </div>
+
                                                 <div class="row">
                                                     <div class="col-4">
-                                                        <p class="ct"><span>سنة:</span><span class="editable"
-                                                                name="extensionDurationYear">{{ex.extensionDurationYear}}</span>
+                                                        <p class="ct"><span>سنة:</span><span
+                                                                class="ex-{{ex.id}} editable"
+                                                                name="extensionDurationYear">{{ex.extensionDurationYear|default:"0"}}</span>
                                                         </p>
                                                     </div>
                                                     <div class="col-4">
-                                                        <p class="ct"><span>شهر:</span><span class="editable"
-                                                                name="extensionDurationMonth">{{ex.extensionDurationMonth}}</span>
+                                                        <p class="ct"><span>شهر:</span><span
+                                                                class="ex-{{ex.id}} editable"
+                                                                name="extensionDurationMonth">{{ex.extensionDurationMonth|default:"0"}}</span>
                                                         </p>
                                                     </div>
                                                     <div class="col-4">
-                                                        <p class="ct"><span>يوم:</span><span class="editable"
-                                                                name="extensionDurationDay">{{ex.extensionDurationDay}}</span>
+                                                        <p class="ct"><span>يوم:</span><span
+                                                                class="ex-{{ex.id}} editable"
+                                                                name="extensionDurationDay">{{ex.extensionDurationDay|default:"0"}}</span>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -285,34 +303,52 @@
                                                 <div class="text-lead text-muted fs-6 d-inline-block"
                                                     style="margin-left: 20px;">
                                                     رقم القرار
-                                                    /<span class="editable"
+                                                    /<span class="fr-{{fr.id}} editable"
                                                         name="freezeDecisionNumber">{{fr.freezeDecisionNumber}}</span>/<span
-                                                        class="editable"
-                                                        name="freezeDecisionType">{{fr.get_freezeDecisionType_display}}</span>
+                                                        class="fr-{{fr.id}} editable mul" name="freezeDecisionType"
+                                                        value="{{fr.freezeDecisionType}}">{{fr.get_freezeDecisionType_display}}</span>
+                                                    <div class="d-none choises freezeDecisionType">
+                                                        <div><strong value="s">ش.ع</strong></div>
+                                                        <div><strong value="o">و</strong></div>
+                                                        <div><strong value="b">ب</strong></div>
+                                                    </div>
                                                 </div>
                                                 <div class="text-lead text-muted fs-6 d-inline-block">
                                                     تاريخ
-                                                    <span class="editable"
-                                                        name="freezeDecisionDate">{{fr.freezeDecisionDate|date:"SHORT_DATE_FORMAT"}}</span>
+                                                    <span class="fr-{{fr.id}} editable" name="freezeDecisionDate"
+                                                        data-toggle="datepicker">{{fr.freezeDecisionDate|date:"SHORT_DATE_FORMAT"}}</span>
                                                 </div>
 
                                             </div>
                                             <div class="card-body">
-                                                <p class="fs-5">مدة التجميد</p>
+                                                <div class="row align-items-center justify-content-between mb-2">
+                                                    <div class="col-4 pt-3">
+                                                        <p class="fs-5 ">مدة التجميد</p>
+                                                    </div>
+                                                    <div class="col-4 text-end">
+                                                        <button type="button" class="btn btn-sm btn-outline-success"
+                                                            onclick="editFrez(event,'{{fr.id}}', '{{demonstrator.id}}')"
+                                                            id="freb-{{fr.id}}">تعديل</button>
+                                                    </div>
+                                                </div>
+
                                                 <div class="row">
                                                     <div class="col-4">
-                                                        <p class="ct"><span>سنة:</span><span class="editable"
-                                                                name="freezeDurationYear">{{fr.freezeDurationYear}}</span>
+                                                        <p class="ct"><span>سنة:</span><span
+                                                                class="fr-{{fr.id}} editable"
+                                                                name="freezeDurationYear">{{fr.freezeDurationYear|default:"0"}}</span>
                                                         </p>
                                                     </div>
                                                     <div class="col-4">
-                                                        <p class="ct"><span>شهر:</span><span class="editable"
-                                                                name="freezeDurationMonth">{{fr.freezeDurationMonth}}</span>
+                                                        <p class="ct"><span>شهر:</span><span
+                                                                class="fr-{{fr.id}} editable"
+                                                                name="freezeDurationMonth">{{fr.freezeDurationMonth|default:"0"}}</span>
                                                         </p>
                                                     </div>
                                                     <div class="col-4">
-                                                        <p class="ct"><span>يوم:</span><span class="editable"
-                                                                name="freezeDurationDay">{{fr.freezeDurationDay}}</span>
+                                                        <p class="ct"><span>يوم:</span><span
+                                                                class="fr-{{fr.id}} editable"
+                                                                name="freezeDurationDay">{{fr.freezeDurationDay|default:"0"}}</span>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -530,15 +566,40 @@
         return div.firstChild;
     }
 
+    function edit(object, id, did, type) {
+        links = {
+            "efad": `/app/do/${id}/${did}`,
+            "ex": `/app/do/${id}/${did}`,
+            "fr": `/app/do/${id}/${did}`
+        }
+        $.post(links[type], object, function (data) {
+            console.log(data);
 
-    let editMode = false, efadId = "", btnId = "", originals = {}
+        })
+    }
+
+
+    let editMode = false, efadId = "", btnId = "", originals = {}, frezId = "", exId = ""
+    let csrf = createElementFromHTML(`{% csrf_token %}`)
 
     $(document).keydown(function (e) {
 
         if (e.keyCode === 27) {
-            resetEfad()
+            reset()
         }
     })
+    function reset() {
+        if (efadId) {
+            resetEfad()
+
+        }
+        if (frezId) {
+            resetFrez()
+        }
+        if (exId) {
+            resetEx()
+        }
+    }
 
     function resetChoise() {
         let ch = Array.prototype.slice.call(document.getElementsByClassName("choises"), 0)
@@ -548,8 +609,275 @@
         }
     }
 
+    function resetEx() {
+        if (editMode && exId) {
+            resetChoise()
+            btn = document.getElementById(btnId)
+            btn.innerHTML = 'تعديل'
+
+            let items1 = Array.prototype.slice.call(document.getElementsByClassName(exId), 0)
+            $(`.${exId}[data-toggle="datepicker"]`).datepicker('destroy')
+            for (let i = 0; i < items1.length; i++) {
+                items1[i].innerHTML = originals[items1[i].getAttribute('name')]
+                items1[i].className = `editable ${exId}`
+                items1[i].setAttribute("contenteditable", "false")
+
+            }
+            editMode = false; exId = ""; btnId = ""; originals = {}
+        }
+    }
+
+    function editEx(e, id, did) {
+        if (editMode && exId !== `ex-${id}`) {
+            reset()
+        }
+        editMode = true
+        exId = `ex-${id}`
+        btnId = `exeb-${id}`
+        let items1 = Array.prototype.slice.call(document.getElementsByClassName(exId), 0)
+
+        if (e.target.innerHTML === 'تعديل') {
+            e.target.innerHTML = 'حفظ'
+            $(`.${exId}[data-toggle="datepicker"]`).datepicker({
+                autoHide: true,
+            });
+            for (let i = 0; i < items1.length; i++) {
+                originals[items1[i].getAttribute('name')] = items1[i].innerHTML
+                items1[i].setAttribute("contenteditable", "true")
+                if (items1[i].classList.contains("mul")) {
+                    items1[i].className = `editable border border-dark p-2 ex-${id} mul activee`
+                    $(`.activee`).on({
+                        focusin: function () {
+                            $(`~ .${items1[i].getAttribute('name')}`, this).removeClass("d-none")
+                            $(this).addClass("changeable")
+                        },
+                        blur: function () {
+                            $(`~ .${items1[i].getAttribute('name')}`, this).addClass("d-none")
+                            $(this).removeClass("changeable")
+
+
+                        },
+                    }
+                    )
+
+                    $(`.activee + .${items1[i].getAttribute('name')} > div`).mousedown(function () {
+                        $(`.changeable`).text($("> strong", this).text()).attr("value", $("> strong", this).attr("value"))
+
+
+                    })
+                } else {
+                    items1[i].className = `editable border border-dark p-2 ex-${id}`
+                }
+
+            }
+
+        } else if (e.target.innerHTML === 'حفظ') {
+            const schema = {
+
+                extensionDecisionDate: (str) => {
+                    return validator.isDate(str, { format: "mm/dd/yyyy" })
+                },
+                extensionDecisionNumber: (str) => {
+                    return !validator.isEmpty(str) && validator.isNumeric(str)
+                },
+                extensionDecisionType: (str) => {
+                    return validator.equals(str, "s") || validator.equals(str, "o") || validator.equals(str, "b")
+                },
+                extensionDurationYear: (str) => true,
+                extensionDurationMonth: (str) => true,
+                extensionDurationDay: (str) => true,
+
+            }
+            const errors = {
+
+                extensionDecisionDate: "تأكد من حقل تاريخ القرار",
+                extensionDecisionNumber: "تأكد من حقل رقم القرار",
+                extensionDecisionType: "تأكد من حقل نوع القرار",
+
+            }
+
+            let df = true;
+
+
+
+            let values = {}
+            for (let i = 0; i < items1.length; i++) {
+                values[items1[i].getAttribute('name')] = items1[i].innerHTML
+                if (items1[i].hasAttribute('value')) {
+                    values[items1[i].getAttribute('name')] = items1[i].getAttribute('value')
+                }
+                if (!schema[items1[i].getAttribute('name')](values[items1[i].getAttribute('name')])) {
+                    df = false;
+                    window.alert(errors[items1[i].getAttribute('name')])
+                    break;
+                }
+            }
+            if (df) {
+
+                for (let i = 0; i < items1.length; i++) {
+                    if (items1[i].classList.contains("mul")) {
+                        items1[i].className = `editable ex-${id} mul`
+                    } else {
+                        items1[i].className = `editable ex-${id}`
+                    }
+
+                    items1[i].setAttribute("contenteditable", "false")
+
+                }
+                e.target.innerHTML = 'تعديل'
+                $(`.${exId}[data-toggle="datepicker"]`).datepicker('destroy')
+                editMode = false; exId = ""; btnId = ""; orignals = {}
+                console.log(values);
+                values["csrfmiddlewaretoken"] = csrf.value
+
+                edit(values, id, did, "ex")
+            } else {
+                values = {}
+            }
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+    function resetFrez() {
+        if (editMode && frezId) {
+            resetChoise()
+            btn = document.getElementById(btnId)
+            btn.innerHTML = 'تعديل'
+
+            let items1 = Array.prototype.slice.call(document.getElementsByClassName(frezId), 0)
+            $(`.${frezId}[data-toggle="datepicker"]`).datepicker('destroy')
+            for (let i = 0; i < items1.length; i++) {
+                items1[i].innerHTML = originals[items1[i].getAttribute('name')]
+                items1[i].className = `editable ${frezId}`
+                items1[i].setAttribute("contenteditable", "false")
+
+            }
+            editMode = false; frezId = ""; btnId = ""; originals = {}
+        }
+    }
+
+    function editFrez(e, id, did) {
+        if (editMode && frezId !== `fr-${id}`) {
+            reset()
+        }
+        editMode = true
+        frezId = `fr-${id}`
+        btnId = `freb-${id}`
+        let items1 = Array.prototype.slice.call(document.getElementsByClassName(frezId), 0)
+
+        if (e.target.innerHTML === 'تعديل') {
+            e.target.innerHTML = 'حفظ'
+            $(`.${frezId}[data-toggle="datepicker"]`).datepicker({
+                autoHide: true,
+            });
+            for (let i = 0; i < items1.length; i++) {
+                originals[items1[i].getAttribute('name')] = items1[i].innerHTML
+                items1[i].setAttribute("contenteditable", "true")
+                if (items1[i].classList.contains("mul")) {
+                    items1[i].className = `editable border border-dark p-2 fr-${id} mul activee`
+                    $(`.activee`).on({
+                        focusin: function () {
+                            $(`~ .${items1[i].getAttribute('name')}`, this).removeClass("d-none")
+                            $(this).addClass("changeable")
+                        },
+                        blur: function () {
+                            $(`~ .${items1[i].getAttribute('name')}`, this).addClass("d-none")
+                            $(this).removeClass("changeable")
+
+
+                        },
+                    }
+                    )
+
+                    $(`.activee + .${items1[i].getAttribute('name')} > div`).mousedown(function () {
+                        $(`.changeable`).text($("> strong", this).text()).attr("value", $("> strong", this).attr("value"))
+
+
+                    })
+                } else {
+                    items1[i].className = `editable border border-dark p-2 fr-${id}`
+                }
+
+            }
+
+        } else if (e.target.innerHTML === 'حفظ') {
+            const schema = {
+
+                freezeDecisionDate: (str) => {
+                    return validator.isDate(str, { format: "mm/dd/yyyy" })
+                },
+                freezeDecisionNumber: (str) => {
+                    return !validator.isEmpty(str) && validator.isNumeric(str)
+                },
+                freezeDecisionType: (str) => {
+                    return validator.equals(str, "s") || validator.equals(str, "o") || validator.equals(str, "b")
+                },
+                freezeDurationYear: (str) => true,
+                freezeDurationMonth: (str) => true,
+                freezeDurationDay: (str) => true,
+
+            }
+            const errors = {
+
+                freezeDecisionDate: "تأكد من حقل تاريخ القرار",
+                freezeDecisionNumber: "تأكد من حقل رقم القرار",
+                freezeDecisionType: "تأكد من حقل نوع القرار",
+
+            }
+
+            let df = true;
+
+
+
+            let values = {}
+            for (let i = 0; i < items1.length; i++) {
+                values[items1[i].getAttribute('name')] = items1[i].innerHTML
+                if (items1[i].hasAttribute('value')) {
+                    values[items1[i].getAttribute('name')] = items1[i].getAttribute('value')
+                }
+                if (!schema[items1[i].getAttribute('name')](values[items1[i].getAttribute('name')])) {
+                    df = false;
+                    window.alert(errors[items1[i].getAttribute('name')])
+                    break;
+                }
+            }
+            if (df) {
+
+                for (let i = 0; i < items1.length; i++) {
+                    if (items1[i].classList.contains("mul")) {
+                        items1[i].className = `editable fr-${id} mul`
+                    } else {
+                        items1[i].className = `editable fr-${id}`
+                    }
+
+                    items1[i].setAttribute("contenteditable", "false")
+
+                }
+                e.target.innerHTML = 'تعديل'
+                $(`.${frezId}[data-toggle="datepicker"]`).datepicker('destroy')
+                editMode = false; frezId = ""; btnId = ""; orignals = {}
+                console.log(values);
+                values["csrfmiddlewaretoken"] = csrf.value
+
+                edit(values, id, did, "fr")
+
+            } else {
+                values = {}
+            }
+        }
+
+    }
+
     function resetEfad() {
-        if (editMode) {
+        if (editMode && efadId) {
             resetChoise()
             btn = document.getElementById(btnId)
             btn.innerHTML = 'تعديل'
@@ -571,7 +899,7 @@
 
     function editEfad(e, id, did) {
         if (editMode && efadId !== `efad-info-${id}`) {
-            resetEfad()
+            reset()
         }
         editMode = true
         efadId = `efad-info-${id}`
@@ -666,7 +994,7 @@
             let df = true;
 
 
-            let csrf = createElementFromHTML(`{% csrf_token %}`)
+
             let values = {}
             for (let i = 0; i < items1.length; i++) {
                 values[items1[i].getAttribute('name')] = items1[i].innerHTML
@@ -697,12 +1025,8 @@
                 console.log(values);
                 values["csrfmiddlewaretoken"] = csrf.value
 
+                edit(values, id, did, "efad")
 
-
-                $.post(`/app/do/${id}/${did}`, values, function (data) {
-                    console.log(data);
-
-                })
             } else {
                 values = {}
             }
