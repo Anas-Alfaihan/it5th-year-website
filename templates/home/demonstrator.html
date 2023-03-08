@@ -568,9 +568,9 @@
 
     function edit(object, id, did, type) {
         links = {
-            "efad": `/app/do/${id}/${did}`,
-            "ex": `/app/do/${id}/${did}`,
-            "fr": `/app/do/${id}/${did}`
+            "efad": `/app/updateDispatch/${id}/${did}/`,
+            "ex": `/app/updateExtension/${id}/${did}/`,
+            "fr": `/app/updateFreeze/${id}/${did}/`
         }
         $.post(links[type], object, function (data) {
             console.log(data);

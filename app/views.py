@@ -474,7 +474,7 @@ def UpdateDispatch(request, id, demonId):
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
 
-def UpdateReport(request, id, demonId, dispatchId):
+def UpdateReport(request, id, demonId):
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
@@ -484,7 +484,7 @@ def UpdateReport(request, id, demonId, dispatchId):
 
                 reports= Report.objects.filter(pk=id)
                 for report in reports:
-                    resId = generalUpdate(request, 'regularizationDecisionNumber', {'dispatchDecisionId': dispatchId}, Report, AddReport, report, savePoint)
+                    resId = generalUpdate(request, 'regularizationDecisionNumber', {'dispatchDecisionId': report.dispatchDecisionId}, Report, AddReport, report, savePoint)
                     if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -492,7 +492,7 @@ def UpdateReport(request, id, demonId, dispatchId):
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
 
-def UpdateRegularization(request, id, demonId, dispatchId):
+def UpdateRegularization(request, id, demonId):
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
@@ -502,7 +502,7 @@ def UpdateRegularization(request, id, demonId, dispatchId):
 
                 regularizations= Regularization.objects.filter(pk=id)
                 for regularization in regularizations:
-                    resId = generalUpdate(request, 'regularizationDecisionNumber', {'regularizationDecisionId': dispatchId}, Regularization, AddRegularization, regularization, savePoint)
+                    resId = generalUpdate(request, 'regularizationDecisionNumber', {'regularizationDecisionId': regularization.regularizationDecisionId}, Regularization, AddRegularization, regularization, savePoint)
                     if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -510,7 +510,7 @@ def UpdateRegularization(request, id, demonId, dispatchId):
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
 
-def UpdateExtension(request, id, demonId, dispatchId):
+def UpdateExtension(request, id, demonId):
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
@@ -520,7 +520,7 @@ def UpdateExtension(request, id, demonId, dispatchId):
 
                 extensions= Extension.objects.filter(pk=id)
                 for extension in extensions:
-                    extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, extension, savePoint)
+                    extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': extension.dispatchDecisionId}, Extension, AddExtension, extension, savePoint)
                     if type(extensionId) == ErrorDict: return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -528,7 +528,7 @@ def UpdateExtension(request, id, demonId, dispatchId):
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
 
-def UpdateFreeze(request, id, demonId, dispatchId):
+def UpdateFreeze(request, id, demonId):
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
@@ -538,7 +538,7 @@ def UpdateFreeze(request, id, demonId, dispatchId):
 
                 freezes= Freeze.objects.filter(pk=id)
                 for freeze in freezes:
-                    freezeId = generalUpdate(request, 'freezeDecisionNumber', {'dispatchDecisionId': dispatchId}, Freeze, AddFreeze, freeze, savePoint)
+                    freezeId = generalUpdate(request, 'freezeDecisionNumber', {'dispatchDecisionId': freeze.dispatchDecisionId}, Freeze, AddFreeze, freeze, savePoint)
                     if type(freezeId) == ErrorDict: return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -546,7 +546,7 @@ def UpdateFreeze(request, id, demonId, dispatchId):
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
 
-def UpdateDurationChange(request, id, demonId, dispatchId):
+def UpdateDurationChange(request, id, demonId):
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
@@ -556,7 +556,7 @@ def UpdateDurationChange(request, id, demonId, dispatchId):
 
                 durationChange= DurationChange.objects.filter(pk=id)
                 for model in durationChange:
-                    resId = generalUpdate(request, 'durationChangeDurationYear', {'dispatchDecisionId': dispatchId}, DurationChange, AddDurationChange, model, savePoint)
+                    resId = generalUpdate(request, 'durationChangeDurationYear', {'dispatchDecisionId': model.dispatchDecisionId}, DurationChange, AddDurationChange, model, savePoint)
                     if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -564,7 +564,7 @@ def UpdateDurationChange(request, id, demonId, dispatchId):
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
 
-def UpdateAlimonyChange(request, id, demonId, dispatchId):
+def UpdateAlimonyChange(request, id, demonId):
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
@@ -574,7 +574,7 @@ def UpdateAlimonyChange(request, id, demonId, dispatchId):
 
                 alimonyChange= AlimonyChange.objects.filter(pk=id)
                 for model in alimonyChange:
-                    resId = generalUpdate(request, 'newAlimony', {'dispatchDecisionId': dispatchId}, AlimonyChange, AddAlimonyChange, model, savePoint)
+                    resId = generalUpdate(request, 'newAlimony', {'dispatchDecisionId': model.dispatchDecisionId}, AlimonyChange, AddAlimonyChange, model, savePoint)
                     if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -582,7 +582,7 @@ def UpdateAlimonyChange(request, id, demonId, dispatchId):
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
 
-def UpdateUniversityChange(request, id, demonId, dispatchId):
+def UpdateUniversityChange(request, id, demonId):
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
@@ -592,7 +592,7 @@ def UpdateUniversityChange(request, id, demonId, dispatchId):
 
                 universityChange= UniversityChange.objects.filter(pk=id)
                 for model in universityChange:
-                    resId = generalUpdate(request, 'newUniversity', {'dispatchDecisionId': dispatchId}, UniversityChange, AddUniversityChange, model, savePoint)
+                    resId = generalUpdate(request, 'newUniversity', {'dispatchDecisionId': model.dispatchDecisionId}, UniversityChange, AddUniversityChange, model, savePoint)
                     if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -600,7 +600,7 @@ def UpdateUniversityChange(request, id, demonId, dispatchId):
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
 
-def UpdateSpecializationChange(request, id, demonId, dispatchId):
+def UpdateSpecializationChange(request, id, demonId):
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
@@ -610,7 +610,7 @@ def UpdateSpecializationChange(request, id, demonId, dispatchId):
 
                 specializationChange= SpecializationChange.objects.filter(pk=id)
                 for model in specializationChange:
-                    resId = generalUpdate(request, 'newSpecialization', {'dispatchDecisionId': dispatchId}, SpecializationChange, AddSpecializationChange, model, savePoint)
+                    resId = generalUpdate(request, 'newSpecialization', {'dispatchDecisionId': model.dispatchDecisionId}, SpecializationChange, AddSpecializationChange, model, savePoint)
                     if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -619,7 +619,7 @@ def UpdateSpecializationChange(request, id, demonId, dispatchId):
 
 
 
-def UpdateDemonstrator(request, id):
+def UpdateDemonstrator2(request, id):
     demonstrators = Demonstrator.objects.filter(pk=id)
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=id).values('college'))

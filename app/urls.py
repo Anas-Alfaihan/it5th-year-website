@@ -10,7 +10,6 @@ urlpatterns = [
     path('login/', views.Login, name='login'),
     path('logout/', views.Logout, name='logout'),
     path('insert/', views.DemonstratorInsert2, name='insert'),
-    path('update/<int:id>', views.UpdateDemonstrator, name='update'),
     path('query/', views.QueryDemonstrator, name='query'),
     path('allDemonstrators/', views.getAllDemonstrators, name='allDemonstrators'),
     path('demonstrator/<int:id>/', views.getDemonstrator, name='demonstrator'),
@@ -18,7 +17,9 @@ urlpatterns = [
     path('getdispatch/<int:dispatchId>/', views.getDispatch, name='getdispatch'),
     path('extinsert/<int:dispatchId>', views.ExtensionInsert, name='extinsert'),
     path('freinsert/<int:dispatchId>', views.FreezeInsert, name='freinsert'),
-    path('do/<int:dispatchId>/<int:demonId>', views.do_something, name='do'),
+    path('updateExtension/<int:id>/<int:demonId>/', views.UpdateExtension, name='updateExtension'),
+    path('updateFreeze/<int:id>/<int:demonId>/', views.UpdateFreeze, name='updateFreeze'),
+    path('updateDispatch/<int:id>/<int:demonId>/', views.UpdateDispatch, name='updateDispatch'),
 
 
 ]
