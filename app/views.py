@@ -853,6 +853,6 @@ def pushData(request, data):
     else:
         return render(request, 'registration/result.html', {'result': 'done'})
 
-def do_something(request):
+def do_something(request,dispatchId,demonId):
         print(request.POST)
         return JsonResponse({"status": "good"})
