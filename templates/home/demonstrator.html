@@ -336,7 +336,8 @@
                                             إضافة تمديد
                                         </button>
                                         <button type="button" class="btn btn-outline-success"
-                                            onclick="edit(event,'{{i.id}}')" id="efeb-{{i.id}}">تعديل</button>
+                                            onclick="editEfad(event,'{{i.id}}', '{{demonstrator.id}}')"
+                                            id="efeb-{{i.id}}">تعديل</button>
                                         <button type="button" class="btn btn-outline-info">إضافة ملاحظات</button>
                                     </div>
                                 </div>
@@ -554,9 +555,7 @@
             btn.innerHTML = 'تعديل'
 
             let items1 = Array.prototype.slice.call(document.getElementsByClassName(efadId), 0)
-
             $(`.${efadId}[data-toggle="datepicker"]`).datepicker('destroy')
-
             for (let i = 0; i < items1.length; i++) {
                 items1[i].innerHTML = originals[items1[i].getAttribute('name')]
                 items1[i].className = `editable ${efadId}`
@@ -570,24 +569,20 @@
     }
 
 
-    function edit(e, id) {
-
+    function editEfad(e, id, did) {
         if (editMode && efadId !== `efad-info-${id}`) {
             resetEfad()
         }
         editMode = true
         efadId = `efad-info-${id}`
         btnId = `efeb-${id}`
-
         let items1 = Array.prototype.slice.call(document.getElementsByClassName(efadId), 0)
 
         if (e.target.innerHTML === 'تعديل') {
             e.target.innerHTML = 'حفظ'
-
             $(`.${efadId}[data-toggle="datepicker"]`).datepicker({
                 autoHide: true,
             });
-
             for (let i = 0; i < items1.length; i++) {
                 originals[items1[i].getAttribute('name')] = items1[i].innerHTML
                 items1[i].setAttribute("contenteditable", "true")
@@ -607,7 +602,6 @@
                     }
                     )
 
-
                     $(`.activee + .${items1[i].getAttribute('name')} > div`).mousedown(function () {
                         $(`.changeable`).text($("> strong", this).text()).attr("value", $("> strong", this).attr("value"))
 
@@ -619,10 +613,7 @@
 
             }
 
-
         } else if (e.target.innerHTML === 'حفظ') {
-
-
 
             const schema = {
                 alimony: (str) => {
@@ -659,7 +650,6 @@
                     return validator.isLength(str, { min: 1, max: 256 })
                 },
             }
-
             const errors = {
                 alimony: "تأكد من حقل النفقة",
                 backDate: "تأكد من حقل تاريخ العودة",
@@ -670,7 +660,6 @@
                 dispatchType: "تأكد من حقل نوع الإيفاد",
                 dispatchUniversity: "تأكد من حقل جامعة الإيفاد",
                 innerSupervisor: "تأكد من حقل المشرف الداخلي",
-
                 outerSupervisor: "تاكد من حقل المشرف الخارجي",
             }
 
@@ -689,8 +678,6 @@
                     window.alert(errors[items1[i].getAttribute('name')])
                     break;
                 }
-
-
             }
             if (df) {
 
@@ -709,10 +696,13 @@
                 editMode = false; efadId = ""; btnId = ""; orignals = {}
                 console.log(values);
                 values["csrfmiddlewaretoken"] = csrf.value
-                values["efadId"] = id
 
 
-                $.post("/app/do", values)
+
+                $.post(`/app/do/${id}/${did}`, values, function (data) {
+                    console.log(data);
+
+                })
             } else {
                 values = {}
             }

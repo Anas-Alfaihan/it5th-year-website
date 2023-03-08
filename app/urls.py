@@ -18,7 +18,7 @@ urlpatterns = [
     path('getdispatch/<int:dispatchId>/', views.getDispatch, name='getdispatch'),
     path('extinsert/<int:dispatchId>', views.ExtensionInsert, name='extinsert'),
     path('freinsert/<int:dispatchId>', views.FreezeInsert, name='freinsert'),
-    path('do', views.do_something, name='do'),
+    path('do/<int:dispatchId>/<int:demonId>', views.do_something, name='do'),
 
 
 ]
