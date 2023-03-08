@@ -26,6 +26,9 @@
                     <button type="button">الشهادة الجامعية</button>
                 </li>
                 <li class="fifth">
+                    <button type="button">شهادات التفوق</button>
+                </li>
+                <li class="sixth">
                     <button type="button">الإيفادات</button>
                 </li>
             </ul>
@@ -138,7 +141,8 @@
                 </div>
             </div>
         </div>
-        <div class="fifth" style="display: none">
+        <div class="fifth"></div>
+        <div class="sixth" style="display: none">
             <div class="row justify-content-center mx-auto">
                 <div class="accordion" id="efads">
                     {% for i in demonstrator.dispatch.all %}
@@ -147,6 +151,7 @@
                             <button class="accordion-button collapsed ct" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#info-{{i.id}}" aria-expanded="false" aria-controls="info-{{i.id}}">
                                 <span>شهادة الإيفاد:</span>{{i.get_requiredCertificate_display}}
+
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse" id="info-{{i.id}}" aria-labelledby="efad-{{i.id}}"
@@ -220,7 +225,7 @@
                                     <p class="ct col-6">
                                         <span>تاريخ العودة:</span><span data-toggle="datepicker"
                                             class="efad-info-{{i.id}} editable"
-                                            name="backDate">{{i.backDate|default:""}}</span>
+                                            name="backDate">{{i.backDate|date:"SHORT_DATE_FORMAT"}}</span>
                                     </p>
                                 </div>
 
@@ -228,6 +233,12 @@
                                     <span>تاريخ آخر تقرير:</span><span class="efad-info-{{i.id}} editable"
                                         data-toggle="datepicker" name="lastReportDate">{{i.lastReportDate}}</span>
                                 </p>
+                                <div class="form-floating mb-4">
+                                    <textarea class="form-control w-50" placeholder="Leave a comment here"
+                                        id="floatingText" rows="10" style="height: 150px"
+                                        disabled>{{i.dispatchNotes}}</textarea>
+                                    <label for="floatingText" class="fs-6">ملاحظات</label>
+                                </div>
                                 <div class="row">
                                     <div class="col-6">
                                         {% for ex in i.extension.all %}
@@ -362,9 +373,43 @@
                                     </div>
 
                                 </div>
+                                <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                                    data-bs-target="#offcanvasScrolling"
+                                    aria-controls="offcanvasScrolling">التقارير</button>
+                                <div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="true"
+                                    tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+                                    <div class="offcanvas-header">
+                                        <h5 class="offcanvas-title" id="offcanvasScrollingLabel">التقارير</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="offcanvas-body">
+                                        <div class="row">
+                                            {% for re in i.report.all %}
+                                            <div class="col-12">
+                                                <div class="card mb-2 ">
+                                                    <div class="card-header fs-6 text-muted">
+                                                        {{re.reportDate|date:"SHORT_DATE_FORMAT"}}
+                                                    </div>
+                                                    <div class="card-body ">
+                                                        <p class="card-text fs-6">
+                                                            {{re.report}}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <div class="col-6"></div>
                                     <div class="col-6 text-center">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                                            data-bs-target="#Modalre{{i.id}}">
+                                            إضافة تقرير
+                                        </button>
                                         <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal"
                                             data-bs-target="#Modalfr{{i.id}}">إضافة تجميد</button>
                                         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
@@ -377,6 +422,46 @@
                                         <button type="button" class="btn btn-outline-info">إضافة ملاحظات</button>
                                     </div>
                                 </div>
+
+                                <div class="modal fade" id="Modalre{{i.id}}" tabindex="-1"
+                                    aria-labelledby="ModalLabel{{i.id}}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="ModalLabel{{i.id}}">
+                                                    إضافة تقرير
+                                                </h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body fs-6">
+                                                <form method="post"
+                                                    action="/app/reportinsert/{{i.id}}/{{demonstrator.id}}/">
+                                                    {% csrf_token %}
+
+
+
+                                                    <div class="form-floating mb-3">
+                                                        <input type="date" class="form-control" id="floatingd"
+                                                            placeholder="02/15/2023" name="reportDate" />
+                                                        <label for="floatingd">تاريخ
+                                                            التقرير</label>
+                                                    </div>
+                                                    <div class="form-floating mb-3">
+                                                        <textarea class="form-control" name="report"
+                                                            placeholder="Leave a comment here" id="floatingTextarea2"
+                                                            style="height: 100px"></textarea>
+                                                        <label for="floatingTextarea2">التقرير</label>
+                                                    </div>
+                                                    <input type="submit" value="إضافة"
+                                                        class="btn btn-outline-primary" />
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                                 <div class="modal fade" id="Modalex{{i.id}}" tabindex="-1"
                                     aria-labelledby="ModalLabel{{i.id}}" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
@@ -389,7 +474,8 @@
                                                     aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body fs-6">
-                                                <form method="post" action="/app/extinsert/{{i.id}}">
+                                                <form method="post"
+                                                    action="/app/extinsert/{{i.id}}/{{demonstrator.id}}/">
                                                     {% csrf_token %}
 
                                                     <div class="form-floating mb-3">
@@ -469,7 +555,8 @@
                                                     aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body fs-6">
-                                                <form method="post" action="/app/freinsert/{{i.id}}">
+                                                <form method="post"
+                                                    action="/app/freinsert/{{i.id}}/{{demonstrator.id}}/">
                                                     {% csrf_token %}
 
                                                     <div class="form-floating mb-3">
@@ -904,6 +991,7 @@
         editMode = true
         efadId = `efad-info-${id}`
         btnId = `efeb-${id}`
+        textarea = document.getElementById("floatingText")
         let items1 = Array.prototype.slice.call(document.getElementsByClassName(efadId), 0)
 
         if (e.target.innerHTML === 'تعديل') {
@@ -911,6 +999,7 @@
             $(`.${efadId}[data-toggle="datepicker"]`).datepicker({
                 autoHide: true,
             });
+            textarea.removeAttribute("disabled")
             for (let i = 0; i < items1.length; i++) {
                 originals[items1[i].getAttribute('name')] = items1[i].innerHTML
                 items1[i].setAttribute("contenteditable", "true")
@@ -1008,6 +1097,7 @@
                 }
             }
             if (df) {
+                textarea.setAttribute("disabled", "true")
 
                 for (let i = 0; i < items1.length; i++) {
                     if (items1[i].classList.contains("mul")) {
@@ -1024,6 +1114,7 @@
                 editMode = false; efadId = ""; btnId = ""; orignals = {}
                 console.log(values);
                 values["csrfmiddlewaretoken"] = csrf.value
+                values["dispatchNotes"] = textarea.value
 
                 edit(values, id, did, "efad")
 

@@ -169,22 +169,26 @@ def getDispatch(request, dispatchId):
     return render(request, 'home/show-dispatch.html', {'dispatch': ans})
 
 
-def ReportInsert(request, dispatchId):
+def ReportInsert(request, dispatchId, demonId):
     
     if request.method == 'POST':
+        print(request.POST)
         college= list(Dispatch.objects.filter(pk=dispatchId).values('studentId__college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['studentId__college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
+                print(request.POST)
 
                 reportId = generalInsert(request, 'report', {'dispatchDecisionId': dispatchId}, Report, AddReport, savePoint)
+                print(request.POST)
                 if type(reportId) == ErrorDict: return render(request, 'registration/result.html', {'result': reportId})
+                return redirect("app:demonstrator", id=demonId)
     else:
          return render(request, 'registration/result.html', {'result': 'you are not allowed to edit in this college'})
 
 
-def ExtensionInsert(request, dispatchId):
+def ExtensionInsert(request, dispatchId,demonId):
     if request.method == 'POST':
         college= list(Dispatch.objects.filter(pk=dispatchId).values('studentId__college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
@@ -195,7 +199,7 @@ def ExtensionInsert(request, dispatchId):
                 extensionId = generalInsert(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, savePoint)
                 if type(extensionId) == ErrorDict: return render(request, 'registration/result.html', {'result': extensionId})
 
-                return redirect("app:demonstrator", id=dispatchId)
+                return redirect("app:demonstrator", id=demonId)
         else:
          return render(request, 'registration/result.html', {'result': 'you are not allowed to edit in this college'})
         
@@ -203,7 +207,7 @@ def ExtensionInsert(request, dispatchId):
         return render(request, 'home/ext.html')
 
 
-def FreezeInsert(request, dispatchId):
+def FreezeInsert(request, dispatchId,demonId):
     if request.method == 'POST':
         college= list(Dispatch.objects.filter(pk=dispatchId).values('studentId__college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
@@ -214,7 +218,7 @@ def FreezeInsert(request, dispatchId):
                 freezeId = generalInsert(request, 'freezeDecisionNumber', {'dispatchDecisionId': dispatchId}, Freeze, AddFreeze, savePoint)
                 if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
 
-                return redirect("app:demonstrator", id=dispatchId)
+                return redirect("app:demonstrator", id=demonId)
         else:
             return render(request, 'registration/result.html', {'result': 'you are not allowed to edit in this college'})
     else:
