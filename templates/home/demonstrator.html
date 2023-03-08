@@ -1,6 +1,7 @@
 {% extends "base.html" %} {% block head_title %} {{demonstrator.name}}
 {%endblock %} {% load static %} {% block style %}
 <link rel="stylesheet" href="{% static 'css/demonstrator.css' %}" />
+<link rel="stylesheet" href="{% static 'css/date-picker.min.css' %}" />
 
 {% endblock %}
 
@@ -169,8 +170,8 @@
                                         <p class="text-lead text-muted fs-6 col-2">
                                             تاريخ
 
-                                            <span class="efad-info-{{i.id}} editable"
-                                                name="dispatchDecisionDate">{{i.dispatchDecisionDate|date:"SHORT_DATE_FORMAT"}}</span>
+                                            <span class="efad-info-{{i.id}} editable" name="dispatchDecisionDate"
+                                                data-toggle="datepicker">{{i.dispatchDecisionDate|date:"SHORT_DATE_FORMAT"}}</span>
                                         </p>
                                     </div>
                                 </div>
@@ -217,14 +218,15 @@
                                             name="outerSupervisor">{{i.outerSupervisor}}</span>
                                     </p>
                                     <p class="ct col-6">
-                                        <span>تاريخ العودة:</span><span class="efad-info-{{i.id}} editable"
+                                        <span>تاريخ العودة:</span><span data-toggle="datepicker"
+                                            class="efad-info-{{i.id}} editable"
                                             name="backDate">{{i.backDate|default:""}}</span>
                                     </p>
                                 </div>
 
                                 <p class="ct">
-                                    <span>تاريخ آخر تقرير:</span><span
-                                        class="efad-info-{{i.id}} editable">{{i.lastReportDate}}</span>
+                                    <span>تاريخ آخر تقرير:</span><span class="efad-info-{{i.id}} editable"
+                                        data-toggle="datepicker" name="lastReportDate">{{i.lastReportDate}}</span>
                                 </p>
                                 <div class="row">
                                     <div class="col-6">
@@ -512,9 +514,20 @@
         </div>
     </div>
 
+
 </section>
+<script src="{% static 'js/date-picker.min.js' %}"></script>
+<script src="{% static 'js/validator.min.js' %}"></script>
 
 <script>
+
+    function createElementFromHTML(htmlString) {
+        var div = document.createElement('div');
+        div.innerHTML = htmlString.trim();
+
+        // Change this to div.childNodes to support multiple top-level nodes.
+        return div.firstChild;
+    }
 
 
     let editMode = false, efadId = "", btnId = "", originals = {}
@@ -542,6 +555,7 @@
 
             let items1 = Array.prototype.slice.call(document.getElementsByClassName(efadId), 0)
 
+            $(`.${efadId}[data-toggle="datepicker"]`).datepicker('destroy')
 
             for (let i = 0; i < items1.length; i++) {
                 items1[i].innerHTML = originals[items1[i].getAttribute('name')]
@@ -570,6 +584,9 @@
         if (e.target.innerHTML === 'تعديل') {
             e.target.innerHTML = 'حفظ'
 
+            $(`.${efadId}[data-toggle="datepicker"]`).datepicker({
+                autoHide: true,
+            });
 
             for (let i = 0; i < items1.length; i++) {
                 originals[items1[i].getAttribute('name')] = items1[i].innerHTML
@@ -605,26 +622,101 @@
 
         } else if (e.target.innerHTML === 'حفظ') {
 
-            e.target.innerHTML = 'تعديل'
 
 
-            editMode = false; efadId = ""; btnId = ""; orignals = {}
+            const schema = {
+                alimony: (str) => {
+                    return validator.equals(str, "grant") || validator.equals(str, "seat")
+                },
+                backDate: (str) => {
+                    return validator.isDate(str, { format: "mm/dd/yyyy" })
+                },
+                dispatchCountry: (str) => {
+                    return validator.isLength(str, { min: 1, max: 256 })
+                },
+                dispatchDecisionDate: (str) => {
+                    return validator.isDate(str, { format: "mm/dd/yyyy" })
+                },
+                dispatchDecisionNumber: (str) => {
+                    return !validator.isEmpty(str) && validator.isNumeric(str)
+                },
+                dispatchDecisionType: (str) => {
+                    return validator.equals(str, "s") || validator.equals(str, "o") || validator.equals(str, "b")
+                },
+                dispatchType: (str) => {
+                    return validator.equals(str, "inner") || validator.equals(str, "outer")
+                },
+                dispatchUniversity: (str) => {
+                    return validator.isLength(str, { min: 1, max: 256 })
+                },
+                innerSupervisor: (str) => {
+                    return validator.isLength(str, { min: 1, max: 256 })
+                },
+                lastReportDate: (str) => {
+                    return true
+                },
+                outerSupervisor: (str) => {
+                    return validator.isLength(str, { min: 1, max: 256 })
+                },
+            }
+
+            const errors = {
+                alimony: "تأكد من حقل النفقة",
+                backDate: "تأكد من حقل تاريخ العودة",
+                dispatchCountry: "تأكد من حقل بلد الإيفاد",
+                dispatchDecisionDate: "تأكد من حقل تاريخ القرار",
+                dispatchDecisionNumber: "تأكد من حقل رقم القرار",
+                dispatchDecisionType: "تأكد من حقل نوع القرار",
+                dispatchType: "تأكد من حقل نوع الإيفاد",
+                dispatchUniversity: "تأكد من حقل جامعة الإيفاد",
+                innerSupervisor: "تأكد من حقل المشرف الداخلي",
+
+                outerSupervisor: "تاكد من حقل المشرف الخارجي",
+            }
+
+            let df = true;
+
+
+            let csrf = createElementFromHTML(`{% csrf_token %}`)
             let values = {}
             for (let i = 0; i < items1.length; i++) {
                 values[items1[i].getAttribute('name')] = items1[i].innerHTML
                 if (items1[i].hasAttribute('value')) {
                     values[items1[i].getAttribute('name')] = items1[i].getAttribute('value')
                 }
-                if (items1[i].classList.contains("mul")) {
-                    items1[i].className = `editable efad-info-${id} mul`
-                } else {
-                    items1[i].className = `editable efad-info-${id}`
+                if (!schema[items1[i].getAttribute('name')](values[items1[i].getAttribute('name')])) {
+                    df = false;
+                    window.alert(errors[items1[i].getAttribute('name')])
+                    break;
                 }
 
-                items1[i].setAttribute("contenteditable", "false")
 
             }
-            console.log(values);
+            if (df) {
+
+                for (let i = 0; i < items1.length; i++) {
+                    if (items1[i].classList.contains("mul")) {
+                        items1[i].className = `editable efad-info-${id} mul`
+                    } else {
+                        items1[i].className = `editable efad-info-${id}`
+                    }
+
+                    items1[i].setAttribute("contenteditable", "false")
+
+                }
+                e.target.innerHTML = 'تعديل'
+                $(`.${efadId}[data-toggle="datepicker"]`).datepicker('destroy')
+                editMode = false; efadId = ""; btnId = ""; orignals = {}
+                console.log(values);
+                values["csrfmiddlewaretoken"] = csrf.value
+                values["efadId"] = id
+
+
+                $.post("/app/do", values)
+            } else {
+                values = {}
+            }
+
         }
 
     }
@@ -632,6 +724,9 @@
 </script>
 
 <script>
+
+
+
     $(document).ready(function () {
         var nav = $('#nav');
         var line = $('<div />').addClass('line');
@@ -726,5 +821,6 @@
         });
     });
 </script>
+
 
 {% endblock %}

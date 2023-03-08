@@ -1,18 +1,19 @@
+import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms.utils import ErrorDict
-from .models import *
-from .forms import *
+from django.http import JsonResponse
 from django.core import serializers
 from django.contrib import messages
 from django.apps import apps
 from django.db.models import Q
-from . import forms
-import datetime
 from json import dumps
+from .models import *
+from .forms import *
+from . import forms
 
 
 @login_required(login_url='app:login')
@@ -663,3 +664,7 @@ def pushData(request, data):
             return render(request, 'registration/result.html', {'result': 'done'})
     else:
         return render(request, 'registration/result.html', {'result': 'done'})
+
+def do_something(request):
+        print(request.POST)
+        return JsonResponse({"status": "good"})
