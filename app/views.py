@@ -316,7 +316,7 @@ def getDemonstrator(request, id):
     return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator})
    
 
-def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint, i):
+def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint):
     try:
         id = None
         if mainField in request.POST:
@@ -324,7 +324,7 @@ def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint, 
             dic.update(baseDic)
             for field in model._meta.local_fields:
                 if field.name in request.POST:
-                    dic[field.name] = request.POST.getlist(field.name)[i]
+                    dic[field.name] = request.POST[field.name]
             form = addModel(dic, instance=obj)
             if form.is_valid():
                 id = form.save()
@@ -336,7 +336,7 @@ def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint, 
         print('error')
 
 
-def DemonstratorUpdate(request, id):
+def UpdateDemonstrator(request, id):
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=id).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
@@ -346,89 +346,277 @@ def DemonstratorUpdate(request, id):
 
                 demonstrators = Demonstrator.objects.filter(pk=id)
                 for demonstrator in demonstrators:
-                    demonId= generalUpdate(request, 'name', {}, Demonstrator, AddDemonstrator, demonstrator, savePoint, 0)
-                    if type(demonId) == ErrorDict: return render(request, 'registration/result.html', {'result': demonId})
+                    demonId= generalUpdate(request, 'name', {}, Demonstrator, AddDemonstrator, demonstrator, savePoint)
+                    if type(demonId) == ErrorDict: return JsonResponse({"status": "bad"})
 
-                    nominations= Nomination.objects.filter(nominationDecision=demonId)
-                    for nomination in nominations:
-                        id = generalUpdate(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, nomination, savePoint, 0)
-                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-
-                    universityDegrees= UniversityDegree.objects.filter(universityDegree=demonId)
-                    for universityDegree in universityDegrees:
-                        id = generalUpdate(request, 'universityDegreeUniversity', {'universityDegree': demonId}, UniversityDegree, AddUniversityDegree, universityDegree, savePoint, 0)
-                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-
-                    graduateStudiesCount= 0 
-                    graduateStudies= GraduateStudies.objects.filter(studentId=demonId)
-                    for model in graduateStudies:
-                        id = generalUpdate(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, model, savePoint, graduateStudiesCount)
-                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                        graduateStudiesCount+= 1
-
-                    certificateOfExcellenceCount= 0
-                    certificateOfExcellence= CertificateOfExcellence.objects.filter(studentId=demonId)
-                    for model in certificateOfExcellence:
-                        id = generalUpdate(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, model, savePoint, certificateOfExcellenceCount)
-                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                        certificateOfExcellenceCount+= 1
-
-                id = generalInsert(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, savePoint)
-                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-
-            return render(request, 'registration/result.html', {'result': 'done'})
+            return JsonResponse({"status": "good"})
         else :
-            return render(request, 'registration/result.html', {'result': 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
 
-def AdjectiveChangeUpdate(request, demonId):
+def UpdateUniversityDegree(request, id, demonId):
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
-        if college[0]['college'] in permissionList or request.user.is_superuser:
+        if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
 
-                adjectiveChangeCount= 0
-                adjectiveChange= AdjectiveChange.objects.filter(studentId=demonId)
+                universityDegrees= UniversityDegree.objects.filter(pk=id)
+                for universityDegree in universityDegrees:
+                    resId = generalUpdate(request, 'universityDegreeUniversity', {'universityDegree': demonId}, UniversityDegree, AddUniversityDegree, universityDegree, savePoint)
+                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def UpdateNomination(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                nominations= Nomination.objects.filter(pk=id)
+                for nomination in nominations:
+                    resId = generalUpdate(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, nomination, savePoint)
+                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def UpdateAdjectiveChange(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                adjectiveChange= AdjectiveChange.objects.filter(pk=id)
                 for model in adjectiveChange:
-                    id = generalUpdate(request, 'adjectiveChangeDecisionNumber', {'studentId': demonId}, AdjectiveChange, AddAdjectiveChange, model, savePoint, adjectiveChangeCount)
-                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                    resId = generalUpdate(request, 'adjectiveChangeDecisionNumber', {'studentId': demonId}, AdjectiveChange, AddAdjectiveChange, model, savePoint)
+                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
 
-                demonstrator = Demonstrator.objects.get(pk=demonId)
-                demonstrator.currentAdjective = request.POST['adjectiveChangeAdjective']
-                Demonstrator.full_clean(self=demonstrator)
-                Demonstrator.save()
-                adjectiveChangeCount+= 1
+                try:
+                    if 'adjectiveChangeAdjective' in request.POST:
+                        demonstrators= Demonstrator.objects.filter(pk=demonId)
+                        for demonstrator in demonstrators:
+                            demonstrator.currentAdjective = request.POST['adjectiveChangeAdjective']
+                            Demonstrator.full_clean(self=demonstrator)
+                            Demonstrator.save()
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    return JsonResponse({"status": "bad"})
 
-                return render(request, 'registration/result.html', {'result': 'done'})
-        else: 
-            return render(request, 'registration/result.html', {'result': 'you are not allowed to edit in this college'})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
 
-def DispatchUpdate(request, demonId, dispatchId):
+def UpdateCertificateOfExcellence(request, id, demonId):
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
-        if college[0]['college'] in permissionList or request.user.is_superuser:
+        if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
 
-                regularizationCount= 0
-                dispatchs= Dispatch.objects.filter(pk=dispatchId)
+                certificateOfExcellence= CertificateOfExcellence.objects.filter(pk=id)
+                for model in certificateOfExcellence:
+                    resId = generalUpdate(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, model, savePoint)
+                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def UpdateGraduateStudies(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                graduateStudies= GraduateStudies.objects.filter(pk=id)
+                for model in graduateStudies:
+                    resId = generalUpdate(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, model, savePoint)
+                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def UpdateDispatch(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                dispatchs= Dispatch.objects.filter(pk=id)
                 for dispatch in dispatchs:
-                    dispatchId = generalUpdate(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, dispatch, savePoint, 0)
-                    if type(dispatchId) == ErrorDict: return render(request, 'registration/result.html', {'result': dispatchId})
+                    dispatchId = generalUpdate(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, dispatch, savePoint)
+                    if type(dispatchId) == ErrorDict: return JsonResponse({"status": "bad"})
 
-                    regularizations= Regularization.objects.filter(regularizationDecisionId=dispatchId)
-                    for regularization in regularizations:
-                        id = generalUpdate(request, 'regularizationDecisionNumber', {'regularizationDecisionId': dispatchId}, Regularization, AddRegularization, regularization, savePoint, regularizationCount)
-                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                        regularizationCount+= 1
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
-                return render(request, 'registration/result.html', {'result': 'done'})
-        else:
-            return render(request, 'registration/result.html', {'result': 'you are not allowed to edit in this college'})
+
+def UpdateReport(request, id, demonId, dispatchId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                reports= Report.objects.filter(pk=id)
+                for report in reports:
+                    resId = generalUpdate(request, 'regularizationDecisionNumber', {'dispatchDecisionId': dispatchId}, Report, AddReport, report, savePoint)
+                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def UpdateRegularization(request, id, demonId, dispatchId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                regularizations= Regularization.objects.filter(pk=id)
+                for regularization in regularizations:
+                    resId = generalUpdate(request, 'regularizationDecisionNumber', {'regularizationDecisionId': dispatchId}, Regularization, AddRegularization, regularization, savePoint)
+                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def UpdateExtension(request, id, demonId, dispatchId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                extensions= Extension.objects.filter(pk=id)
+                for extension in extensions:
+                    extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, extension, savePoint)
+                    if type(extensionId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def UpdateFreeze(request, id, demonId, dispatchId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                freezes= Freeze.objects.filter(pk=id)
+                for freeze in freezes:
+                    freezeId = generalUpdate(request, 'freezeDecisionNumber', {'dispatchDecisionId': dispatchId}, Freeze, AddFreeze, freeze, savePoint)
+                    if type(freezeId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def UpdateDurationChange(request, id, demonId, dispatchId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                durationChange= DurationChange.objects.filter(pk=id)
+                for model in durationChange:
+                    resId = generalUpdate(request, 'durationChangeDurationYear', {'dispatchDecisionId': dispatchId}, DurationChange, AddDurationChange, model, savePoint)
+                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def UpdateAlimonyChange(request, id, demonId, dispatchId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                alimonyChange= AlimonyChange.objects.filter(pk=id)
+                for model in alimonyChange:
+                    resId = generalUpdate(request, 'newAlimony', {'dispatchDecisionId': dispatchId}, AlimonyChange, AddAlimonyChange, model, savePoint)
+                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def UpdateUniversityChange(request, id, demonId, dispatchId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                universityChange= UniversityChange.objects.filter(pk=id)
+                for model in universityChange:
+                    resId = generalUpdate(request, 'newUniversity', {'dispatchDecisionId': dispatchId}, UniversityChange, AddUniversityChange, model, savePoint)
+                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def UpdateSpecializationChange(request, id, demonId, dispatchId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                specializationChange= SpecializationChange.objects.filter(pk=id)
+                for model in specializationChange:
+                    resId = generalUpdate(request, 'newSpecialization', {'dispatchDecisionId': dispatchId}, SpecializationChange, AddSpecializationChange, model, savePoint)
+                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
 
 
 def UpdateDemonstrator(request, id):
