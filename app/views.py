@@ -860,3 +860,8 @@ def pushData(request, data):
 def do_something(request,dispatchId,demonId):
         print(request.POST)
         return JsonResponse({"status": "good"})
+
+def gett(request):
+    data2 = serializers.serialize('json', Demonstrator.objects.select_related().prefetch_related().all())
+    
+    return JsonResponse(data2, safe=False)

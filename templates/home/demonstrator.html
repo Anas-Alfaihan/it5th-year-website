@@ -9,6 +9,16 @@
 
 {% load static %} {% block content %}
 <h2 class="tit">{{demonstrator.name}}</h2>
+<div id="keyTips" class="row justify-content-around d-none mr-0">
+    <div class="col-4">
+        <key>shift</key> + <key>enter</key> - حفظ التعديل
+    </div>
+    <div class="col-4">
+        <key>esc</key> - إلغاء التعديل
+    </div>
+
+
+</div>
 <section class="sec">
     <class class="container">
         <div id="nav">
@@ -32,7 +42,10 @@
                     <button type="button">الإيفادات</button>
                 </li>
             </ul>
+            <button type="button" class="btn btn-sm btn-outline-success deb"
+                onclick="editDemon(event, '{{demonstrator.id}}')" id="deb-{{demonstrator.id}}">تعديل</button>
         </div>
+
     </class>
     <div class="container" id="content">
         <div class="first">
@@ -52,11 +65,20 @@
                     </p>
                 </div>
                 <div class="gr-2">
-                    <p class="ct">{{demonstrator.fatherName}}</p>
-                    <p class="ct">{{demonstrator.motherName}}</p>
-                    <p class="ct">{{demonstrator.get_gender_display}}</p>
+                    <p class="ct"><span class="editable demon-{{demonstrator.id}}"
+                            name="fatherName">{{demonstrator.fatherName}}</span></p>
+                    <p class="ct"><span class="editable demon-{{demonstrator.id}}"
+                            name="motherName">{{demonstrator.motherName}}</span></p>
+                    <div class="ct"><span class="editable demon-{{demonstrator.id}} mul" name="gender"
+                            value="{{demonstrator.gender}}">{{demonstrator.get_gender_display}}</span>
+                        <div class="d-none choises gender">
+                            <div><strong value="male">ذكر</strong></div>
+                            <div><strong value="female">أنثى</strong></div>
+                        </div>
+                    </div>
                     <p class="ct">
-                        {{demonstrator.birthDate|date:"SHORT_DATE_FORMAT"}}
+                        <span class="editable demon-{{demonstrator.id}}" name="birthDate"
+                            data-toggle="datepicker">{{demonstrator.birthDate|date:"SHORT_DATE_FORMAT"}}</span>
                     </p>
                 </div>
             </div>
@@ -77,11 +99,16 @@
                     </p>
                 </div>
                 <div class="gr-2">
-                    <p class="ct">{{demonstrator.email}}</p>
-                    <p class="ct">{{demonstrator.home}}</p>
-                    <p class="ct">{{demonstrator.residence}}</p>
-                    <p class="ct">{{demonstrator.mobile}}</p>
-                    <p class="ct">{{demonstrator.telephone}}</p>
+                    <p class="ct"><span class="editable demon-{{demonstrator.id}}"
+                            name="email">{{demonstrator.email}}</span></p>
+                    <p class="ct"><span class="editable demon-{{demonstrator.id}}"
+                            name="home">{{demonstrator.home}}</span></p>
+                    <p class="ct"><span class="editable demon-{{demonstrator.id}}"
+                            name="residence">{{demonstrator.residence}}</span></p>
+                    <p class="ct"><span class="editable demon-{{demonstrator.id}}"
+                            name="mobile">{{demonstrator.mobile}}</span></p>
+                    <p class="ct"><span class="editable demon-{{demonstrator.id}}"
+                            name="telephone">{{demonstrator.telephone}}</span></p>
                 </div>
             </div>
         </div>
@@ -96,10 +123,21 @@
                     </p>
                 </div>
                 <div class="gr-2">
-                    <p class="ct">{{demonstrator.get_maritalStatus_display}}</p>
-                    <p class="ct">
-                        {{demonstrator.get_militarySituation_display}}
-                    </p>
+                    <div class="ct"><span class="editable demon-{{demonstrator.id}} mul" name="maritalStatus"
+                            value="{{demonstrator.maritalStatus}}">{{demonstrator.get_maritalStatus_display}}</span>
+                        <div class="d-none choises maritalStatus">
+                            <div><strong value="married">متزوج</strong></div>
+                            <div><strong value="unmarried">أعزب</strong></div>
+                        </div>
+                    </div>
+                    <div class="ct">
+                        <span class="editable demon-{{demonstrator.id}} mul" name="militarySituation"
+                            value="{{demonstrator.militarySituation}}">{{demonstrator.get_militarySituation_display}}</span>
+                        <div class="d-none choises militarySituation">
+                            <div><strong value="delayed">مؤجل</strong></div>
+                            <div><strong value="laid off">مسرح</strong></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -150,7 +188,9 @@
                         <h2 class="accordion-header" id="efad-{{i.id}}">
                             <button class="accordion-button collapsed ct" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#info-{{i.id}}" aria-expanded="false" aria-controls="info-{{i.id}}">
-                                <span>شهادة الإيفاد:</span>{{i.get_requiredCertificate_display}}
+                                <span>شهادة
+                                    الإيفاد:</span><span
+                                    id="requiredCertificate">{{i.get_requiredCertificate_display}}</span>
 
                             </button>
                         </h2>
@@ -158,6 +198,19 @@
                             data-bs-parent="#efads">
                             <div class="accordion-body">
                                 <div class="row">
+                                    <div class="col-12 d-none mb-3" id="requiredCertificateo">
+                                        <div class="ct">
+                                            <span>شهادة
+                                                الإيفاد:</span><span class=" efad-info-{{i.id}} editable mul"
+                                                name="requiredCertificate"
+                                                value="{{i.requiredCertificate}}">{{i.get_requiredCertificate_display}}</span>
+                                            <div class="d-none choises requiredCertificate">
+                                                <div><strong value="language">لغة</strong></div>
+                                                <div><strong value="master">ماجستير</strong></div>
+                                                <div><strong value="ph.d">دكتوراه</strong></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="col-12 row g-0 ct">
                                         <div class="text-lead text-muted fs-6 col-2 mb-4">
                                             رقم القرار
@@ -657,7 +710,8 @@
         links = {
             "efad": `/app/updateDispatch/${id}/${did}/`,
             "ex": `/app/updateExtension/${id}/${did}/`,
-            "fr": `/app/updateFreeze/${id}/${did}/`
+            "fr": `/app/updateFreeze/${id}/${did}/`,
+            "demon": `/app/updateDemon/${id}/`
         }
         $.post(links[type], object, function (data) {
             console.log(data);
@@ -666,16 +720,23 @@
     }
 
 
-    let editMode = false, efadId = "", btnId = "", originals = {}, frezId = "", exId = ""
+    let editMode = false, efadId = "", btnId = "", originals = {}, frezId = "", exId = "", demonId = ""
     let csrf = createElementFromHTML(`{% csrf_token %}`)
 
     $(document).keydown(function (e) {
+
+
+        if (e.keyCode === 13 && editMode && e.shiftKey) {
+            e.preventDefault()
+            $(`#${btnId}`).click()
+        }
 
         if (e.keyCode === 27) {
             reset()
         }
     })
     function reset() {
+        $("#keyTips").addClass("d-none")
         if (efadId) {
             resetEfad()
 
@@ -685,6 +746,9 @@
         }
         if (exId) {
             resetEx()
+        }
+        if (demonId) {
+            resetDemon()
         }
     }
 
@@ -696,437 +760,15 @@
         }
     }
 
-    function resetEx() {
-        if (editMode && exId) {
-            resetChoise()
-            btn = document.getElementById(btnId)
-            btn.innerHTML = 'تعديل'
 
-            let items1 = Array.prototype.slice.call(document.getElementsByClassName(exId), 0)
-            $(`.${exId}[data-toggle="datepicker"]`).datepicker('destroy')
-            for (let i = 0; i < items1.length; i++) {
-                items1[i].innerHTML = originals[items1[i].getAttribute('name')]
-                items1[i].className = `editable ${exId}`
-                items1[i].setAttribute("contenteditable", "false")
 
-            }
-            editMode = false; exId = ""; btnId = ""; originals = {}
-        }
-    }
-
-    function editEx(e, id, did) {
-        if (editMode && exId !== `ex-${id}`) {
-            reset()
-        }
-        editMode = true
-        exId = `ex-${id}`
-        btnId = `exeb-${id}`
-        let items1 = Array.prototype.slice.call(document.getElementsByClassName(exId), 0)
-
-        if (e.target.innerHTML === 'تعديل') {
-            e.target.innerHTML = 'حفظ'
-            $(`.${exId}[data-toggle="datepicker"]`).datepicker({
-                autoHide: true,
-            });
-            for (let i = 0; i < items1.length; i++) {
-                originals[items1[i].getAttribute('name')] = items1[i].innerHTML
-                items1[i].setAttribute("contenteditable", "true")
-                if (items1[i].classList.contains("mul")) {
-                    items1[i].className = `editable border border-dark p-2 ex-${id} mul activee`
-                    $(`.activee`).on({
-                        focusin: function () {
-                            $(`~ .${items1[i].getAttribute('name')}`, this).removeClass("d-none")
-                            $(this).addClass("changeable")
-                        },
-                        blur: function () {
-                            $(`~ .${items1[i].getAttribute('name')}`, this).addClass("d-none")
-                            $(this).removeClass("changeable")
-
-
-                        },
-                    }
-                    )
-
-                    $(`.activee + .${items1[i].getAttribute('name')} > div`).mousedown(function () {
-                        $(`.changeable`).text($("> strong", this).text()).attr("value", $("> strong", this).attr("value"))
-
-
-                    })
-                } else {
-                    items1[i].className = `editable border border-dark p-2 ex-${id}`
-                }
-
-            }
-
-        } else if (e.target.innerHTML === 'حفظ') {
-            const schema = {
-
-                extensionDecisionDate: (str) => {
-                    return validator.isDate(str, { format: "mm/dd/yyyy" })
-                },
-                extensionDecisionNumber: (str) => {
-                    return !validator.isEmpty(str) && validator.isNumeric(str)
-                },
-                extensionDecisionType: (str) => {
-                    return validator.equals(str, "s") || validator.equals(str, "o") || validator.equals(str, "b")
-                },
-                extensionDurationYear: (str) => true,
-                extensionDurationMonth: (str) => true,
-                extensionDurationDay: (str) => true,
-
-            }
-            const errors = {
-
-                extensionDecisionDate: "تأكد من حقل تاريخ القرار",
-                extensionDecisionNumber: "تأكد من حقل رقم القرار",
-                extensionDecisionType: "تأكد من حقل نوع القرار",
-
-            }
-
-            let df = true;
-
-
-
-            let values = {}
-            for (let i = 0; i < items1.length; i++) {
-                values[items1[i].getAttribute('name')] = items1[i].innerHTML
-                if (items1[i].hasAttribute('value')) {
-                    values[items1[i].getAttribute('name')] = items1[i].getAttribute('value')
-                }
-                if (!schema[items1[i].getAttribute('name')](values[items1[i].getAttribute('name')])) {
-                    df = false;
-                    window.alert(errors[items1[i].getAttribute('name')])
-                    break;
-                }
-            }
-            if (df) {
-
-                for (let i = 0; i < items1.length; i++) {
-                    if (items1[i].classList.contains("mul")) {
-                        items1[i].className = `editable ex-${id} mul`
-                    } else {
-                        items1[i].className = `editable ex-${id}`
-                    }
-
-                    items1[i].setAttribute("contenteditable", "false")
-
-                }
-                e.target.innerHTML = 'تعديل'
-                $(`.${exId}[data-toggle="datepicker"]`).datepicker('destroy')
-                editMode = false; exId = ""; btnId = ""; orignals = {}
-                console.log(values);
-                values["csrfmiddlewaretoken"] = csrf.value
-
-                edit(values, id, did, "ex")
-            } else {
-                values = {}
-            }
-        }
-
-    }
-
-
-
-
-
-
-
-
-
-    function resetFrez() {
-        if (editMode && frezId) {
-            resetChoise()
-            btn = document.getElementById(btnId)
-            btn.innerHTML = 'تعديل'
-
-            let items1 = Array.prototype.slice.call(document.getElementsByClassName(frezId), 0)
-            $(`.${frezId}[data-toggle="datepicker"]`).datepicker('destroy')
-            for (let i = 0; i < items1.length; i++) {
-                items1[i].innerHTML = originals[items1[i].getAttribute('name')]
-                items1[i].className = `editable ${frezId}`
-                items1[i].setAttribute("contenteditable", "false")
-
-            }
-            editMode = false; frezId = ""; btnId = ""; originals = {}
-        }
-    }
-
-    function editFrez(e, id, did) {
-        if (editMode && frezId !== `fr-${id}`) {
-            reset()
-        }
-        editMode = true
-        frezId = `fr-${id}`
-        btnId = `freb-${id}`
-        let items1 = Array.prototype.slice.call(document.getElementsByClassName(frezId), 0)
-
-        if (e.target.innerHTML === 'تعديل') {
-            e.target.innerHTML = 'حفظ'
-            $(`.${frezId}[data-toggle="datepicker"]`).datepicker({
-                autoHide: true,
-            });
-            for (let i = 0; i < items1.length; i++) {
-                originals[items1[i].getAttribute('name')] = items1[i].innerHTML
-                items1[i].setAttribute("contenteditable", "true")
-                if (items1[i].classList.contains("mul")) {
-                    items1[i].className = `editable border border-dark p-2 fr-${id} mul activee`
-                    $(`.activee`).on({
-                        focusin: function () {
-                            $(`~ .${items1[i].getAttribute('name')}`, this).removeClass("d-none")
-                            $(this).addClass("changeable")
-                        },
-                        blur: function () {
-                            $(`~ .${items1[i].getAttribute('name')}`, this).addClass("d-none")
-                            $(this).removeClass("changeable")
-
-
-                        },
-                    }
-                    )
-
-                    $(`.activee + .${items1[i].getAttribute('name')} > div`).mousedown(function () {
-                        $(`.changeable`).text($("> strong", this).text()).attr("value", $("> strong", this).attr("value"))
-
-
-                    })
-                } else {
-                    items1[i].className = `editable border border-dark p-2 fr-${id}`
-                }
-
-            }
-
-        } else if (e.target.innerHTML === 'حفظ') {
-            const schema = {
-
-                freezeDecisionDate: (str) => {
-                    return validator.isDate(str, { format: "mm/dd/yyyy" })
-                },
-                freezeDecisionNumber: (str) => {
-                    return !validator.isEmpty(str) && validator.isNumeric(str)
-                },
-                freezeDecisionType: (str) => {
-                    return validator.equals(str, "s") || validator.equals(str, "o") || validator.equals(str, "b")
-                },
-                freezeDurationYear: (str) => true,
-                freezeDurationMonth: (str) => true,
-                freezeDurationDay: (str) => true,
-
-            }
-            const errors = {
-
-                freezeDecisionDate: "تأكد من حقل تاريخ القرار",
-                freezeDecisionNumber: "تأكد من حقل رقم القرار",
-                freezeDecisionType: "تأكد من حقل نوع القرار",
-
-            }
-
-            let df = true;
-
-
-
-            let values = {}
-            for (let i = 0; i < items1.length; i++) {
-                values[items1[i].getAttribute('name')] = items1[i].innerHTML
-                if (items1[i].hasAttribute('value')) {
-                    values[items1[i].getAttribute('name')] = items1[i].getAttribute('value')
-                }
-                if (!schema[items1[i].getAttribute('name')](values[items1[i].getAttribute('name')])) {
-                    df = false;
-                    window.alert(errors[items1[i].getAttribute('name')])
-                    break;
-                }
-            }
-            if (df) {
-
-                for (let i = 0; i < items1.length; i++) {
-                    if (items1[i].classList.contains("mul")) {
-                        items1[i].className = `editable fr-${id} mul`
-                    } else {
-                        items1[i].className = `editable fr-${id}`
-                    }
-
-                    items1[i].setAttribute("contenteditable", "false")
-
-                }
-                e.target.innerHTML = 'تعديل'
-                $(`.${frezId}[data-toggle="datepicker"]`).datepicker('destroy')
-                editMode = false; frezId = ""; btnId = ""; orignals = {}
-                console.log(values);
-                values["csrfmiddlewaretoken"] = csrf.value
-
-                edit(values, id, did, "fr")
-
-            } else {
-                values = {}
-            }
-        }
-
-    }
-
-    function resetEfad() {
-        if (editMode && efadId) {
-            resetChoise()
-            btn = document.getElementById(btnId)
-            btn.innerHTML = 'تعديل'
-
-            let items1 = Array.prototype.slice.call(document.getElementsByClassName(efadId), 0)
-            $(`.${efadId}[data-toggle="datepicker"]`).datepicker('destroy')
-            for (let i = 0; i < items1.length; i++) {
-                items1[i].innerHTML = originals[items1[i].getAttribute('name')]
-                items1[i].className = `editable ${efadId}`
-                items1[i].setAttribute("contenteditable", "false")
-
-            }
-            editMode = false; efadId = ""; btnId = ""; originals = {}
-        }
-
-
-    }
-
-
-    function editEfad(e, id, did) {
-        if (editMode && efadId !== `efad-info-${id}`) {
-            reset()
-        }
-        editMode = true
-        efadId = `efad-info-${id}`
-        btnId = `efeb-${id}`
-        textarea = document.getElementById("floatingText")
-        let items1 = Array.prototype.slice.call(document.getElementsByClassName(efadId), 0)
-
-        if (e.target.innerHTML === 'تعديل') {
-            e.target.innerHTML = 'حفظ'
-            $(`.${efadId}[data-toggle="datepicker"]`).datepicker({
-                autoHide: true,
-            });
-            textarea.removeAttribute("disabled")
-            for (let i = 0; i < items1.length; i++) {
-                originals[items1[i].getAttribute('name')] = items1[i].innerHTML
-                items1[i].setAttribute("contenteditable", "true")
-                if (items1[i].classList.contains("mul")) {
-                    items1[i].className = `editable border border-dark p-2 efad-info-${id} mul activee`
-                    $(`.activee`).on({
-                        focusin: function () {
-                            $(`~ .${items1[i].getAttribute('name')}`, this).removeClass("d-none")
-                            $(this).addClass("changeable")
-                        },
-                        blur: function () {
-                            $(`~ .${items1[i].getAttribute('name')}`, this).addClass("d-none")
-                            $(this).removeClass("changeable")
-
-
-                        },
-                    }
-                    )
-
-                    $(`.activee + .${items1[i].getAttribute('name')} > div`).mousedown(function () {
-                        $(`.changeable`).text($("> strong", this).text()).attr("value", $("> strong", this).attr("value"))
-
-
-                    })
-                } else {
-                    items1[i].className = `editable border border-dark p-2 efad-info-${id}`
-                }
-
-            }
-
-        } else if (e.target.innerHTML === 'حفظ') {
-
-            const schema = {
-                alimony: (str) => {
-                    return validator.equals(str, "grant") || validator.equals(str, "seat")
-                },
-                backDate: (str) => {
-                    return validator.isDate(str, { format: "mm/dd/yyyy" })
-                },
-                dispatchCountry: (str) => {
-                    return validator.isLength(str, { min: 1, max: 256 })
-                },
-                dispatchDecisionDate: (str) => {
-                    return validator.isDate(str, { format: "mm/dd/yyyy" })
-                },
-                dispatchDecisionNumber: (str) => {
-                    return !validator.isEmpty(str) && validator.isNumeric(str)
-                },
-                dispatchDecisionType: (str) => {
-                    return validator.equals(str, "s") || validator.equals(str, "o") || validator.equals(str, "b")
-                },
-                dispatchType: (str) => {
-                    return validator.equals(str, "inner") || validator.equals(str, "outer")
-                },
-                dispatchUniversity: (str) => {
-                    return validator.isLength(str, { min: 1, max: 256 })
-                },
-                innerSupervisor: (str) => {
-                    return validator.isLength(str, { min: 1, max: 256 })
-                },
-                lastReportDate: (str) => {
-                    return true
-                },
-                outerSupervisor: (str) => {
-                    return validator.isLength(str, { min: 1, max: 256 })
-                },
-            }
-            const errors = {
-                alimony: "تأكد من حقل النفقة",
-                backDate: "تأكد من حقل تاريخ العودة",
-                dispatchCountry: "تأكد من حقل بلد الإيفاد",
-                dispatchDecisionDate: "تأكد من حقل تاريخ القرار",
-                dispatchDecisionNumber: "تأكد من حقل رقم القرار",
-                dispatchDecisionType: "تأكد من حقل نوع القرار",
-                dispatchType: "تأكد من حقل نوع الإيفاد",
-                dispatchUniversity: "تأكد من حقل جامعة الإيفاد",
-                innerSupervisor: "تأكد من حقل المشرف الداخلي",
-                outerSupervisor: "تاكد من حقل المشرف الخارجي",
-            }
-
-            let df = true;
-
-
-
-            let values = {}
-            for (let i = 0; i < items1.length; i++) {
-                values[items1[i].getAttribute('name')] = items1[i].innerHTML
-                if (items1[i].hasAttribute('value')) {
-                    values[items1[i].getAttribute('name')] = items1[i].getAttribute('value')
-                }
-                if (!schema[items1[i].getAttribute('name')](values[items1[i].getAttribute('name')])) {
-                    df = false;
-                    window.alert(errors[items1[i].getAttribute('name')])
-                    break;
-                }
-            }
-            if (df) {
-                textarea.setAttribute("disabled", "true")
-
-                for (let i = 0; i < items1.length; i++) {
-                    if (items1[i].classList.contains("mul")) {
-                        items1[i].className = `editable efad-info-${id} mul`
-                    } else {
-                        items1[i].className = `editable efad-info-${id}`
-                    }
-
-                    items1[i].setAttribute("contenteditable", "false")
-
-                }
-                e.target.innerHTML = 'تعديل'
-                $(`.${efadId}[data-toggle="datepicker"]`).datepicker('destroy')
-                editMode = false; efadId = ""; btnId = ""; orignals = {}
-                console.log(values);
-                values["csrfmiddlewaretoken"] = csrf.value
-                values["dispatchNotes"] = textarea.value
-
-                edit(values, id, did, "efad")
-
-            } else {
-                values = {}
-            }
-
-        }
-
-    }
 
 </script>
+<script src="{% static 'js/editEx.js' %}"></script>
+<script src="{% static 'js/editEfad.js' %}"></script>
+<script src="{% static 'js/editFr.js' %}"></script>
+<script src="{% static 'js/editDemon.js' %}"></script>
+
 
 <script>
 
