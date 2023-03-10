@@ -1,75 +1,267 @@
 {% extends "base.html" %}
 
+
+{% load static %}
 <!-- something here for nothing  -->
+{% block style %}
+<link rel="stylesheet" href="{% static 'jQuery-QueryBuilder-2.6.2/dist/css/query-builder.default.min.css' %}">
+<link rel="stylesheet" href="{% static 'bootstrap-5.2.0/dist/css/bootstrap.min.css' %}" />
+
+
+<style>
+  /* .query-builder,
+  .query-builder * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  } */
+
+
+
+  .query-builder {
+    font-family: tajawal !important;
+  }
+
+
+  .query-builder .hide {
+    display: none;
+  }
+
+  .query-builder .pull-right {
+    float: right !important;
+  }
+
+  /* .query-builder .btn {
+    text-transform: none;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+  } */
+
+  /* .query-builder .btn.focus,
+  .query-builder .btn:focus,
+  .query-builder .btn:hover {
+    color: #333;
+    text-decoration: none;
+  } */
+
+  /* .query-builder .btn.active,
+  .query-builder .btn:active {
+    background-image: none;
+    outline: 0px none;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.125) inset;
+  } */
+
+  /* .query-builder .btn-success {
+    color: #FFF;
+    background-color: #5CB85C;
+    border-color: #4CAE4C;
+  } */
+
+  /* .query-builder .btn-primary {
+    color: #FFF;
+    background-color: #337AB7;
+    border-color: #2E6DA4;
+  } */
+
+  /* .query-builder .btn-danger {
+    color: #FFF;
+    background-color: #D9534F;
+    border-color: #D43F3A;
+  } */
+
+  /* .query-builder .btn-success.active,
+  .query-builder .btn-success.focus,
+  .query-builder .btn-success:active,
+  .query-builder .btn-success:focus,
+  .query-builder .btn-success:hover {
+    color: #FFF;
+    background-color: #449D44;
+    border-color: #398439;
+  } */
+
+  /* .query-builder .btn-primary.active,
+  .query-builder .btn-primary.focus,
+  .query-builder .btn-primary:active,
+  .query-builder .btn-primary:focus,
+  .query-builder .btn-primary:hover {
+    color: #FFF;
+    background-color: #286090;
+    border-color: #204D74;
+  } */
+
+  /* .query-builder .btn-danger.active,
+  .query-builder .btn-danger.focus,
+  .query-builder .btn-danger:active,
+  .query-builder .btn-danger:focus,
+  .query-builder .btn-danger:hover {
+    color: #FFF;
+    background-color: #C9302C;
+    border-color: #AC2925;
+  } */
+
+  /* .query-builder .btn-group {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+  } */
+
+  .query-builder .btn-group>.btn {
+    position: relative;
+    float: left !important;
+    margin-left: 2px;
+    border-radius: 0.5rem;
+    padding: 4px 10px
+  }
+
+  .query-builder .btn-group>.btn:first-child {
+    border-radius: 0.5rem;
+  }
+
+  /* .query-builder .btn-group>.btn:first-child:not(:last-child) {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+  } */
+
+  /* .query-builder .btn-group>.btn:last-child:not(:first-child) {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+  } */
+
+  /* .query-builder .btn-group .btn+.btn,
+  .query-builder .btn-group .btn+.btn-group,
+  .query-builder .btn-group .btn-group+.btn,
+  .query-builder .btn-group .btn-group+.btn-group {
+    margin-left: -1px;
+  } */
+
+  /* .query-builder .btn-xs,
+  .query-builder .btn-group-xs>.btn {
+    padding: 1px 5px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+  } */
+</style>
+
+
+{% endblock %}
 
 {% block content %}
-<div
-  class="col-md-7 col-lg-8 mx-auto"
->
-  <form
-    class="card p-3 needs-validation"
-    novalidate
-    method="POST"
-  >
-    {% csrf_token %}
-    <h4 class="my-3 lead">
-      المعلومات الشخصية
-    </h4>
-    <!-- <div class="row g-3">
-      <div class="col-sm-4">
-        <label
-          for="name"
-          class="form-label"
-          >الاسم</label
-        >
-        <input
-          type="text"
-          class="form-control"
-          id="firstName"
-          required
-          name="name"
-          maxlength="50"
-        />
-        <div
-          class="invalid-feedback"
-        >
-          يرجى إدخال اسم أول
-          صحيح.
-        </div>
-      </div>
-    </div> -->
-    <div class="row g-3">
-      <div class="col-sm-4">
-        <label
-          for="name"
-          class="form-label"
-          >number</label
-        >
-        <input
-          type="text"
-          class="form-control"
-          id="firstName"
-          required
-          name="certificateOfExcellence__certificateOfExcellenceYear"
-          maxlength="50"
-        />
-        <div
-          class="invalid-feedback"
-        >
-          يرجى إدخال اسم أول
-          صحيح.
-        </div>
-      </div>
-    </div>
 
-    <hr class="my-4" />
-    <button
-      class="w-100 btn btn-primary btn-lg"
-      type="submit"
-    >
-      الاستمرار بالدفع
-    </button>
-  </form>
+<h2 class="tit">
+  استعلامات
+</h2>
+
+<div class="sec">
+  <div id="builder-basic" dir="ltr"></div>
+  <div class="btn-group">
+    <button class="btn btn-warning reset mx-2" data-target="basic" id="btn-reset">إعادة تعيين</button>
+    <!-- <button class="btn btn-success set-json mx-2" data-target="basic" id="btn-set">Set rules</button> -->
+    <button class="btn btn-primary parse-json mx-2" data-target="basic" id="btn-get">استعلام</button>
+  </div>
+
 </div>
 
+
+
+{% endblock %}
+{% block files %}
+<script src="{% static 'jQuery-QueryBuilder-2.6.2/dist/js/query-builder.standalone.min.js' %}"></script>
+<script src="{% static 'jQuery-QueryBuilder-2.6.2/dist/i18n/query-builder.ar.js' %}"></script>
+<script>
+
+  $('#builder-basic').queryBuilder({
+
+
+    filters: [{
+      id: 'name',
+      label: 'الاسم',
+      type: 'string',
+      operators: ['equal', 'not_equal', 'is_null', 'is_not_null']
+    }, {
+      id: 'fatherName',
+      label: 'اسم الأب',
+      type: 'string',
+      operators: ['equal', 'not_equal', 'is_null', 'is_not_null']
+    }, {
+      id: 'motherName',
+      label: 'اسم الأم',
+      type: 'string',
+      operators: ['equal', 'not_equal', 'is_null', 'is_not_null']
+    }, {
+      id: 'category',
+      label: 'Category',
+      type: 'integer',
+      input: 'select',
+      values: {
+        1: 'Books',
+        2: 'Movies',
+        3: 'Music',
+        4: 'Tools',
+        5: 'Goodies',
+        6: 'Clothes'
+      },
+      operators: ['equal', 'not_equal', 'in', 'not_in', 'is_null', 'is_not_null']
+    }, {
+      id: 'in_stock',
+      label: 'In stock',
+      type: 'integer',
+      input: 'radio',
+      values: {
+        1: 'Yes',
+        0: 'No'
+      },
+      operators: ['equal']
+    }, {
+      id: 'price',
+      label: 'Price',
+      type: 'double',
+      validation: {
+        min: 0,
+        step: 0.01
+      }
+    }, {
+      id: 'id',
+      label: 'Identifier',
+      type: 'string',
+      placeholder: '____-____-____',
+      operators: ['equal', 'not_equal'],
+      validation: {
+        format: /^.{4}-.{4}-.{4}$/
+      }
+    }],
+
+
+  });
+
+  $('#btn-reset').click(function () {
+
+    $('#builder-basic').queryBuilder('reset');
+  });
+
+  $('#btn-set').on('click', function () {
+    $('#builder-basic').queryBuilder('setRules', rules_basic);
+  });
+
+  $('#btn-get').on('click', function () {
+    var result = $('#builder-basic').queryBuilder('getRules');
+
+    if (!$.isEmptyObject(result)) {
+      alert(JSON.stringify(result, null, 2));
+    }
+  });
+</script>
 {% endblock %}

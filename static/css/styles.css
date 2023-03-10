@@ -40,7 +40,7 @@ nav {
     z-index: 998;
     transition: width 0.2s linear;
     box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
-    color: #f9f9fc;
+    color: #f9f9fc !important;
     border-top-left-radius: 1rem;
     border-bottom-left-radius: 1 rem;
 }
@@ -68,7 +68,7 @@ nav {
 }
 a {
     position: relative;
-    color: #f9f9fc;
+    color: #f9f9fc !important;
     font-size: 14px;
     display: table;
     width: 300px;
@@ -88,8 +88,8 @@ nav > ul > li > a > .fa-solid {
     text-align: center;
 }
 a:hover {
-    background: #f9f9fc;
-    color: #705fcc;
+    background: #f9f9fc !important;
+    color: #705fcc !important;
 }
 nav:hover {
     width: 290px;
