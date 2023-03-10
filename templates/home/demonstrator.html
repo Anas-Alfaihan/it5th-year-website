@@ -8,7 +8,7 @@
 <!-- something here for nothing  -->
 
 {% load static %} {% block content %}
-<h2 class="tit">{{demonstrator.name}}</h2>
+<h2 class="tit"><span class="editable demon-{{demonstrator.id}}" name="name">{{demonstrator.name}}</span></h2>
 <div id="keyTips" class="row justify-content-around d-none mr-0">
     <div class="col-4">
         <key>shift</key> + <key>enter</key> - حفظ التعديل
@@ -771,6 +771,22 @@
 
 
 <script>
+
+    $("nav").mouseenter(function () {
+        console.log("asdf");
+        l = $(".line").css("left").slice(0, -2)
+        $(".line").animate({
+            left: "-=160px",
+            transition: "all 0.5s ease"
+        }, 350)
+    })
+    $("nav").mouseleave(function () {
+        l = $(".line").css("left").slice(0, -2)
+        $(".line").animate({
+            left: "+=160px"
+        }, 350)
+
+    })
 
 
 

@@ -22,7 +22,7 @@ urlpatterns = [
     path('updateFreeze/<int:id>/<int:demonId>/', views.UpdateFreeze, name='updateFreeze'),
     path('updateDispatch/<int:id>/<int:demonId>/', views.UpdateDispatch, name='updateDispatch'),
     path('updateDemon/<int:id>/', views.UpdateDemonstrator, name='updateDemon'),
-    path('gett/', views.gett, name='gett'),
+    path('gett/', views.do_something, name='gett'),
 
 
 ]

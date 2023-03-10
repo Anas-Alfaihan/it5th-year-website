@@ -857,9 +857,9 @@ def pushData(request, data):
     else:
         return render(request, 'registration/result.html', {'result': 'done'})
 
-def do_something(request,dispatchId,demonId):
-        print(request.POST)
-        return JsonResponse({"status": "good"})
+def do_something(request):
+        
+        return render(request, "home/query.html")
 
 def gett(request):
     data2 = serializers.serialize('json', Demonstrator.objects.select_related().prefetch_related().all())

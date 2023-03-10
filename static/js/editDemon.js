@@ -79,6 +79,9 @@ function editDemon(e, id) {
         }
     } else if (e.target.innerHTML === 'حفظ') {
         const schema = {
+            name: (str) => {
+                return !validator.isEmpty(str);
+            },
             fatherName: (str) => {
                 return !validator.isEmpty(str);
             },
@@ -123,6 +126,7 @@ function editDemon(e, id) {
             },
         };
         const errors = {
+            name: 'تأكد من حقل الاسم',
             fatherName: 'تأكد من حقل اسم الأب',
             motherName: 'تأكد من حقل اسم الأم',
             home: 'تأكد من حقل مكان الإقامة',
@@ -141,6 +145,7 @@ function editDemon(e, id) {
         let values = {};
         for (let i = 0; i < items1.length; i++) {
             values[items1[i].getAttribute('name')] = items1[i].innerHTML;
+
             if (items1[i].hasAttribute('value')) {
                 values[items1[i].getAttribute('name')] =
                     items1[i].getAttribute('value');
