@@ -161,7 +161,8 @@ def DispatchInsert(request, demonId):
             return render(request, 'registration/result.html', {'result': 'you are not allowed to edit in this college'})
 
     else:
-        return render(request, 'home/insert-dispatch.html')
+        d = Demonstrator.objects.get(pk=demonId)
+        return render(request, 'home/insert-dispatch.html', {"d":d})
 
 
 def getDispatch(request, dispatchId):
