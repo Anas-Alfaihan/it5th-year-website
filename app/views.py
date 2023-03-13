@@ -657,143 +657,41 @@ def UpdateSpecializationChange(request, id, demonId):
             return JsonResponse({"status": "good"})
         else :
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
-
-
-
-def UpdateDemonstrator2(request, id):
-    demonstrators = Demonstrator.objects.filter(pk=id)
-    if request.method == 'POST':
-        college= list(Demonstrator.objects.filter(pk=id).values('college'))
-        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
-        if college[0]['college'] in permissionList or request.user.is_superuser:
-            with transaction.atomic():
-                savePoint= transaction.savepoint()
-
-                for demonstrator in demonstrators:
-                    demonId= generalUpdate(request, 'name', {}, Demonstrator, AddDemonstrator, demonstrator, savePoint, 0)
-                    if type(demonId) == ErrorDict: return render(request, 'registration/result.html', {'result': demonId})
-
-                    nominations= Nomination.objects.filter(nominationDecision=demonId)
-                    for nomination in nominations:
-                        id = generalUpdate(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, nomination, savePoint, 0)
-                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-
-                    universityDegrees= UniversityDegree.objects.filter(universityDegree=demonId)
-                    for universityDegree in universityDegrees:
-                        id = generalUpdate(request, 'universityDegreeUniversity', {'universityDegree': demonId}, UniversityDegree, AddUniversityDegree, universityDegree, savePoint, 0)
-                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-
-                    graduateStudiesCount= 0 
-                    graduateStudies= GraduateStudies.objects.filter(studentId=demonId)
-                    for model in graduateStudies:
-                        id = generalUpdate(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, model, savePoint, graduateStudiesCount)
-                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                        graduateStudiesCount+= 1
-
-                    certificateOfExcellenceCount= 0
-                    certificateOfExcellence= CertificateOfExcellence.objects.filter(studentId=demonId)
-                    for model in certificateOfExcellence:
-                        id = generalUpdate(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, model, savePoint, certificateOfExcellenceCount)
-                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                        certificateOfExcellenceCount+= 1
-
-                    adjectiveChangeCount= 0
-                    adjectiveChange= AdjectiveChange.objects.filter(studentId=demonId)
-                    for model in adjectiveChange:
-                        id = generalUpdate(request, 'adjectiveChangeDecisionNumber', {'studentId': demonId}, AdjectiveChange, AddAdjectiveChange, model, savePoint, adjectiveChangeCount)
-                        if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                        adjectiveChangeCount+= 1
-                        if 'adjectiveChangeAdjective' in request.POST:
-                            demonstrator.currentAdjective = request.POST['adjectiveChangeAdjective']
-                            Demonstrator.full_clean(self=demonstrator)
-                            Demonstrator.save()
-
-                    dispatchCount= 0
-                    regularizationCount= 0
-                    extensionCount= 0
-                    freezeCount= 0
-                    reportCount= 0
-                    dispatchs= Dispatch.objects.filter(studentId=demonId)
-                    for dispatch in dispatchs:
-                        dispatchId = generalUpdate(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, dispatch, savePoint, dispatchCount)
-                        if type(dispatchId) == ErrorDict: return render(request, 'registration/result.html', {'result': dispatchId})
-
-                        regularizations= Regularization.objects.filter(regularizationDecisionId=dispatchId)
-                        for regularization in regularizations:
-                            id = generalUpdate(request, 'regularizationDecisionNumber', {'regularizationDecisionId': dispatchId}, Regularization, AddRegularization, regularization, savePoint, regularizationCount)
-                            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                            regularizationCount+= 1
-
-                        alimonyChangeCount= 0
-                        alimonyChange= AlimonyChange.objects.filter(dispatchDecisionId=dispatchId)
-                        for model in alimonyChange:
-                            id = generalUpdate(request, 'newAlimony', {'dispatchDecisionId': dispatchId}, AlimonyChange, AddAlimonyChange, model, savePoint, alimonyChangeCount)
-                            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                            alimonyChangeCount+= 1
-
-                        universityChangeCount= 0
-                        universityChange= UniversityChange.objects.filter(dispatchDecisionId=dispatchId)
-                        for model in universityChange:
-                            id = generalUpdate(request, 'newUniversity', {'dispatchDecisionId': dispatchId}, UniversityChange, AddUniversityChange, model, savePoint, universityChangeCount)
-                            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                            universityChangeCount+= 1
-
-                        specializationChangeCount= 0
-                        specializationChange= SpecializationChange.objects.filter(dispatchDecisionId=dispatchId)
-                        for model in specializationChange:
-                            id = generalUpdate(request, 'newSpecialization', {'dispatchDecisionId': dispatchId}, SpecializationChange, AddSpecializationChange, model, savePoint, specializationChangeCount)
-                            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                            specializationChangeCount+= 1
-
-                        durationChangeCount= 0
-                        durationChange= DurationChange.objects.filter(dispatchDecisionId=dispatchId)
-                        for model in durationChange:
-                            id = generalUpdate(request, 'durationChangeDurationYear', {'dispatchDecisionId': dispatchId}, DurationChange, AddDurationChange, model, savePoint, durationChangeCount)
-                            if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                            durationChangeCount+= 1
-                            
-                        
-                        reports= Report.objects.filter(dispatchDecisionId= dispatchId)
-                        for report in reports:
-                            reportId= generalUpdate(request, 'report', {'dispatchDecisionId': dispatchId}, Report, AddReport, report, savePoint, reportCount)
-                            if type(reportId) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                            reportCount+=1
-
-    
-                        extensions= Extension.objects.filter(dispatchDecisionId=dispatchId)
-                        for extension in extensions:
-                            extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, extension, savePoint, extensionCount)
-                            if type(extensionId) == ErrorDict: return render(request, 'registration/result.html', {'result': extensionId})
-                            extensionCount+= 1
-
-
-                        freezes= Freeze.objects.filter(dispatchDecisionId=dispatchId)
-                        for freeze in freezes:
-                            freezeId = generalUpdate(request, 'freezeDecisionNumber', {'dispatchDecisionId': dispatchId}, Freeze, AddFreeze, freeze, savePoint, freezeCount)
-                            if type(freezeId) == ErrorDict: return render(request, 'registration/result.html', {'result': freezeId})
-                            freezeCount+= 1
-                                
-
-                        dispatchCount+= 1
-        
-        else:
-            return render(request, 'registration/result.html', {'result': 'you are not allowed to update this college'})
-
-
-        return render(request, 'registration/result.html', {'result': 'done'})
-
-    else:
-        return render(request, 'registration/update.html', {'form': demonstrators})
-   
+ 
 
 def QueryDemonstrator(request):
-    if request.method=='POST':
-        keysList= list(request.POST.keys())
-        keysList.pop(0)
-        result = Demonstrator.objects.filter(**{fieldName: request.POST[fieldName] for fieldName in keysList if request.POST[fieldName] != ""} )
+    if request.method == 'POST':
+
+        def makeQuery(query, op):
+            obj = Q()
+            for item in query: 
+                q = list(item.keys())[0]
+                if type(item[q]) is list:
+                    if op == 'or':
+                        obj = obj | (makeQuery(item[q], q))
+                    else:
+                        obj = obj & (makeQuery(item[q], q))
+                elif type(item[q]) is dict:
+                    p = list (item[q].keys())[0]
+                    if op == 'or':
+                        obj = obj | Q(**{q+p: item[q][p]})
+                    else:
+                        obj = obj & Q(**{q+p: item[q][p]})
+                else: 
+                    if op == 'or':
+                        obj = obj | Q(**{q: item[q]})
+                    else: 
+                        obj = obj & Q(**{q: item[q]})
+            return obj
+
+        query = request.POST['query']
+        op = list(query.keys())[0]
+        obj = makeQuery(query[op], op)
+        result = serializers.serialize('json', Demonstrator.objects.filter(obj))
         print(result)
     
-    return render(request, 'home/query.html')
+        return render(request, 'registration/result.html', {'result': result})
+
 
 
 def home(request):
