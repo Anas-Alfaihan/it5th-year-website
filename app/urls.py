@@ -6,7 +6,7 @@ app_name = 'app'
 urlpatterns = [
     path('', views.home, name='home'),
     path('register/', views.Register, name='register'),
-    path('test/<int:id>', views.Test, name='test'),
+    path('test/', views.Test, name='test'),
     path('login/', views.Login, name='login'),
     path('logout/', views.Logout, name='logout'),
     path('insert/', views.DemonstratorInsert2, name='insert'),
@@ -22,6 +22,9 @@ urlpatterns = [
     path('updateFreeze/<int:id>/<int:demonId>/', views.UpdateFreeze, name='updateFreeze'),
     path('updateDispatch/<int:id>/<int:demonId>/', views.UpdateDispatch, name='updateDispatch'),
     path('updateDemon/<int:id>/', views.UpdateDemonstrator, name='updateDemon'),
+    path('getAllEmails/', views.GetAllEmails, name='getAllEmails'),
+    path('getLateEmails/', views.GetLateEmails, name='getLateEmails'),
+    path('getCollegeEmails/', views.GetCollegeEmails, name='getCollegeEmails'),
     path('gett/', views.do_something, name='gett'),
 
 

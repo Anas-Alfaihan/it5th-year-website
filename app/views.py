@@ -1,4 +1,5 @@
 import datetime
+from dateutil.relativedelta import relativedelta
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -9,7 +10,7 @@ from django.http import JsonResponse
 from django.core import serializers
 from django.contrib import messages
 from django.apps import apps
-from django.db.models import Q
+from django.db.models import Q, Max
 from json import dumps
 from .models import *
 from .forms import *
@@ -197,6 +198,7 @@ def ReportInsert(request, dispatchId, demonId):
         if college[0]['studentId__college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
+                
                 reportId = generalInsert(request, 'report', {'dispatchDecisionId': dispatchId}, Report, AddReport, savePoint)
                 if type(reportId) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التقرير")
@@ -693,17 +695,53 @@ def QueryDemonstrator(request):
         return render(request, 'registration/result.html', {'result': result})
 
 
+def GetAllEmails(request):
+    if request.method == 'POST':
+        all = Demonstrator.objects.filter().values('email', 'mobile', 'name')
+        print(all)
+        return render(request, 'registration/result.html', {'result': 'done'})
+
+
+def GetLateEmails(request):
+    if request.method == 'POST':
+        todayDate = datetime.date.today() 
+        lateDate = datetime.date.today() + relativedelta(months=-3)
+        reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
+        dis =[]
+        for report in list(reports):
+            dis.append(report['dispatchDecisionId_id'])
+        dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis}) & Q(**{'dispatchEndDate__gte' : todayDate})).values('studentId_id')
+        res =[]
+        for dispatch in list(dispatchLate):
+            res.append(dispatch['studentId_id'])
+        
+        late = Demonstrator.objects.filter(pk__in=res).values('email', 'mobile', 'name')
+        print(late)
+        return render(request, 'registration/result.html', {'result': 'done'})
+
+
+def GetCollegeEmails(request):
+    if request.method == 'POST':
+        college = Demonstrator.objects.filter(college=request.POST['college']).values('email', 'mobile', 'name')
+        print(college)
+        return render(request, 'registration/result.html', {'result': 'done'})
+
 
 def home(request):
     return render(request, 'home/home.html')
 
 def Test(request):
-    date= request.user.lastPull.lastPullDate
-    data=[]
-    for model in apps.get_models():
-        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
-            tempData =list( model.objects.filter(lastModifiedDate__gte=date) )
-            data.append( {'modelName': model.__name__, 'data':tempData})
+    # date= request.user.lastPull.lastPullDate
+    # data=[]
+    # for model in apps.get_models():
+    #     if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
+    #         tempData =list( model.objects.filter(lastModifiedDate__gte=date) )
+    #         data.append( {'modelName': model.__name__, 'data':tempData})
+
+    today = datetime.date.today() + relativedelta(months=-3)
+    # first = today.replace(day=1)
+    print(today)
+
     return render(request, 'registration/result.html', {'result': 'done'})
 
 def goToHome(request):
