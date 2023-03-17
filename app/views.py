@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.apps import apps
 from django.db.models import Q
 from json import dumps
+from dateutil.relativedelta import relativedelta
 from .models import *
 from .forms import *
 from . import forms
@@ -357,6 +358,38 @@ def getDemonstrator(request, id):
     demonstrator = Demonstrator.objects.select_related().prefetch_related().all().get(pk=id)
     return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator})
    
+
+def GetAllEmails(request):
+    if request.method == 'POST':
+        all = Demonstrator.objects.filter().values('email', 'mobile', 'name')
+        print(all)
+        return render(request, 'registration/result.html', {'result': 'done'})
+
+
+def GetLateEmails(request):
+    if request.method == 'POST':
+        todayDate = datetime.date.today() 
+        lateDate = datetime.date.today() + relativedelta(months=-3)
+        reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
+        dis =[]
+        for report in list(reports):
+            dis.append(report['dispatchDecisionId_id'])
+        dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis}) & Q(**{'dispatchEndDate__gte' : todayDate})).values('studentId_id')
+        res =[]
+        for dispatch in list(dispatchLate):
+            res.append(dispatch['studentId_id'])
+        
+        late = Demonstrator.objects.filter(pk__in=res).values('email', 'mobile', 'name')
+        print(late)
+        return render(request, 'registration/result.html', {'result': 'done'})
+
+
+def GetCollegeEmails(request):
+    if request.method == 'POST':
+        college = Demonstrator.objects.filter(college=request.POST['college']).values('email', 'mobile', 'name')
+        print(college)
+        return render(request, 'registration/result.html', {'result': 'done'})
+
 
 def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint):
     try:
