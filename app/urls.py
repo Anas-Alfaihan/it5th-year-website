@@ -22,6 +22,9 @@ urlpatterns = [
     path('updateFreeze/<int:id>/<int:demonId>/', views.UpdateFreeze, name='updateFreeze'),
     path('updateDispatch/<int:id>/<int:demonId>/', views.UpdateDispatch, name='updateDispatch'),
     path('updateDemon/<int:id>/', views.UpdateDemonstrator, name='updateDemon'),
+    path('getAllEmails/', views.GetAllEmails, name='getAllEmails'),
+    path('getLateEmails/', views.GetLateEmails, name='getLateEmails'),
+    path('getCollegeEmails/', views.GetCollegeEmails, name='getCollegeEmails'),
     path('gett/', views.do_something, name='gett'),
 
 
