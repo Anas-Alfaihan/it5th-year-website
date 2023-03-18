@@ -112,6 +112,18 @@ function editDemon(e, id) {
                     validator.equals(str, 'female')
                 );
             },
+            currentAdjective: (str) => {
+                return (
+                    validator.equals(str, 'demonstrator') ||
+                    validator.equals(str, 'returning') ||
+                    validator.equals(str, 'envoy') ||
+                    validator.equals(str, 'returning demonstrator') ||
+                    validator.equals(str, 'loathes') ||
+                    validator.equals(str, 'transfer outside the university') ||
+                    validator.equals(str, 'end services') ||
+                    validator.equals(str, 'resigned')
+                );
+            },
             maritalStatus: (str) => {
                 return (
                     validator.equals(str, 'married') ||
@@ -124,6 +136,27 @@ function editDemon(e, id) {
                     validator.equals(str, 'laid off')
                 );
             },
+            university: (str) => {
+                return !validator.isEmpty(str);
+            },
+            college: (str) => {
+                return !validator.isEmpty(str);
+            },
+            secion: (str) => {
+                return true;
+            },
+            specialization: (str) => {
+                return true;
+            },
+            commencementAfterNominationDate: (str) => {
+                return (
+                    validator.isEmpty(str) ||
+                    validator.isDate(str, { format: 'mm/dd/yyyy' })
+                );
+            },
+            language: (str) => {
+                return !validator.isEmpty(str);
+            },
         };
         const errors = {
             name: 'تأكد من حقل الاسم',
@@ -135,9 +168,14 @@ function editDemon(e, id) {
             telephone: 'تأكد من رقم الهاتف الأرضي',
             email: 'تأكد من الإيميل',
             birthDate: 'تأكد من تاريخ الولادة',
+            currentAdjective: 'تأكد من حقل الصفة الحالية',
             gender: 'تأكد من حقل الجنس',
             maritalStatus: 'تأكد من حقل الحالة الاجتماعية',
             militarySituation: 'تأكد من حقل الوضع العسكري',
+            university: 'تأكد من حقل جامعة التعيين',
+            college: 'تأكد من حقل كلية التعيين',
+            commencementAfterNominationDate: 'تأكد من حقل المباشرة ',
+            language: 'تأكد من حقل اللغة',
         };
 
         let df = true;

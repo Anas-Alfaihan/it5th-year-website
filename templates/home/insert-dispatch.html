@@ -1,23 +1,23 @@
-{% extends "base.html" %} {% block head_title %}create user{% endblock %}
+{% extends "base.html" %} {% block head_title %}تسجيل إيفاد{% endblock %}
 <!-- something here for nothing  -->
 {% load static %} {% block content %}
 
 <h2 class="tit">تسجيل قرار إيفاد للطالب {{d.name}}</h2>
 
 <section class="sec">
-    <form method="post" class="p-5">
+    <form method="post" class="p-5 needs-validation" novalidate>
         {% csrf_token %}
         <div class="row justify-content-evenly g-3 mb-3">
             <div class="col-4">
                 <div class="form-floating mb-3">
                     <input class="form-control" type="text" name="dispatchDecisionNumber" id="dispatchDecisionNumber"
-                        placeholder="dispatchDecisionNumber" />
+                        placeholder="dispatchDecisionNumber" required />
                     <label for="dispatchDecisionNumber">رقم القرار</label>
                 </div>
             </div>
             <div class="col-4">
                 <div class="form-floating mb-3">
-                    <select class="form-control" name="dispatchDecisionType" id="dispatchDecisionType">
+                    <select class="form-control" name="dispatchDecisionType" required id="dispatchDecisionType">
                         <option value="">...</option>
                         <option value="s">ش.ع</option>
                         <option value="o">و</option>
@@ -29,7 +29,7 @@
             <div class="col-4">
                 <div class="form-floating mb-3">
                     <input class="form-control" type="date" name="dispatchDecisionDate" id="dispatchDecisionDate"
-                        placeholder="dispatchDecisionDate" lang="ar" />
+                        placeholder="dispatchDecisionDate" lang="ar" required />
                     <label for="dispatchDecisionDate">تاريخ القرار</label>
                 </div>
             </div>
@@ -40,7 +40,7 @@
         <div class="row justify-content-evenly g-3 mb-3">
             <div class="col-4">
                 <div class="form-floating mb-3">
-                    <select class="form-control" name="requiredCertificate" id="requiredCertificate">
+                    <select class="form-control" name="requiredCertificate" id="requiredCertificate" required>
                         <option value="">...</option>
                         <option value="language">لغة</option>
                         <option value="master">ماجستير</option>
@@ -51,7 +51,7 @@
             </div>
             <div class="col-4">
                 <div class="form-floating mb-3">
-                    <select class="form-control" name="dispatchType" id="dispatchType">
+                    <select class="form-control" name="dispatchType" id="dispatchType" required>
                         <option value="">...</option>
                         <option value="inner">داخلي</option>
                         <option value="outer">خارجي</option>
@@ -61,7 +61,7 @@
             </div>
             <div class="col-4">
                 <div class="form-floating mb-3">
-                    <select class="form-control" name="alimony" id="alimony">
+                    <select class="form-control" name="alimony" id="alimony" required>
                         <option value="">...</option>
                         <option value="grant">منحة</option>
                         <option value="seat">مقعد</option>
@@ -74,33 +74,59 @@
         <div class="row mb-3">
             <div class="col-6">
                 <div class="form-floating mb-3">
-                    <input class="form-control" type="text" name="dispatchCountry" placeholder="dispatchCountry"
-                        id="dispatchCountry" />
+                    <input class="form-control" type="text" name="dispatchCountry"
+                        placeholder="dispatchCountry required" id="dispatchCountry" required />
                     <label for="dispatchCountry">بلد الإيفاد</label>
                 </div>
             </div>
             <div class="col-6">
                 <div class="form-floating mb-3">
                     <input class="form-control" type="text" name="dispatchUniversity" id="dispatchUniversity"
-                        placeholder="dispatchUniversity" />
+                        placeholder="dispatchUniversity" required />
                     <label for="dispatchUniversity">جامعة الإيفاد</label>
                 </div>
             </div>
         </div>
 
-        <div class="row mb-3">
+        <div class="row mb-1">
             <div class="col-6">
                 <div class="form-floating mb-3">
                     <input class="form-control" type="text" name="innerSupervisor" placeholder="innerSupervisor"
-                        id="innerSupervisor" />
+                        id="innerSupervisor" required />
                     <label for="innerSupervisor">المشرف الداخلي</label>
                 </div>
             </div>
             <div class="col-6">
                 <div class="form-floating mb-3">
                     <input class="form-control" type="text" name="outerSupervisor" placeholder="outerSupervisor"
-                        id="outerSupervisor" />
+                        id="outerSupervisor" required />
                     <label for="outerSupervisor">المشرف الخارجي</label>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3 ">
+            <div class="col-12">
+                <p>مدة الإيفاد</p>
+            </div>
+            <div class="col-2">
+                <div class="form-floating mb-3">
+                    <input class="form-control" type="number" name="dispatchDurationYear" id="dispatchDurationYear"
+                        required />
+                    <label for="dispatchDurationYear">سنة</label>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="form-floating mb-3">
+                    <input class="form-control" type="number" name="dispatchDurationMonth" id="dispatchDurationMonth"
+                        required />
+                    <label for="dispatchDurationMonth">شهر</label>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="form-floating mb-3">
+                    <input class="form-control" type="number" name="dispatchDurationDay" id="dispatchDurationDay"
+                        required />
+                    <label for="dispatchDurationDay">يوم</label>
                 </div>
             </div>
         </div>
@@ -111,5 +137,8 @@
         <button type="submit" class="btn btn-lg btn-primary">إدخال</button>
     </form>
 </section>
+
+
+
 
 {% endblock %}

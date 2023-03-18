@@ -33,12 +33,18 @@
                     <button type="button">الحالة الاجتماعية</button>
                 </li>
                 <li class="forth">
-                    <button type="button">الشهادة الجامعية</button>
+                    <button type="button">معلومات التعيين</button>
                 </li>
                 <li class="fifth">
-                    <button type="button">شهادات التفوق</button>
+                    <button type="button">الشهادة الجامعية</button>
                 </li>
                 <li class="sixth">
+                    <button type="button">دراسات عليا</button>
+                </li>
+                <li class="seventh">
+                    <button type="button">شهادات التفوق</button>
+                </li>
+                <li class="eigth">
                     <button type="button">الإيفادات</button>
                 </li>
             </ul>
@@ -63,6 +69,9 @@
                     <p class="ct">
                         <span> تاريخ الميلاد:</span>
                     </p>
+                    <p class="ct">
+                        <span> الصفة الحالية</span>
+                    </p>
                 </div>
                 <div class="gr-2">
                     <p class="ct"><span class="editable demon-{{demonstrator.id}}"
@@ -80,6 +89,19 @@
                         <span class="editable demon-{{demonstrator.id}}" name="birthDate"
                             data-toggle="datepicker">{{demonstrator.birthDate|date:"SHORT_DATE_FORMAT"}}</span>
                     </p>
+                    <div class="ct"><span class="editable demon-{{demonstrator.id}} mul" name="currentAdjective"
+                            value="{{demonstrator.currentAdjective}}">{{demonstrator.get_currentAdjective_display}}</span>
+                        <div class="d-none choises currentAdjective">
+                            <div><strong value="demonstrator">معيد</strong></div>
+                            <div><strong value="returning">عائد</strong></div>
+                            <div><strong value="envoy">موفد</strong></div>
+                            <div><strong value="returning demonstrator">معيد عائد</strong></div>
+                            <div><strong value="loathes">مستنكف</strong></div>
+                            <div><strong value="transfer outside the university">نقل خارج الجامعة</strong></div>
+                            <div><strong value="end services">انهاء خدمات</strong></div>
+                            <div><strong value="resigned">انهاء بحكم المستقيل</strong></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,6 +176,54 @@
                         <span> القسم:</span>
                     </p>
                     <p class="ct">
+                        <span> التخصص:</span>
+                    </p>
+                    <p class="ct">
+                        <span> اللغة:</span>
+                    </p>
+                    <p class="ct">
+                        <span> تاريخ المباشرة:</span>
+                    </p>
+                </div>
+                <div class="gr-2">
+                    <p class="ct">
+                        <span class="editable demon-{{demonstrator.id}}" name="college">{{demonstrator.college}}</span>
+                    </p>
+                    <p class="ct">
+                        <span class="editable demon-{{demonstrator.id}}"
+                            name="university">{{demonstrator.university}}</span>
+                    </p>
+                    <p class="ct">
+                        <span class="editable demon-{{demonstrator.id}}" name="secion">{{demonstrator.secion}}</span>
+                    </p>
+                    <p class="ct">
+                        <span class="editable demon-{{demonstrator.id}}"
+                            name="specialization">{{demonstrator.specialization}}</span>
+                    </p>
+                    <p class="ct">
+                        <span class="editable demon-{{demonstrator.id}}"
+                            name="language">{{demonstrator.language|default:""}}</span>
+                    </p>
+                    <p class="ct">
+                        <span class="editable demon-{{demonstrator.id}}" name="commencementAfterNominationDate"
+                            data-toggle="datepicker">{{demonstrator.commencementAfterNominationDate|date:"SHORT_DATE_FORMAT"}}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="fifth" style="display: none">
+            <div class="grd">
+                <div class="gr-1">
+                    <p class="ct">
+                        <span> الكلية:</span>
+                    </p>
+                    <p class="ct">
+                        <span> الجامعة:</span>
+                    </p>
+                    <p class="ct">
+                        <span> القسم:</span>
+                    </p>
+                    <p class="ct">
                         <span> السنة:</span>
                     </p>
                     <p class="ct">
@@ -162,25 +232,35 @@
                 </div>
                 <div class="gr-2">
                     <p class="ct">
-                        {{demonstrator.universityDegree.universityDegreeCollege}}
+                        <span class="editable unv-{{demonstrator.universityDegree.pk}}"
+                            name="universityDegreeCollege">{{demonstrator.universityDegree.universityDegreeCollege}}</span>
                     </p>
                     <p class="ct">
-                        {{demonstrator.universityDegree.universityDegreeUniversity}}
+                        <span class="editable unv-{{demonstrator.universityDegree.pk}}"
+                            name="universityDegreeUniversity">{{demonstrator.universityDegree.universityDegreeUniversity}}</span>
                     </p>
                     <p class="ct">
-                        {{demonstrator.universityDegree.universityDegreeSection}}
+                        <span class="editable unv-{{demonstrator.universityDegree.pk}}"
+                            name="universityDegreeSection">{{demonstrator.universityDegree.universityDegreeSection}}</span>
                     </p>
                     <p class="ct">
-                        {{demonstrator.universityDegree.universityDegreeYear}}
+                        <span class="editable unv-{{demonstrator.universityDegree.pk}}"
+                            name="universityDegreeYear">{{demonstrator.universityDegree.universityDegreeYear}}</span>
                     </p>
                     <p class="ct">
-                        {{demonstrator.universityDegree.universityDegreeAverage}}
+                        <span class="editable unv-{{demonstrator.universityDegree.pk}}"
+                            name="universityDegreeAverage">{{demonstrator.universityDegree.universityDegreeAverage}}</span>
                     </p>
                 </div>
             </div>
+
+            <button type="button" class="btn btn-sm btn-outline-success"
+                onclick="editUnv(event, '{{demonstrator.universityDegree.pk}}', '{{demonstrator.id}}')"
+                id="unveb-{{demonstrator.universityDegree.pk}}">تعديل</button>
         </div>
-        <div class="fifth"></div>
-        <div class="sixth" style="display: none">
+        <div class="sixth" style="display: none">asd</div>
+        <div class="seventh" style="display: none">asd</div>
+        <div class="eigth" style="display: none">
             <div class="row justify-content-center mx-auto">
                 <div class="accordion" id="efads">
                     {% for i in demonstrator.dispatch.all %}
@@ -276,9 +356,44 @@
                                             name="outerSupervisor">{{i.outerSupervisor}}</span>
                                     </p>
                                     <p class="ct col-6">
+                                        <span>مدة الإيفاد</span>
+                                        <span class="efad-info-{{i.id}} editable"
+                                            name="dispatchDurationYear">{{i.dispatchDurationYear}}</span>سنة,
+                                        <span class="efad-info-{{i.id}} editable"
+                                            name="dispatchDurationMonth">{{i.dispatchDurationMonth}}</span>شهر,
+                                        <span class="efad-info-{{i.id}} editable"
+                                            name="dispatchDurationDay">{{i.dispatchDurationDay}}</span>يوم
+                                    </p>
+
+                                    <p class="ct col-6">
+                                        <span>تاريخ المباشرة:</span><span data-toggle="datepicker"
+                                            class="efad-info-{{i.id}} editable"
+                                            name="commencementDate">{{i.commencementDate|date:"SHORT_DATE_FORMAT"}}</span>
+                                    </p>
+                                    <p class="ct col-6">
+                                        <span>تاريخ انتهاء الإيفاد:</span><span data-toggle="datepicker"
+                                            class="efad-info-{{i.id}} editable"
+                                            name="dispatchEndDate">{{i.dispatchEndDate|date:"SHORT_DATE_FORMAT"}}</span>
+                                    </p>
+                                    <p class="ct col-6">
                                         <span>تاريخ العودة:</span><span data-toggle="datepicker"
                                             class="efad-info-{{i.id}} editable"
                                             name="backDate">{{i.backDate|date:"SHORT_DATE_FORMAT"}}</span>
+                                    </p>
+                                    <p class="ct col-6">
+                                        <span>تاريخ الدفاع:</span><span data-toggle="datepicker"
+                                            class="efad-info-{{i.id}} editable"
+                                            name="defenseDate">{{i.defenseDate|date:"SHORT_DATE_FORMAT"}}</span>
+                                    </p>
+                                    <p class="ct col-6">
+                                        <span>تاريخ الحصول على الشهادة:</span><span data-toggle="datepicker"
+                                            class="efad-info-{{i.id}} editable"
+                                            name="gettingCertificateDate">{{i.gettingCertificateDate|date:"SHORT_DATE_FORMAT"}}</span>
+                                    </p>
+                                    <p class="ct col-6">
+                                        <span>تاريخ الوضع تحت تصرف الجامعة:</span><span data-toggle="datepicker"
+                                            class="efad-info-{{i.id}} editable"
+                                            name="atDisposalOfUniversityDate">{{i.atDisposalOfUniversityDate|date:"SHORT_DATE_FORMAT"}}</span>
                                     </p>
                                 </div>
 
@@ -459,10 +574,7 @@
                                 <div class="row">
                                     <div class="col-6"></div>
                                     <div class="col-6 text-center">
-                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
-                                            data-bs-target="#Modalre{{i.id}}">
-                                            إضافة تقرير
-                                        </button>
+
                                         <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal"
                                             data-bs-target="#Modalfr{{i.id}}">إضافة تجميد</button>
                                         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
@@ -472,7 +584,10 @@
                                         <button type="button" class="btn btn-outline-success"
                                             onclick="editEfad(event,'{{i.id}}', '{{demonstrator.id}}')"
                                             id="efeb-{{i.id}}">تعديل</button>
-                                        <button type="button" class="btn btn-outline-info">إضافة ملاحظات</button>
+                                        <button type="button" class="btn btn-outline-info" data-bs-toggle="modal"
+                                            data-bs-target="#Modalre{{i.id}}">
+                                            إضافة تقرير
+                                        </button>
                                     </div>
                                 </div>
 
@@ -488,7 +603,7 @@
                                                     aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body fs-6">
-                                                <form method="post"
+                                                <form method="post" class="needs-validation" novalidate
                                                     action="/app/reportinsert/{{i.id}}/{{demonstrator.id}}/">
                                                     {% csrf_token %}
 
@@ -496,7 +611,7 @@
 
                                                     <div class="form-floating mb-3">
                                                         <input type="date" class="form-control" id="floatingd"
-                                                            placeholder="02/15/2023" name="reportDate" />
+                                                            placeholder="02/15/2023" name="reportDate" required />
                                                         <label for="floatingd">تاريخ
                                                             التقرير</label>
                                                     </div>
@@ -527,19 +642,19 @@
                                                     aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body fs-6">
-                                                <form method="post"
+                                                <form method="post" class="needs-validation" novalidate
                                                     action="/app/extinsert/{{i.id}}/{{demonstrator.id}}/">
                                                     {% csrf_token %}
 
                                                     <div class="form-floating mb-3">
                                                         <input type="text" class="form-control" id="floatingInput"
-                                                            placeholder="210" name="extensionDecisionNumber" />
+                                                            placeholder="210" name="extensionDecisionNumber" required />
                                                         <label for="floatingInput">رقم القرار
                                                         </label>
                                                     </div>
                                                     <div class="form-floating mb-3">
                                                         <select name="extensionDecisionType" class="form-control"
-                                                            id="floatingPassword">
+                                                            id="floatingPassword" required>
                                                             <option value="">
                                                                 ...
                                                             </option>
@@ -557,7 +672,8 @@
                                                     </div>
                                                     <div class="form-floating mb-3">
                                                         <input type="date" class="form-control" id="floatingd"
-                                                            placeholder="02/15/2023" name="extensionDecisionDate" />
+                                                            placeholder="02/15/2023" name="extensionDecisionDate"
+                                                            required />
                                                         <label for="floatingd">تاريخ
                                                             القرار</label>
                                                     </div>
@@ -567,7 +683,7 @@
                                                             <div class="form-floating mb-3">
                                                                 <input type="text" class="form-control" id="floatinyear"
                                                                     placeholder="0" name="extensionDurationYear"
-                                                                    value="0" />
+                                                                    value="0" required />
                                                                 <label for="floatinyear">سنة</label>
                                                             </div>
                                                         </div>
@@ -575,7 +691,7 @@
                                                             <div class="form-floating mb-3">
                                                                 <input type="text" class="form-control"
                                                                     id="floatinmonth" placeholder="0"
-                                                                    name="extensionDurationMonth" value="0" />
+                                                                    name="extensionDurationMonth" value="0" required />
                                                                 <label for="floatinmonth">شهر</label>
                                                             </div>
                                                         </div>
@@ -583,7 +699,7 @@
                                                             <div class="form-floating mb-3">
                                                                 <input type="text" class="form-control" id="floatinday"
                                                                     placeholder="0" name="extensionDurationDay"
-                                                                    value="0" />
+                                                                    value="0" required />
                                                                 <label for="floatinday">يوم</label>
                                                             </div>
                                                         </div>
@@ -608,19 +724,19 @@
                                                     aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body fs-6">
-                                                <form method="post"
+                                                <form method="post" class="needs-validation" novalidate
                                                     action="/app/freinsert/{{i.id}}/{{demonstrator.id}}/">
                                                     {% csrf_token %}
 
                                                     <div class="form-floating mb-3">
                                                         <input type="text" class="form-control" id="floatingInput"
-                                                            placeholder="210" name="freezeDecisionNumber" />
+                                                            placeholder="210" name="freezeDecisionNumber" required />
                                                         <label for="floatingInput">رقم القرار
                                                         </label>
                                                     </div>
                                                     <div class="form-floating mb-3">
                                                         <select name="freezeDecisionType" class="form-control"
-                                                            id="floatingPassword">
+                                                            id="floatingPassword" required>
                                                             <option value="">
                                                                 ...
                                                             </option>
@@ -638,7 +754,8 @@
                                                     </div>
                                                     <div class="form-floating mb-3">
                                                         <input type="date" class="form-control" id="floatingd"
-                                                            placeholder="02/15/2023" name="freezeDecisionDate" />
+                                                            placeholder="02/15/2023" name="freezeDecisionDate"
+                                                            required />
                                                         <label for="floatingd">تاريخ
                                                             القرار</label>
                                                     </div>
@@ -647,8 +764,8 @@
                                                         <div class="col-4">
                                                             <div class="form-floating mb-3">
                                                                 <input type="text" class="form-control" id="floatinyear"
-                                                                    placeholder="0" name="freezeDurationYear"
-                                                                    value="0" />
+                                                                    placeholder="0" name="freezeDurationYear" value="0"
+                                                                    required />
                                                                 <label for="floatinyear">سنة</label>
                                                             </div>
                                                         </div>
@@ -656,15 +773,15 @@
                                                             <div class="form-floating mb-3">
                                                                 <input type="text" class="form-control"
                                                                     id="floatinmonth" placeholder="0"
-                                                                    name="freezeDurationMonth" value="0" />
+                                                                    name="freezeDurationMonth" value="0" required />
                                                                 <label for="floatinmonth">شهر</label>
                                                             </div>
                                                         </div>
                                                         <div class="col-4">
                                                             <div class="form-floating mb-3">
                                                                 <input type="text" class="form-control" id="floatinday"
-                                                                    placeholder="0" name="freezeDurationDay"
-                                                                    value="0" />
+                                                                    placeholder="0" name="freezeDurationDay" value="0"
+                                                                    required />
                                                                 <label for="floatinday">يوم</label>
                                                             </div>
                                                         </div>
@@ -711,6 +828,7 @@
             "efad": `/app/updateDispatch/${id}/${did}/`,
             "ex": `/app/updateExtension/${id}/${did}/`,
             "fr": `/app/updateFreeze/${id}/${did}/`,
+            "unv": `/app/updateUnv/${id}/${did}/`,
             "demon": `/app/updateDemon/${id}/`
         }
         $.post(links[type], object, function (data) {
@@ -720,7 +838,7 @@
     }
 
 
-    let editMode = false, efadId = "", btnId = "", originals = {}, frezId = "", exId = "", demonId = ""
+    let editMode = false, efadId = "", btnId = "", originals = {}, frezId = "", exId = "", demonId = "", unvId = ""
     let csrf = createElementFromHTML(`{% csrf_token %}`)
 
     $(document).keydown(function (e) {
@@ -750,6 +868,9 @@
         if (demonId) {
             resetDemon()
         }
+        if (unvId) {
+            resetUnv()
+        }
     }
 
     function resetChoise() {
@@ -768,25 +889,26 @@
 <script src="{% static 'js/editEfad.js' %}"></script>
 <script src="{% static 'js/editFr.js' %}"></script>
 <script src="{% static 'js/editDemon.js' %}"></script>
+<script src="{% static 'js/editUnv.js' %}"></script>
 
 
 <script>
 
-    $("nav").mouseenter(function () {
-        console.log("asdf");
-        l = $(".line").css("left").slice(0, -2)
-        $(".line").animate({
-            left: "-=160px",
-            transition: "all 0.5s ease"
-        }, 350)
-    })
-    $("nav").mouseleave(function () {
-        l = $(".line").css("left").slice(0, -2)
-        $(".line").animate({
-            left: "+=160px"
-        }, 350)
+    // $("nav").mouseenter(function () {
+    //     console.log("asdf");
+    //     l = $(".line").css("left").slice(0, -2)
+    //     $(".line").animate({
+    //         left: "-=160px",
+    //         transition: "all 0.5s ease"
+    //     }, 350)
+    // })
+    // $("nav").mouseleave(function () {
+    //     l = $(".line").css("left").slice(0, -2)
+    //     $(".line").animate({
+    //         left: "+=160px"
+    //     }, 350)
 
-    })
+    // })
 
 
 

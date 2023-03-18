@@ -96,8 +96,41 @@ function editEfad(e, id, did) {
                     validator.equals(str, 'seat')
                 );
             },
+            commencementDate: (str) => {
+                return (
+                    validator.isEmpty(str) ||
+                    validator.isDate(str, { format: 'mm/dd/yyyy' })
+                );
+            },
+            dispatchEndDate: (str) => {
+                return (
+                    validator.isEmpty(str) ||
+                    validator.isDate(str, { format: 'mm/dd/yyyy' })
+                );
+            },
             backDate: (str) => {
-                return validator.isDate(str, { format: 'mm/dd/yyyy' });
+                return (
+                    validator.isEmpty(str) ||
+                    validator.isDate(str, { format: 'mm/dd/yyyy' })
+                );
+            },
+            defenseDate: (str) => {
+                return (
+                    validator.isEmpty(str) ||
+                    validator.isDate(str, { format: 'mm/dd/yyyy' })
+                );
+            },
+            gettingCertificateDate: (str) => {
+                return (
+                    validator.isEmpty(str) ||
+                    validator.isDate(str, { format: 'mm/dd/yyyy' })
+                );
+            },
+            atDisposalOfUniversityDate: (str) => {
+                return (
+                    validator.isEmpty(str) ||
+                    validator.isDate(str, { format: 'mm/dd/yyyy' })
+                );
             },
             dispatchCountry: (str) => {
                 return validator.isLength(str, { min: 1, max: 256 });
@@ -133,11 +166,26 @@ function editEfad(e, id, did) {
             outerSupervisor: (str) => {
                 return validator.isLength(str, { min: 1, max: 256 });
             },
+            dispatchDurationYear: (str) => {
+                return validator.isInt(str);
+            },
+            dispatchDurationMonth: (str) => {
+                return validator.isInt(str);
+            },
+            dispatchDurationDay: (str) => {
+                return validator.isInt(str);
+            },
         };
         const errors = {
             requiredCertificate: 'تأكد من حقل الشهادة المطلوبة',
             alimony: 'تأكد من حقل النفقة',
+            commencementDate: 'تأكد من حقل تاريخ المباشرة',
+            dispatchEndDate: 'تأكد من حقل تاريخ انتهاء الإيفاد',
             backDate: 'تأكد من حقل تاريخ العودة',
+            defenseDate: 'تأكد من حقل تاريخ الدفاع',
+            gettingCertificateDate: 'تأكد من حقل تاريخ الحصول على الشهادة',
+            atDisposalOfUniversityDate:
+                'تأكد من حقل تاريخ الوضع تحت تصرف الجامعة',
             dispatchCountry: 'تأكد من حقل بلد الإيفاد',
             dispatchDecisionDate: 'تأكد من حقل تاريخ القرار',
             dispatchDecisionNumber: 'تأكد من حقل رقم القرار',
@@ -146,6 +194,9 @@ function editEfad(e, id, did) {
             dispatchUniversity: 'تأكد من حقل جامعة الإيفاد',
             innerSupervisor: 'تأكد من حقل المشرف الداخلي',
             outerSupervisor: 'تاكد من حقل المشرف الخارجي',
+            dispatchDurationYear: 'تأكد أن الحقل يحتوي على عدد صحيح',
+            dispatchDurationMonth: 'تأكد أن الحقل يحتوي على عدد صحيح',
+            dispatchDurationDay: 'تأكد أن الحقل يحتوي على عدد صحيح',
         };
 
         let df = true;

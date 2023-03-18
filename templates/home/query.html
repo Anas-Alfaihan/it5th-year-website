@@ -181,68 +181,156 @@
 {% block files %}
 <script src="{% static 'jQuery-QueryBuilder-2.6.2/dist/js/query-builder.standalone.min.js' %}"></script>
 <script src="{% static 'jQuery-QueryBuilder-2.6.2/dist/i18n/query-builder.ar.js' %}"></script>
+<script src="{% static 'js/query_table.js' %}"></script>
+
 <script>
+
+</script>
+
+
+<script>
+
+  function createElementFromHTML(htmlString) {
+    var div = document.createElement('div');
+    div.innerHTML = htmlString.trim();
+
+    // Change this to div.childNodes to support multiple top-level nodes.
+    return div.firstChild;
+  }
+  let csrf = createElementFromHTML(`{% csrf_token %}`)
+
+  function modifyKeys(obj) {
+    op = ["lt", "ne", "in", "nin", "lte", "gt", "gte"]
+    Object.keys(obj).forEach(key => {
+      if (key[0] === "$") {
+        obj[`${key.slice(1)}`] = obj[key];
+        delete obj[key];
+        key = key.slice(1)
+      }
+
+
+      if (typeof obj[`${key}`] === "object" && obj[`${key}`] !== null) {
+        modifyKeys(obj[`${key}`]);
+      }
+      if (op.includes(`${key}`)) {
+        console.log("asdfasdfadsfsda");
+        obj[`__${key}`] = obj[key];
+        delete obj[key];
+      }
+
+    });
+    console.log(obj);
+
+  }
 
   $('#builder-basic').queryBuilder({
 
 
     filters: [{
-      id: 'name',
-      label: 'الاسم',
+      id: 'gender',
+      label: 'الجنس',
       type: 'string',
-      operators: ['equal', 'not_equal', 'is_null', 'is_not_null']
-    }, {
-      id: 'fatherName',
-      label: 'اسم الأب',
-      type: 'string',
-      operators: ['equal', 'not_equal', 'is_null', 'is_not_null']
-    }, {
-      id: 'motherName',
-      label: 'اسم الأم',
-      type: 'string',
-      operators: ['equal', 'not_equal', 'is_null', 'is_not_null']
-    }, {
-      id: 'category',
-      label: 'Category',
-      type: 'integer',
       input: 'select',
       values: {
-        1: 'Books',
-        2: 'Movies',
-        3: 'Music',
-        4: 'Tools',
-        5: 'Goodies',
-        6: 'Clothes'
-      },
-      operators: ['equal', 'not_equal', 'in', 'not_in', 'is_null', 'is_not_null']
-    }, {
-      id: 'in_stock',
-      label: 'In stock',
-      type: 'integer',
-      input: 'radio',
-      values: {
-        1: 'Yes',
-        0: 'No'
+        "male": 'ذكر',
+        "female": 'أنثى',
       },
       operators: ['equal']
     }, {
-      id: 'price',
-      label: 'Price',
-      type: 'double',
-      validation: {
-        min: 0,
-        step: 0.01
-      }
-    }, {
-      id: 'id',
-      label: 'Identifier',
+      id: 'birthDate',
+      label: 'تاريخ الميلاد',
       type: 'string',
-      placeholder: '____-____-____',
-      operators: ['equal', 'not_equal'],
-      validation: {
-        format: /^.{4}-.{4}-.{4}$/
-      }
-    }],
+      input: "text",
+      operators: ['is_not_null']
+    }, {
+      id: 'maritalStatus',
+      label: 'الحالة الاجتماعية',
+      type: 'string',
+      input: "select",
+      values: {
+        'married': 'متزوج',
+        'unmarried': 'أعزب'
+      },
+      operators: ['equal']
+    }, {
+      id: 'militarySituation',
+      label: 'وضع التجنيد',
+      type: 'string',
+      input: "select",
+      values: {
+        'delayed': 'مؤجل',
+        'laid off': 'مسرح'
+      },
+      operators: ['equal']
+    }, {
+      id: 'language',
+      label: 'اللغة',
+      type: 'string',
+      input: "text",
+      operators: ['equal', 'not_equal']
+    }, {
+      id: 'currentAdjective',
+      label: 'الصفة الحالية',
+      type: 'string',
+      input: "select",
+      values: {
+        'demonstrator': 'معيد',
+        'returning': 'عائد',
+        'envoy': 'موفد',
+        'returning demonstrator': 'معيد عائد',
+        'loathes': 'مستنكف',
+        'transfer outside the university': 'نقل خارج الجامعة',
+        'end services': 'انهاء خدمات',
+        'resigned': 'انهاء بحكم المستقيل',
+      },
+      operators: ['equal', 'not_equal']
+    }, {
+      id: 'nominationReason',
+      label: 'سبب الترشيح',
+      type: 'string',
+      input: "select",
+      values: {
+        'contest': 'مسابقة',
+        'First graduate': 'خريج أول'
+      },
+      operators: ['equal']
+    }, {
+      id: 'universityDegree__universityDegreeUniversity',
+      label: 'الجامعة',
+      type: 'string',
+      input: "text",
+      operators: ['equal', 'not_equal']
+    }, {
+      id: 'universityDegree__universityDegreeCollege',
+      label: 'الكلية',
+      type: 'string',
+      input: "text",
+      operators: ['equal', 'not_equal']
+    }, {
+      id: 'universityDegree__universityDegreeSection',
+      label: 'القسم',
+      type: 'string',
+      input: "text",
+      operators: ['equal', 'not_equal']
+    }, {
+      id: 'specialization',
+      label: 'التخصص',
+      type: 'string',
+      input: "text",
+      operators: ['is_not_null']
+    },
+    {
+      id: 'dispatch__dispatchType',
+      label: 'نوع الإيفاد',
+      type: 'string',
+      input: 'select',
+      values: {
+        'inner': 'داخلي',
+        'outer': 'خارجي',
+      },
+      operators: ['equal']
+    }
+      ,],
 
 
   });
@@ -257,11 +345,43 @@
   });
 
   $('#btn-get').on('click', function () {
-    var result = $('#builder-basic').queryBuilder('getRules');
+    var result = $('#builder-basic').queryBuilder('getMongo');
 
     if (!$.isEmptyObject(result)) {
-      alert(JSON.stringify(result, null, 2));
+      let d = {}
+      console.log(JSON.stringify(result, null, 2));
+      let y = modifyKeys(result)
+      d['csrfmiddlewaretoken'] = csrf.value;
+      d['query'] = JSON.stringify(result)
+      console.log(d);
+      console.log(JSON.stringify(d));
+      post("/app/query/", d, "post")
+      // alert(JSON.stringify(result, null, 2));
     }
   });
+
+  function post(path, params, method = 'post') {
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less verbose if you use one.
+    const form = document.createElement('form');
+    form.method = method;
+    form.action = path;
+
+    for (const key in params) {
+      if (params.hasOwnProperty(key)) {
+        const hiddenField = document.createElement('input');
+        hiddenField.type = 'hidden';
+        hiddenField.name = key;
+        hiddenField.value = params[key];
+
+        form.appendChild(hiddenField);
+      }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+
 </script>
 {% endblock %}
