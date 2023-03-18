@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.core import serializers
 from django.contrib import messages
 from django.apps import apps
-from django.db.models import Q
+from django.db.models import Q, Max
 from json import dumps, loads
 from dateutil.relativedelta import relativedelta
 from .models import *
@@ -119,6 +119,52 @@ def DemonstratorInsert2(request):
                     return redirect('app:home')
 
             messages.add_message(request, messages.SUCCESS,"تم تسجيل المعيد")
+            return redirect('app:home')
+        else :
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
+            return redirect('app:home')
+
+    else:
+        return render(request, 'home/insert.html')
+
+
+def GraduateStudiesDegreeInsert(request, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college'] in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                id = generalInsert(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, savePoint)
+                if type(id) == ErrorDict: 
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة الشهادة")
+                    return redirect('app:home')
+
+            messages.add_message(request, messages.SUCCESS,"تمت إضافة الشهادة")
+            return redirect('app:home')
+        else :
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
+            return redirect('app:home')
+
+    else:
+        return render(request, 'home/insert.html')
+
+
+def CertificateExcellenceYearInsert(request, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college'] in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                id = generalInsert(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, savePoint)
+                if type(id) == ErrorDict: 
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة الشهادة")
+                    return redirect('app:home')
+
+            messages.add_message(request, messages.SUCCESS,"تمت إضافة الشهادة")
             return redirect('app:home')
         else :
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
