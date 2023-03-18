@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block head_title %}create user{% endblock %}
+{% extends "base.html" %} {% block head_title %}تسجيل معيد {% endblock %}
 
 <!-- something here for nothing  -->
 {% load static %}
@@ -15,52 +15,25 @@
         <div class="row g-3">
             <div class="col-sm-4">
                 <label for="name" class="form-label">الاسم</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="firstName"
-                    required
-                    name="name"
-                    maxlength="50"
-                />
+                <input type="text" class="form-control" id="firstName" required name="name" maxlength="50" />
                 <div class="invalid-feedback">يرجى إدخال اسم أول صحيح.</div>
             </div>
 
             <div class="col-sm-4">
                 <label for="lastName" class="form-label">اسم الأب</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="lastName"
-                    name="fatherName"
-                    maxlength="50"
-                    required
-                />
+                <input type="text" class="form-control" id="lastName" name="fatherName" maxlength="50" required />
                 <div class="invalid-feedback">يرجى إدخال اسم صحيح.</div>
             </div>
             <div class="col-sm-4">
                 <label for="lastName" class="form-label">اسم الأم</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="lastName"
-                    name="motherName"
-                    maxlength="50"
-                    required
-                />
+                <input type="text" class="form-control" id="lastName" name="motherName" maxlength="50" required />
                 <div class="invalid-feedback">يرجى إدخال اسم صحيح.</div>
             </div>
 
             <div class="col-sm-6">
                 <label for="lastName" class="form-label">تاريخ الميلاد</label>
 
-                <input
-                    type="date"
-                    name="birthDate"
-                    class="form-control"
-                    id="date"
-                    required
-                />
+                <input type="date" name="birthDate" class="form-control" id="date" required />
 
                 <div class="invalid-feedback">يرجى إدخال تاريخ صحيح.</div>
             </div>
@@ -81,15 +54,8 @@
             <div class="col-4">
                 <label for="username" class="form-label">الإيميل</label>
                 <div class="input-group has-validation">
-                    <input
-                        type="email"
-                        class="form-control"
-                        id="username"
-                        placeholder="something@gmail.com"
-                        name="email"
-                        maxlength="254"
-                        required
-                    />
+                    <input type="email" class="form-control" id="username" placeholder="something@gmail.com"
+                        name="email" maxlength="254" required />
                     <div class="invalid-feedback">
                         يرجى إدخال عنوان بريد إلكتروني صحيح.
                     </div>
@@ -98,74 +64,39 @@
 
             <div class="col-4">
                 <label for="address" class="form-label">مكان الإقامة</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="address"
-                    placeholder="1234 الشارع الأول"
-                    name="home"
-                    maxlength="255"
-                    required
-                />
+                <input type="text" class="form-control" id="address" placeholder="1234 الشارع الأول" name="home"
+                    maxlength="255" required />
                 <div class="invalid-feedback">يرجى إدخال مكان الإقامة.</div>
             </div>
 
             <div class="col-4 mb-4">
                 <label for="address" class="form-label">العنوان الحالي</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="address"
-                    placeholder="1234 الشارع الثاني"
-                    name="residence"
-                    maxlength="255"
-                    required
-                />
+                <input type="text" class="form-control" id="address" placeholder="1234 الشارع الثاني" name="residence"
+                    maxlength="255" required />
                 <div class="invalid-feedback">يرجى إدخال العنوان الحالي.</div>
             </div>
 
             <div class="col-6">
-                <label for="address" class="form-label"
-                    >رقم الهاتف المحمول</label
-                >
-                <input
-                    type="text"
-                    class="form-control"
-                    id="address"
-                    placeholder="09586564897"
-                    name="mobile"
-                    maxlength="25"
-                    required
-                />
+                <label for="address" class="form-label">رقم الهاتف المحمول</label>
+                <input type="text" class="form-control" id="address" placeholder="09586564897"
+                    pattern="^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$" name="mobile" maxlength="25"
+                    required />
                 <div class="invalid-feedback">
                     يرجى إدخال رقم الهاتف المحمول.
                 </div>
             </div>
 
             <div class="col-6">
-                <label for="address" class="form-label"
-                    >رقم الهاتف الأرضي (إن وجد)</label
-                >
-                <input
-                    type="text"
-                    class="form-control"
-                    id="address"
-                    placeholder="2148596"
-                    name="telephone"
-                    maxlength="25"
-                />
+                <label for="address" class="form-label">رقم الهاتف الأرضي (إن وجد)</label>
+                <input type="text" class="form-control" id="address" placeholder="2148596"
+                    pattern="^([0-9]{3}[-]?)?[0-9]{7}$" name="telephone" maxlength="25" />
             </div>
 
             <hr class="my-4" />
             <h4 class="mb-3 lead">الحالة الاجتماعية</h4>
             <div class="col-md-7">
                 <label for="social" class="form-label">الحالة العائلية</label>
-                <select
-                    class="form-select"
-                    id="social"
-                    name="maritalStatus"
-                    required
-                >
+                <select class="form-select" id="social" name="maritalStatus" required>
                     <option value="">اختر...</option>
                     <option value="unmarried">أعزب</option>
                     <option value="married">متزوج</option>
@@ -177,12 +108,7 @@
 
             <div class="col-md-5">
                 <label for="mil" class="form-label">الوضع العسكري</label>
-                <select
-                    class="form-select"
-                    id="mil"
-                    name="militarySituation"
-                    required
-                >
+                <select class="form-select" id="mil" name="militarySituation" required>
                     <option value="">اختر...</option>
                     <option value="delayed">مؤجل</option>
                     <option value="laid off">مسرح</option>
@@ -197,59 +123,32 @@
             <h4 class="mb-3 lead">الشهادة الجامعية</h4>
             <div class="col-md-6">
                 <label for="cc-name" class="form-label">الجامعة</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    name="universityDegreeUniversity"
-                    maxlength="100"
-                    required
-                />
+                <input type="text" class="form-control" name="universityDegreeUniversity" maxlength="100" required />
 
                 <div class="invalid-feedback">الجامعةمطلوبة</div>
             </div>
             <div class="col-md-6">
                 <label for="cc-name" class="form-label">الكلية</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    name="universityDegreeCollege"
-                    maxlength="100"
-                    required
-                />
+                <input type="text" class="form-control" name="universityDegreeCollege" maxlength="100" required />
 
                 <div class="invalid-feedback">الكلية مطلوبة</div>
             </div>
             <div class="col-md-6">
                 <label for="cc-name" class="form-label">القسم</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    name="universityDegreeSection"
-                    maxlength="100"
-                />
+                <input type="text" class="form-control" name="universityDegreeSection" maxlength="100" />
             </div>
 
             <div class="col-md-6">
                 <label for="cc-name" class="form-label">سنة التخرج</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    name="universityDegreeYear"
-                    required
-                />
+                <input type="text" class="form-control" name="universityDegreeYear" pattern="^[0-9]{4}[-][0-9]{4}$"
+                    placeholder="2018-2019" required />
+                <div class="invalid-feedback">أدخل بتنسيق 2018-2019</div>
             </div>
 
             <div class="col-md-6">
                 <label for="cc-name" class="form-label">معدل التخرج</label>
-                <input
-                    type="number"
-                    min="60"
-                    max="100"
-                    step="0.001"
-                    class="form-control"
-                    name="universityDegreeAverage"
-                    required
-                />
+                <input type="number" min="60" max="100" step="0.001" class="form-control" name="universityDegreeAverage"
+                    required />
             </div>
         </dtv>
         <hr class="my-4" />
@@ -259,69 +158,35 @@
 
             <div class="col-md-6">
                 <label for="cc-name" class="form-label">الجامعة</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    name="university"
-                    maxlength="100"
-                    required
-                />
+                <input type="text" class="form-control" name="university" maxlength="100" required />
 
                 <div class="invalid-feedback">الجامعة مطلوبة</div>
             </div>
             <div class="col-md-6">
                 <label for="cc-name" class="form-label">الكلية</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    name="college"
-                    maxlength="100"
-                    required
-                />
+                <input type="text" class="form-control" name="college" maxlength="100" required />
 
                 <div class="invalid-feedback">الكلية مطلوبة</div>
             </div>
             <div class="col-md-6">
                 <label for="cc-name" class="form-label">القسم</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    name="section"
-                    maxlength="100"
-                />
+                <input type="text" class="form-control" name="section" maxlength="100" />
             </div>
             <div class="col-md-6">
                 <label for="cc-name" class="form-label">الاختصاص</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    name="specialization"
-                    maxlength="100"
-                />
+                <input type="text" class="form-control" name="specialization" maxlength="100" />
             </div>
 
             <div class="col-md-6">
                 <label for="cc-name" class="form-label">اللغة</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="cc-name"
-                    name="language"
-                    maxlength="50"
-                    required
-                />
+                <input type="text" class="form-control" id="cc-name" name="language" maxlength="50" required />
 
                 <div class="invalid-feedback">اللغة مطلوبة</div>
             </div>
 
             <div class="col-md-6" id="state-father">
                 <label for="cc-number" class="form-label">نوع القبول</label>
-                <select
-                    class="form-select"
-                    id="state"
-                    name="nominationReason"
-                    required
-                >
+                <select class="form-select" id="state" name="nominationReason" required>
                     <option value="">اختر...</option>
                     <option value="First graduate">خريج أول</option>
                     <option value="contest">مسابقة</option>
@@ -334,22 +199,14 @@
         <div class="row gy-3 mt-2 justify-content-around">
             <div class="col-6 row">
                 <div class="mt-2" id="above-highd">
-                    <button
-                        id="highD"
-                        type="button"
-                        class="btn d-block mx-auto btn-outline-secondary"
-                    >
+                    <button id="highD" type="button" class="btn d-block mx-auto btn-outline-secondary">
                         إضافة دراسات عليا
                     </button>
                 </div>
             </div>
             <div class="col-6 row">
                 <div class="mt-2" id="above-highc">
-                    <button
-                        id="highC"
-                        type="button"
-                        class="btn d-block mx-auto btn-outline-secondary"
-                    >
+                    <button id="highC" type="button" class="btn d-block mx-auto btn-outline-secondary">
                         إضافة شهادات تفوق
                     </button>
                 </div>
@@ -364,28 +221,8 @@
 </div>
 
 <script src="{% static 'js/insert_page.js' %}"></script>
-<script>
-    (() => {
-        'use strict';
 
-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-        const forms = document.querySelectorAll('.needs-validation');
+{% endblock %}
+{% block files %}
 
-        // Loop over them and prevent submission
-        Array.from(forms).forEach((form) => {
-            form.addEventListener(
-                'submit',
-                (event) => {
-                    if (!form.checkValidity()) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-
-                    form.classList.add('was-validated');
-                },
-                false
-            );
-        });
-    })();
-</script>
 {% endblock %}

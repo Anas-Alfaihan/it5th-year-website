@@ -122,8 +122,11 @@ $(document).ready(function () {
         type="text"
         class="form-control"
         name="graduateStudiesYear"
+        pattern="^[0-9]{4}[-][0-9]{4}$"
+                    placeholder="2018-2019"
         required
     />
+    <div class="invalid-feedback">أدخل بتنسيق 2018-2019</div>
 </div>
 <div class="col-6">
     <label class="form-label">المعدل</label>

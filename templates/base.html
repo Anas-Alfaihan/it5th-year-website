@@ -19,7 +19,7 @@
 </head>
 
 <body>
-    <nav>
+    <nav class="d-print-none">
         <ul>
             <li>
                 <a href="{% url 'app:home' %}" class="logo"><img src="{% static 'images/logo.png' %}" alt="" />
@@ -43,6 +43,9 @@
                         class="n-i">المعيدين</span></a>
             </li>
             <li>
+                <a href="{% url 'app:gett' %}"><i class="fa-solid fa-filter"></i><span class="n-i">استعلام</span></a>
+            </li>
+            <li>
                 <a href="{% url 'app:logout' %}" class="logout"><i class="fa-solid fa-right-from-bracket"></i><span
                         class="n-i">تسجيل الخروج</span></a>
             </li>
@@ -51,6 +54,7 @@
                 <a href="{% url 'app:login' %} " class="logout"><i class="fa-solid fa-right-to-bracket"></i><span
                         class="n-i">تسجيل الدخول</span></a>
             </li>
+
             {% endif %}
         </ul>
     </nav>
@@ -89,6 +93,31 @@
     {% endif %}
 
     <script src="{% static 'bootstrap-5.2.0/dist/js/bootstrap.min.js' %}"></script>
+    <script>
+
+        (() => {
+            'use strict';
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            const forms = document.querySelectorAll('.needs-validation');
+
+            // Loop over them and prevent submission
+            Array.from(forms).forEach((form) => {
+                form.addEventListener(
+                    'submit',
+                    (event) => {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+
+                        form.classList.add('was-validated');
+                    },
+                    false
+                );
+            });
+        })();
+    </script>
 </body>
 
 </html>

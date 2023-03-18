@@ -10,7 +10,7 @@ from django.core import serializers
 from django.contrib import messages
 from django.apps import apps
 from django.db.models import Q
-from json import dumps
+from json import dumps, loads
 from dateutil.relativedelta import relativedelta
 from .models import *
 from .forms import *
@@ -695,7 +695,8 @@ def UpdateSpecializationChange(request, id, demonId):
 
 def QueryDemonstrator(request):
     if request.method == 'POST':
-
+        
+        
         def makeQuery(query, op):
             obj = Q()
             for item in query: 
@@ -708,23 +709,28 @@ def QueryDemonstrator(request):
                 elif type(item[q]) is dict:
                     p = list (item[q].keys())[0]
                     if op == 'or':
-                        obj = obj | Q(**{q+p: item[q][p]})
+                        if p =='__ne': obj = obj | ~Q(**{q: item[q][p]})
+                        else: obj = obj | Q(**{q+p: item[q][p]})
                     else:
-                        obj = obj & Q(**{q+p: item[q][p]})
+                        if p=='__ne': obj = obj & ~Q(**{q: item[q][p]})
+                        else: Q(**{q+p: item[q][p]})
                 else: 
                     if op == 'or':
                         obj = obj | Q(**{q: item[q]})
                     else: 
                         obj = obj & Q(**{q: item[q]})
+                       
             return obj
-
-        query = request.POST['query']
+        query = loads(request.POST['query'])
+         
+        print(query)
         op = list(query.keys())[0]
         obj = makeQuery(query[op], op)
-        result = serializers.serialize('json', Demonstrator.objects.filter(obj))
+        print(obj)
+        result = Demonstrator.objects.select_related().prefetch_related().filter(obj)
         print(result)
-    
-        return render(request, 'registration/result.html', {'result': result})
+        
+        return render(request, "registration/result.html", {"red":list(result)})
 
 
 
