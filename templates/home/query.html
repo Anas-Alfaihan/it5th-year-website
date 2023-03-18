@@ -6,7 +6,7 @@
 {% block style %}
 <link rel="stylesheet" href="{% static 'jQuery-QueryBuilder-2.6.2/dist/css/query-builder.default.min.css' %}">
 <link rel="stylesheet" href="{% static 'bootstrap-5.2.0/dist/css/bootstrap.min.css' %}" />
-
+<link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.standalone.min.css' %}">
 
 <style>
   /* .query-builder,
@@ -181,9 +181,9 @@
 {% block files %}
 <script src="{% static 'jQuery-QueryBuilder-2.6.2/dist/js/query-builder.standalone.min.js' %}"></script>
 <script src="{% static 'jQuery-QueryBuilder-2.6.2/dist/i18n/query-builder.ar.js' %}"></script>
-<script src="{% static 'js/query_table.js' %}"></script>
 
-<script>
+
+<script src="{% static 'js/cdpicker.min.js' %}">
 
 </script>
 
@@ -219,12 +219,13 @@
       }
 
     });
-    console.log(obj);
 
   }
 
   $('#builder-basic').queryBuilder({
 
+    allow_groups: 0,
+    default_condition: 'OR',
 
     filters: [{
       id: 'gender',
@@ -241,7 +242,12 @@
       label: 'تاريخ الميلاد',
       type: 'string',
       input: "text",
-      operators: ['is_not_null']
+      plugin: 'datepicker',
+      plugin_config: {
+        format: 'yyyy-mm-dd',
+        autoclose: true
+      },
+      operators: ['equal', 'greater', 'less', 'greater_or_equal', 'less_or_equal']
     }, {
       id: 'maritalStatus',
       label: 'الحالة الاجتماعية',
@@ -349,12 +355,8 @@
 
     if (!$.isEmptyObject(result)) {
       let d = {}
-      console.log(JSON.stringify(result, null, 2));
-      let y = modifyKeys(result)
       d['csrfmiddlewaretoken'] = csrf.value;
       d['query'] = JSON.stringify(result)
-      console.log(d);
-      console.log(JSON.stringify(d));
       post("/app/query/", d, "post")
       // alert(JSON.stringify(result, null, 2));
     }

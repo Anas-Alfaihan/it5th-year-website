@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 django = "*"
+python-dateutil = "*"
 
 [dev-packages]
 autopep8 = "*"
