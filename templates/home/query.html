@@ -355,6 +355,7 @@
 
     if (!$.isEmptyObject(result)) {
       let d = {}
+      modifyKeys(result)
       d['csrfmiddlewaretoken'] = csrf.value;
       d['query'] = JSON.stringify(result)
       post("/app/query/", d, "post")

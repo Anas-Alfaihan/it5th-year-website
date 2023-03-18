@@ -164,6 +164,27 @@
             </div>
         </div>
         <div class="forth" style="display: none">
+            <div class="row g-0 ct">
+                <div class="text-lead text-muted fs-6 col-2 mb-4">
+                    رقم القرار
+                    /<span class=""
+                        name="dispatchDecisionNumber">{{demonstrator.nominationDecision.nominationDecisionNumber}}</span>/<span
+                        class="" name="dispatchDecisionType"
+                        value="{{demonstrator.nominationDecision.nominationDecisionType}}">{{demonstrator.nominationDecision.nominationDecisionType}}
+                    </span>
+                    <div class="d-none choises dispatchDecisionType">
+                        <div><strong value="s">ش.ع</strong></div>
+                        <div><strong value="o">و</strong></div>
+                        <div><strong value="b">ب</strong></div>
+                    </div>
+                </div>
+                <p class="text-lead text-muted fs-6 col-2">
+                    تاريخ
+
+                    <span class="" name="dispatchDecisionDate"
+                        data-toggle="datepicker">{{demonstrator.nominationDecision.nominationDecisionDate|date:"SHORT_DATE_FORMAT"}}</span>
+                </p>
+            </div>
             <div class="grd">
                 <div class="gr-1">
                     <p class="ct">
@@ -258,8 +279,187 @@
                 onclick="editUnv(event, '{{demonstrator.universityDegree.pk}}', '{{demonstrator.id}}')"
                 id="unveb-{{demonstrator.universityDegree.pk}}">تعديل</button>
         </div>
-        <div class="sixth" style="display: none">asd</div>
-        <div class="seventh" style="display: none">asd</div>
+        <div class="sixth" style="display: none">
+            {% for grad in demonstrator.graduateStudies.all %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="ct">
+                                <span>الشهادة:</span><span class=" grad-{{grad.id}} editable mul"
+                                    name="graduateStudiesDegree"
+                                    value="{{grad.graduateStudiesDegree}}">{{grad.get_graduateStudiesDegree_display}}</span>
+                                <div class="d-none choises graduateStudiesDegree">
+                                    <div><strong value="diploma">دبلوم</strong></div>
+                                    <div><strong value="master">ماجستير</strong></div>
+                                    <div><strong value="ph.d">دكتوراه</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <p class="ct">
+                                <span>الكلية:</span><span class="grad-{{grad.id}} editable"
+                                    name="graduateStudiesCollege">{{grad.graduateStudiesCollege}}</span>
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <p class="ct">
+                                <span>الجامعة:</span><span class="grad-{{grad.id}} editable"
+                                    name="graduateStudiesUniversity">{{grad.graduateStudiesUniversity}}</span>
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <p class="ct">
+                                <span>القسم:</span><span class="grad-{{grad.id}} editable"
+                                    name="graduateStudiesSection">{{grad.graduateStudiesSection}}</span>
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <p class="ct">
+                                <span>الاختصاص:</span><span class="grad-{{grad.id}} editable"
+                                    name="graduateStudiesSpecialzaion">{{grad.graduateStudiesSpecialzaion}}</span>
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <p class="ct">
+                                <span>سنة التخرج:</span><span class="grad-{{grad.id}} editable"
+                                    name="graduateStudiesYear">{{grad.graduateStudiesYear}}</span>
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <p class="ct">
+                                <span>المعدل:</span><span class="grad-{{grad.id}} editable"
+                                    name="graduateStudiesAverage">{{grad.graduateStudiesAverage}}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="button" class="btn btn-sm btn-outline-success"
+                        onclick="editGrad(event, '{{grad.pk}}', '{{demonstrator.id}}')"
+                        id="gradeb-{{grad.pk}}">تعديل</button>
+                </div>
+
+            </div>
+
+            {% endfor %}{% if not demonstrator.graduateStudies.all %}
+            لا يوجد دراسات عليا
+
+            <div class="row justify-content-center mt-5">
+                <div class="col-6 text-center">
+                    <button type="button" class="btn btn-lg btn-outline-primary" data-bs-toggle="modal"
+                        data-bs-target="#Modalree{{demonstrator.id}}">إضافة دراسات
+                        عليا
+                    </button>
+                </div>
+            </div>
+            <div class="modal fade" id="Modalree{{demonstrator.id}}" tabindex="-1" aria-labelledby="ModalLabel{{i.id}}"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="ModalLabel{{demonstrator.id}}">
+                                إضافة دراسات عليا
+                            </h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body fs-6">
+                            <form method="post" class="needs-validation" novalidate
+                                action="/app/reportinsert/{{demonstrator.id}}/">
+                                {% csrf_token %}
+
+
+
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" name="graduateStudiesDegree" id="graduateStudiesDegree"
+                                        required>
+                                        <option value="">اختر...</option>
+                                        <option value="diploma">دبلوم</option>
+                                        <option value="master">ماجستير</option>
+                                        <option value="ph.d">دكتوراه</option>
+                                    </select>
+                                    <label class="graduateStudiesDegree">الشهادة</label>
+                                </div>
+                                <div class="row">
+
+                                    <div class="col-6">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="graduateStudiesUniversity"
+                                                placeholder="graduateStudiesUniversity" name="graduateStudiesUniversity"
+                                                maxlength="50" required />
+                                            <label class="graduateStudiesUniversity">الجامعة</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="graduateStudiesCollege"
+                                                placeholder="graduateStudiesCollege" name="graduateStudiesCollege"
+                                                maxlength="50" required />
+                                            <label class="graduateStudiesCollege">الكلية</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="graduateStudiesSection"
+                                                placeholder="graduateStudiesSection" name="graduateStudiesSection"
+                                                maxlength="50" required />
+                                            <label class="graduateStudiesSection">القسم</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="graduateStudiesSpecialzaion"
+                                                placeholder="graduateStudiesSpecialzaion"
+                                                name="graduateStudiesSpecialzaion" maxlength="50" required />
+                                            <label class="graduateStudiesSpecialzaion">الاختصاص</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="graduateStudiesYear"
+                                                pattern="^[0-9]{4}[-][0-9]{4}$" placeholder="2018-2019"
+                                                name="graduateStudiesYear" maxlength="50" required />
+                                            <label class="graduateStudiesYear">سنة التخرج</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-floating mb-3">
+                                            <input type="number" min="60" max="100" step="0.001" class="form-control"
+                                                id="graduateStudiesAverage" name="graduateStudiesAverage" maxlength="50"
+                                                required />
+                                            <label class="graduateStudiesAverage">الجامعة</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="submit" value="إضافة" class="btn btn-outline-primary" />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="seventh" style="display: none">
+            <div class="row">
+                {% for cer in demonstrator.certificateOfExcellence.all %}
+                <div class="col-3">
+                    <div class="card border-primary mb-3" style="max-width: 18rem;">
+                        <div class="card-header">شهادة تفوق</div>
+                        <div class="card-body">
+
+                            <p class="card-text">المرتبة: {{cer.get_certificateOfExcellenceDegree_display}}</p>
+                            <p class="card-text">السنة: {{cer.get_certificateOfExcellenceYear_display}}</p>
+                        </div>
+                    </div>
+                </div>
+
+
+                {% endfor %}{% if not demonstrator.certificateOfExcellence.all%}
+                لا يوجد شهادات تفوق
+                {% endif %}
+            </div>
+
+        </div>
         <div class="eigth" style="display: none">
             <div class="row justify-content-center mx-auto">
                 <div class="accordion" id="efads">
@@ -829,16 +1029,33 @@
             "ex": `/app/updateExtension/${id}/${did}/`,
             "fr": `/app/updateFreeze/${id}/${did}/`,
             "unv": `/app/updateUnv/${id}/${did}/`,
+            "grad": `/app/updateGrad/${id}/${did}/`,
             "demon": `/app/updateDemon/${id}/`
         }
         $.post(links[type], object, function (data) {
-            console.log(data);
+
+            if (data.status === "good") {
+                Toastify({
+                    text: 'تم التعديل بنجاح',
+                    duration: 3000,
+                    close: true,
+                    gravity: 'top', // `top` or `bottom`
+                    position: 'left', // `left`, `center` or `right`
+                    stopOnFocus: true, // Prevents dismissing of toast on hover
+                    style: {
+                        background: 'linear-gradient(to right, #00b09b, #96c93d)',
+                        width: '300px',
+                        border: '16px',
+                    },
+                }).showToast()
+            }
+
 
         })
     }
 
 
-    let editMode = false, efadId = "", btnId = "", originals = {}, frezId = "", exId = "", demonId = "", unvId = ""
+    let editMode = false, efadId = "", btnId = "", originals = {}, frezId = "", exId = "", demonId = "", unvId = "", gradId = ""
     let csrf = createElementFromHTML(`{% csrf_token %}`)
 
     $(document).keydown(function (e) {
@@ -871,6 +1088,9 @@
         if (unvId) {
             resetUnv()
         }
+        if (gradId) {
+            resetGrad()
+        }
     }
 
     function resetChoise() {
@@ -890,6 +1110,7 @@
 <script src="{% static 'js/editFr.js' %}"></script>
 <script src="{% static 'js/editDemon.js' %}"></script>
 <script src="{% static 'js/editUnv.js' %}"></script>
+<script src="{% static 'js/editGrad.js' %}"></script>
 
 
 <script>
@@ -916,7 +1137,7 @@
         var nav = $('#nav');
         var line = $('<div />').addClass('line');
         line.appendTo(nav);
-        console.log(line);
+
 
         var active = nav.find('.aactive');
         var pos = 0;
@@ -948,7 +1169,6 @@
                 );
                 div.fadeOut(300, function () {
                     div2.fadeIn(150);
-                    console.log(_this.parent().prop('class').split(' ')[0]);
                     div = div2;
                 });
 
