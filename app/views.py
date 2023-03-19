@@ -58,7 +58,8 @@ def Login(request):
             messages.add_message(request, messages.SUCCESS,"أهلاً و سهلاً")
             return redirect('app:home')
         else:
-            return render(request, 'registration/result.html', {'result': 'no such a user'})
+            messages.add_message(request, messages.ERROR,"اسم المستخدم أو كلمة المرور خاطئة")
+            return render(request, 'registration/login.html')
 
     return render(request, 'registration/login.html')
 
