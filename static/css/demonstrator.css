@@ -1,6 +1,12 @@
 #nav {
     position: relative;
     padding-bottom: 12px;
+    overflow-x: auto;
+    
+}
+
+#nav::-webkit-scrollbar{
+    display: none;
 }
 #nav .line {
     height: 2px;
@@ -14,6 +20,8 @@
     margin: 0;
     list-style: none;
     display: flex;
+    max-width: 80%;
+
 }
 #nav ul li {
     margin: 0 40px 0 0;
@@ -37,6 +45,8 @@
     font-weight: 600;
     letter-spacing: 0.1em;
     font-size: 14px;
+    width:max-content;
+
 }
 
 #content {

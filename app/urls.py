@@ -27,7 +27,7 @@ urlpatterns = [
     path('getAllEmails/', views.GetAllEmails, name='getAllEmails'),
     path('getLateEmails/', views.GetLateEmails, name='getLateEmails'),
     path('getCollegeEmails/', views.GetCollegeEmails, name='getCollegeEmails'),
-    path('insertGraduate/<int:demonId>/', views.GraduateStudiesDegreeInsert, name='insertGraduate'),
+    path('reportinsert/<int:demonId>/', views.GraduateStudiesDegreeInsert, name='insertGraduate'),
     path('insertExcellence/<int:demonId>/', views.CertificateExcellenceYearInsert, name='insertExcellence'),
     path('gett/', views.do_something, name='gett'),
 

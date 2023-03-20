@@ -36,9 +36,9 @@ class Demonstrator(models.Model):
     residence = models.CharField(max_length=255)
     language = models.CharField(max_length=50)
     currentAdjective = models.CharField(
-        max_length=50, choices=ADJECTIVE_CHOICES, default='demonstrator')
+        max_length=50, choices=ADJECTIVE_CHOICES,null=True, blank=True, default='demonstrator')
     nominationReason = models.CharField(
-        max_length=25, choices=NOMINATION_REASON_CHOICES)
+        max_length=25, choices=NOMINATION_REASON_CHOICES, null=True, blank=True)
     contestAnnouncementDate = models.DateField(null=True, blank=True)
     university = models.CharField(max_length=100)
     college = models.CharField(max_length=100)
