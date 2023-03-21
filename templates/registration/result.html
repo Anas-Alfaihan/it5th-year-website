@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block head_title %}Login{% endblock %}
+{% extends "base.html" %} {% block head_title %}استعلام{% endblock %}
 
 <!-- something here for nothing  -->
 {% load static %}
@@ -61,6 +61,7 @@
     .fl-table td {
         border-right: 1px solid #f8f8f8;
         font-size: 16px;
+        border: 1px solid rgb(247, 245, 245)
     }
 
     .fl-table thead th {
@@ -236,14 +237,14 @@
                     <td>{{i.contestAnnouncementDate|date:"SHORT_DATE_FORMAT"}}</td>
                     <td>{{i.universityDegree.universityDegreeUniversity|default:""}}</td>
                     <td>{{i.universityDegree.universityDegreeCollege|default:""}}</td>
-                    <td>{{i.universityDegree.universityDegreeSection|default:""}}</td>
+                    <td>{{i.universityDegree.universityDegreeSection|default:"لا يوجد"}}</td>
                     <td>{{i.universityDegree.universityDegreeYear|default:""}}</td>
                     <td>{{i.universityDegree.universityDegreeAverage|default:""}}</td>
                     <td>{{i.university|default:""}}</td>
                     <td>{{i.college|default:""}}</td>
-                    <td>{{i.secion|default:""}}</td>
-                    <td>{{i.specialization|default:""}}</td>
-                    <td>{{i.commencementAfterNominationDate|date:"SHORT_DATE_FORMAT"|default:""}}</td>
+                    <td>{{i.secion|default:"لا يوجد"}}</td>
+                    <td>{{i.specialization|default:"لا يوجد"}}</td>
+                    <td>{{i.commencementAfterNominationDate|date:"SHORT_DATE_FORMAT"|default:"لا يوجد"}}</td>
                     <td class="td-table">
                         <table>
                             <thead>
@@ -254,10 +255,13 @@
                                     <th>الشهادة المطلوبة</th>
                                     <th>النفقة</th>
                                     <th>مدة الإيفاد</th>
-                                    <th>تاريخ العودة</th>
+                                    <th style="max-width: 100px; width:100px">تاريخ العودة</th>
                                     <th>تاريخ الحصول على الشهادة</th>
-                                    <th>التمديد</th>
-                                    <th>التجميد</th>
+
+                                    <th style="max-width: 428px; width:428px">التمديد</th>
+
+                                    <th style="max-width: 428px; width:428px">التجميد</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -273,8 +277,8 @@
                                     <td>{{ex.get_alimony_display}}</td>
                                     <td>{{ex.dispatchDurationYear}} سنة, {{ex.dispatchDurationMonth}} شهر,
                                         {{ex.dispatchDurationDay}} يوم</td>
-                                    <td>{{ex.backDate}}</td>
-                                    <td>{{ex.gettingCertificateDate}}</td>
+                                    <td>{{ex.backDate|date:"SHORT_DATE_FORMAT"|default:"لا يوجد"}}</td>
+                                    <td>{{ex.gettingCertificateDate|default:"لا يوجد"}}</td>
                                     <td>
                                         {% for exx in ex.extension.all %}
                                         قرار رقم
@@ -283,6 +287,9 @@
                                         {{exx.extensionDurationYear}} سنة, {{exx.extensionDurationMonth}} شهر,
                                         {{exx.extensionDurationDay}} يوم <br />
                                         {% endfor %}
+                                        {% if not ex.extension.all%}
+                                        لا يوجد
+                                        {% endif %}
                                     </td>
                                     <td>
                                         {% for exx in ex.freeze.all %}
@@ -292,6 +299,9 @@
                                         {{exx.freezeDurationYear}} سنة, {{exx.freezeDurationMonth}} شهر,
                                         {{exx.freezeDurationDay}} يوم <br />
                                         {% endfor %}
+                                        {% if not ex.freeze.all%}
+                                        لا يوجد
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
