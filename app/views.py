@@ -83,6 +83,7 @@ def generalInsert(request, mainField, baseDic, model, addModel, savePoint):
             id = form.save()
         else:
             transaction.savepoint_rollback(savePoint)
+            print(form.errors)
             return form.errors
     return id
 
@@ -97,33 +98,34 @@ def DemonstratorInsert2(request):
                 demonId = generalInsert(request, 'name', {}, Demonstrator, AddDemonstrator, savePoint)
                 if type(demonId) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة المعيد")
-                    return redirect('app:home')
+                    return redirect('app:insert')
 
                 id = generalInsert(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, savePoint)
                 if type(id) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة المعيد")
-                    return redirect('app:home')
+                    return redirect('app:insert')
 
                 id = generalInsert(request, 'universityDegreeUniversity', {'universityDegree': demonId}, UniversityDegree, AddUniversityDegree, savePoint)
                 if type(id) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة المعيد")
-                    return redirect('app:home')
+                    return redirect('app:insert')
 
                 id = generalInsert(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, savePoint)
                 if type(id) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة المعيد")
-                    return redirect('app:home')
+                    return redirect('app:insert')
 
                 id = generalInsert(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, savePoint)
                 if type(id) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة المعيد")
-                    return redirect('app:home')
+                    return redirect('app:insert')
+                
 
             messages.add_message(request, messages.SUCCESS,"تم تسجيل المعيد")
-            return redirect('app:home')
+            return redirect('app:allDemonstrators')
         else :
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
-            return redirect('app:home')
+            return redirect('app:insert')
 
     else:
         return render(request, 'home/insert.html')
@@ -452,6 +454,7 @@ def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint):
                 id = form.save()
             else:
                 transaction.savepoint_rollback(savePoint)
+                print(form.errors)
                 return form.errors
         return id
     except:
@@ -462,7 +465,7 @@ def UpdateDemonstrator(request, id):
     if request.method == 'POST':
         college= list(Demonstrator.objects.filter(pk=id).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
-        if college[0]['college']  in permissionList or request.user.is_superuser:
+        if college[0]['college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
 
@@ -780,7 +783,7 @@ def QueryDemonstrator(request):
         return render(request, "registration/result.html", {"red":list(result)})
 
 
-
+@login_required(login_url='app:login')
 def home(request):
     return render(request, 'home/home.html')
 
