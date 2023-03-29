@@ -1,16 +1,27 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en" dir="rtl">
+<html lang="en" class="rtl">
 
 <head>
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="{% static 'bootstrap-5.2.0/dist/css/bootstrap.rtl.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'fontawesome-free-6.2.1-web/css/all.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/skydash/css/vertical-layout-light/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/toastify.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'fontawesome-free-6.2.1-web/css/all.css' %}" />
+    <style>
+        .navbar-toggler {
+            box-shadow: 0 0 0 0 !important;
+        }
+
+        main {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+    </style>
 
     <title>{% block head_title %}STORE{% endblock %}</title>
     {% block style %}{% endblock %}
@@ -19,48 +30,90 @@
 </head>
 
 <body>
-    <nav class="d-print-none">
-        <ul>
-            <li>
-                <a href="{% url 'app:home' %}" class="logo"><img src="{% static 'images/logo.png' %}" alt="" />
-                    <span class="n-i">إدارة العلاقات الثقافية</span></a>
-            </li>
-            <li>
-                <a href="{% url 'app:home' %}"><i class="fa-solid fa-house active"></i><span
-                        class="n-i">الرئيسية</span></a>
-            </li>
-            {% if user.is_authenticated %} {% if user.is_superuser %}
-            <li>
-                <a href="{% url 'app:register' %}"><i class="fa-solid fa-user-tie"></i><span class="n-i">تسجيل
-                        موظف</span></a>
-            </li>
-            {% endif %}
-            <li>
-                <a href="{% url 'app:insert' %}"><i class="fa-solid fa-user"></i><span class="n-i">تسجيل معيد</span></a>
-            </li>
-            <li>
-                <a href="{% url 'app:allDemonstrators' %}"><i class="fa-solid fa-users"></i><span
-                        class="n-i">المعيدين</span></a>
-            </li>
-            <li>
-                <a href="{% url 'app:gett' %}"><i class="fa-solid fa-filter"></i><span class="n-i">استعلام</span></a>
-            </li>
-            <li>
-                <a href="{% url 'app:logout' %}" class="logout"><i class="fa-solid fa-right-from-bracket"></i><span
-                        class="n-i">تسجيل الخروج</span></a>
-            </li>
-            {% else %}
-            <li>
-                <a href="{% url 'app:login' %} " class="logout"><i class="fa-solid fa-right-to-bracket"></i><span
-                        class="n-i">تسجيل الدخول</span></a>
-            </li>
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row navbar-info">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+            <a class="navbar-brand brand-logo " href="{% url 'app:home' %}"><img src="{% static 'images/logo.png' %}"
+                    class="mr-2 h-100 w-auto" alt="logo"></a>
+            <a class="navbar-brand brand-logo-mini" href="{% url 'app:home' %}"><img
+                    src="{% static 'images/logo-mini.png' %}" alt="logo" style="width: 54px; height: auto"
+                    class="mr-2"></a>
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+            <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
 
-            {% endif %}
-        </ul>
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <ul class="navbar-nav navbar-nav-right">
+
+                <li class="nav-item nav-profile dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
+                        <img src="{% static 'images/logo-mini.png' %}" alt="profile">
+                    </a>
+                </li>
+            </ul>
+            <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
+                data-toggle="offcanvas">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
     </nav>
 
-    <main>{% block content %}{% endblock %}</main>
+    <main class="container-fluid page-body-wrapper">
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'app:home' %}">
+                        <i class="fa-solid fa-house menu-icon"></i>
+                        <span class="menu-title">الصفحة الرئيسية</span>
+                    </a>
+                </li>
+                {% if user.is_authenticated %} {% if user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'app:register' %}">
+                        <i class="fa-solid fa-user-tie menu-icon"></i>
+                        <span class="menu-title">تسجيل موظف</span>
+                    </a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'app:insert' %}"><i class="fa-solid fa-user menu-icon"></i><span
+                            class="menu-title">تسجيل
+                            معيد</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'app:allDemonstrators' %}"><i
+                            class="fa-solid fa-users menu-icon"></i><span class="menu-title">المعيدين</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'app:gett' %}"><i class="fa-solid fa-filter menu-icon"></i><span
+                            class="menu-title">استعلام</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'app:logout' %}"><i
+                            class="fa-solid fa-right-from-bracket menu-icon"></i><span class="menu-title">تسجيل
+                            الخروج</span></a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'app:login' %} "><i
+                            class="fa-solid fa-right-to-bracket menu-icon"></i><span class="menu-title">تسجيل
+                            الدخول</span></a>
+                </li>
+
+                {% endif %}
+
+            </ul>
+        </nav>
+        <div class="main-panel rtl ">
+            <div class="content-wrapper overflow-scroll">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+
+    </main>
     {% block files %}{% endblock %}
+
+    <script src="{% static 'js/skydash/template.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/toastify-js' %}"></script>
 
     {% if messages %}
