@@ -5,6 +5,9 @@ app_name = 'app'
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('send/', views.Email, name='email'),
+    path('sendEmails/', views.SendEmails, name='send'),
+    path('sendToLate/', views.SendEmailsToLate, name='sendtolate'),
     path('register/', views.Register, name='register'),
     path('test/<int:id>', views.Test, name='test'),
     path('login/', views.Login, name='login'),

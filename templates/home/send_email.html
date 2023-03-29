@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block head_title %}create user{% endblock %}
+{% load static %}
+<!-- something here for nothing  -->
+
+{% block content %}
+<h2 class="tit d-flex p-2 bd-highlight justify-content-center">إرسال ايميل</h2>
+
+<div class="mx-auto p-3 mb-2 sec ">
+  <form class="col-md-8  mx-auto" action="../sendEmails/" method="POST">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="exampleFormControlInput1" class="form-label">ايميل المستلم :</label>
+      <input type="email" class="form-control" name="email" id="exampleFormControlInput1"
+        placeholder="name@example.com">
+    </div>
+    <div class="col-auto mb-3">
+      <label class="visually-hidden" for="autoSizingInputGroup">Username</label>
+      <div class="input-group">
+        <div style="background-color:blueviolet; text-align: left;" class="input-group-text text-white">
+          albaath-univ.edu.sy@</div>
+        <input name="user" type="text" class="form-control" id="autoSizingInputGroup" placeholder="Username">
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="exampleFormControlInput1" class="form-label">الموضوع :</label>
+      <input type="text" class="form-control d-flex" name="subject" id="exampleFormControlInput1"
+        placeholder="موضوع الرسالة :">
+    </div>
+    <div class="mb-3">
+      <label for="exampleFormControlTextarea1" class="form-label">الرسالة :</label>
+      <textarea class="form-control" name="msg" id="exampleFormControlTextarea1" rows="4"
+        placeholder="اكتب الرسالة هنا..."></textarea>
+    </div>
+    <div class="mb-3">
+      <div class="form-floating">
+        <select name="college" class="form-select" id="floatingSelect" aria-label="Floating label select example">
+          <option selected>افتح القائمة لتختار الكلية المرسل إليها :</option>
+          <option value="IT">IT</option>
+          <option value="sience">Sience</option>
+          <option value="all">All Collages</option>
+        </select>
+        <label class="text-dark" for="floatingSelect">اختر الكلية :</label>
+      </div>
+    </div>
+    <button type="submit" style="background-color:blueviolet" class="btn text-white  ">ارسال</button>
+    {% csrf_token %}
+    <button id="notification" style="background-color:blueviolet" class="btn text-white  ">hh</button>
+  </form>
+</div>
+{% endblock %}

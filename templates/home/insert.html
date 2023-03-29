@@ -8,7 +8,7 @@
 
 <h2 class="tit">تسجيل معيد</h2>
 
-<div class="col-md-7 col-lg-8 mx-auto sec">
+<div class="col-lg-10 col-md-6 mx-auto sec">
     <form class="p-3 needs-validation" novalidate method="POST">
         {% csrf_token %}
         <h4 class="my-3 lead">المعلومات الشخصية</h4>
@@ -51,7 +51,7 @@
 
             <hr class="my-4" />
             <h4 class="mb-3 lead">معلومات الاتصال</h4>
-            <div class="col-4">
+            <div class="col-lg-4 col-md-12">
                 <label for="username" class="form-label">الإيميل</label>
                 <div class="input-group has-validation">
                     <input type="email" class="form-control" id="username" placeholder="something@gmail.com"
@@ -62,21 +62,21 @@
                 </div>
             </div>
 
-            <div class="col-4">
+            <div class="col-lg-4 col-md-12">
                 <label for="address" class="form-label">مكان الإقامة</label>
                 <input type="text" class="form-control" id="address" placeholder="1234 الشارع الأول" name="home"
                     maxlength="255" required />
                 <div class="invalid-feedback">يرجى إدخال مكان الإقامة.</div>
             </div>
 
-            <div class="col-4 mb-4">
+            <div class="col-lg-4 mb-4 col-md-12">
                 <label for="address" class="form-label">العنوان الحالي</label>
                 <input type="text" class="form-control" id="address" placeholder="1234 الشارع الثاني" name="residence"
                     maxlength="255" required />
                 <div class="invalid-feedback">يرجى إدخال العنوان الحالي.</div>
             </div>
 
-            <div class="col-6">
+            <div class="col-lg-6 col-md-12">
                 <label for="address" class="form-label">رقم الهاتف المحمول</label>
                 <input type="text" class="form-control" id="address" placeholder="09586564897"
                     pattern="^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$" name="mobile" maxlength="25"
@@ -86,7 +86,7 @@
                 </div>
             </div>
 
-            <div class="col-6">
+            <div class=" col-md-12 col-lg-6">
                 <label for="address" class="form-label">رقم الهاتف الأرضي (إن وجد)</label>
                 <input type="text" class="form-control" id="address" placeholder="2148596"
                     pattern="^([0-9]{3}[-]?)?[0-9]{7}$" name="telephone" maxlength="25" />

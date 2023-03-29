@@ -17,6 +17,201 @@ from .forms import *
 from . import forms
 
 
+import os.path
+from email.message import EmailMessage
+
+import google.auth
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+import base64
+from email.mime.text import MIMEText
+
+# If modifying these scopes, delete the file token.json.
+SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+
+def SendEmailsToLate(request):
+
+# If modifying these scopes, delete the file token.json.
+
+    """Shows basic usage of the Gmail API.
+    Lists the user's Gmail labels.
+    """
+    creds = None
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
+    if os.path.exists('token157.json'):
+        creds = Credentials.from_authorized_user_file('token157.json', SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'GGG.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token157.json', 'w') as token:
+            token.write(creds.to_json())
+
+    try:
+        emails=[]
+        emails_str=""
+
+        todayDate = datetime.date.today() 
+        lateDate = datetime.date.today() + relativedelta(months=-3)
+        reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
+        dis =[]
+        for report in list(reports):
+            dis.append(report['dispatchDecisionId_id'])
+        dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis}) & Q(**{'dispatchEndDate__gte' : todayDate})).values('studentId_id')
+        res =[]
+        for dispatch in list(dispatchLate):
+            res.append(dispatch['studentId_id'])
+        
+        late = list(Demonstrator.objects.filter(pk__in=res).values('email'))
+
+        for x in range(len(late)):
+                if late[x]['email']:
+                    if late[x]['email'] not in emails:
+                        emails.append(late[x]['email'])
+
+        for x in emails:
+            emails_str+=x+", "
+
+        
+
+        emails_str=emails_str[:-2]
+
+        # Call the Gmail API
+        service = build('gmail', 'v1', credentials=creds)
+        message = MIMEText(request.POST['msg'])
+        message['to'] = emails_str
+        message['subject'] = request.POST['subject']
+        create_message = {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
+        message = (service.users().messages().send(userId="me", body=create_message).execute())
+        results = service.users().labels().list(userId='me').execute()
+        labels = results.get('labels', [])
+
+        if not labels:
+            print('No labels found.')
+            return
+        print('Labels:')
+        for label in labels:
+            print(label['name'])
+
+    except HttpError as error:
+        # TODO(developer) - Handle errors from gmail API.
+        print(f'An error occurred: {error}')
+
+
+    messages.add_message(request, messages.SUCCESS,"تم "+emails_str)
+    
+
+    return render(request, 'home/send_email.html')
+
+
+    return HttpResponse("<h2 style='text-align:right;'> تم الإرسال الى هذه الايميلات"+"<br>"+emails+"</h2>")
+
+
+def SendEmails(request):
+
+# If modifying these scopes, delete the file token.json.
+
+    """Shows basic usage of the Gmail API.
+    Lists the user's Gmail labels.
+    """
+    creds = None
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
+    if os.path.exists('token157.json'):
+        creds = Credentials.from_authorized_user_file('token157.json', SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'GGG.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token157.json', 'w') as token:
+            token.write(creds.to_json())
+
+    try:
+        emails=[]
+        if request.POST['email']:
+            emails.append(request.POST['email'])
+
+        if request.POST['user']:
+            emails.append(request.POST['user']+"@albaath-univ.edu.sy")
+
+        if request.POST['college'] == 'all':
+
+            all=list(Demonstrator.objects.all().filter().values('email'))
+
+            for x in range(len(all)):
+                if all[x]['email']:
+                    if all[x]['email'] not in emails:
+                        emails.append(all[x]['email'])
+
+            
+        elif request.POST['college'] is not None:
+            college = list(Demonstrator.objects.filter(college=request.POST['college']).values('email'))
+            for x in range(len(college)):
+                if college[x]['email']:
+                    if college[x]['email'] not in emails:
+                        emails.append(college[x]['email'])
+
+        
+
+        emails_str=""
+
+        for x in emails:
+            emails_str+=x+", "
+
+        emails_str=emails_str[:-2]
+
+        # Call the Gmail API
+        service = build('gmail', 'v1', credentials=creds)
+        message = MIMEText(request.POST['msg'])
+        message['to'] = emails_str
+        message['subject'] = request.POST['subject']
+        create_message = {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
+        message = (service.users().messages().send(userId="me", body=create_message).execute())
+        results = service.users().labels().list(userId='me').execute()
+        labels = results.get('labels', [])
+
+        if not labels:
+            print('No labels found.')
+            return
+        print('Labels:')
+        for label in labels:
+            print(label['name'])
+
+    except HttpError as error:
+        # TODO(developer) - Handle errors from gmail API.
+        print(f'An error occurred: {error}')
+
+
+    messages.add_message(request, messages.SUCCESS,"تم الإرسال"+emails_str)
+    
+
+    return render(request, 'home/send_email.html')
+
+
+    return HttpResponse("<h2 style='text-align:right;'> تم الإرسال الى هذه الايميلات"+"<br>"+emails+"</h2>")
+
+
+def Email(request):
+    return render(request, 'home/send_email.html')
+
 @login_required(login_url='app:login')
 def Register(request):
 
@@ -399,7 +594,7 @@ def SpecializationChangeInsert(request, dispatchId):
 
 
 def getAllDemonstrators(request):
-    data2 = serializers.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college'))
+    data2 = serializers.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college', 'university'))
     return render(request, 'home/allDemonstrators.html', {'result': data2})
 
 

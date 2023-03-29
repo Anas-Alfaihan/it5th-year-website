@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 django = "*"
 python-dateutil = "*"
+google-api-python-client = "*"
+google-auth-httplib2 = "*"
+google-auth-oauthlib = "*"
 
 [dev-packages]
 autopep8 = "*"
