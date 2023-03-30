@@ -940,6 +940,7 @@ def UpdateSpecializationChange(request, id, demonId):
 
 def QueryDemonstrator(request):
     if request.method == 'POST':
+        print(request.POST['cols'])
         
         
         def makeQuery(query, op):
@@ -972,7 +973,7 @@ def QueryDemonstrator(request):
         op = list(query.keys())[0]
         obj = makeQuery(query[op], op)
         print(obj)
-        result = Demonstrator.objects.select_related().prefetch_related().filter(obj)
+        result = Demonstrator.objects.select_related().prefetch_related().filter(obj).values(*request.POST.getlist('cols'))
         print(result)
         
         return render(request, "registration/result.html", {"red":list(result)})
