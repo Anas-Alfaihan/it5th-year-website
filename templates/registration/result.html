@@ -4,361 +4,56 @@
 {% load static %}
 
 {% block style %}
-<style>
-    * {
-        box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-    }
 
-    body {
-        -webkit-font-smoothing: antialiased;
-    }
-
-    /* Table Styles */
-
-    .ss {
-        -webkit-user-select: none;
-
-        -moz-user-select: none;
-
-        -ms-user-select: none;
-
-        user-select: none;
-        cursor: grabbing !important;
-
-
-    }
-
-    .table-wrappe {
-        margin: 10px 70px 70px;
-        box-shadow: 0px 35px 50px rgba(0, 0, 0, 0.2);
-        overflow-x: auto;
-        cursor: grab;
-
-
-
-    }
-
-    .fl-table {
-        border-radius: 5px;
-        font-size: 18px;
-        font-weight: normal;
-        border: none;
-        border-collapse: collapse;
-        width: 100%;
-        max-width: 100%;
-        white-space: nowrap;
-        background-color: white;
-    }
-
-    .fl-table td,
-    .fl-table th {
-        text-align: center;
-        padding: 8px;
-    }
-
-    .fl-table td {
-        border-right: 1px solid #f8f8f8;
-        font-size: 16px;
-        border: 1px solid rgb(247, 245, 245)
-    }
-
-    .fl-table thead th {
-        color: #ffffff;
-        background: #324960;
-    }
-
-
-    .fl-table thead th:nth-child(odd) {
-        color: #ffffff;
-        background: #324960;
-    }
-
-    .fl-table tr:nth-child(even) {
-        background: #F8F8F8;
-    }
-
-    .td-table>table {
-        padding: 10px;
-    }
-
-    .td-table th {
-        color: #ffffff;
-        background: #53779b !important;
-    }
-
-    /* Responsive */
-    @media print {
-        .table-wrappe {
-            position: fixed;
-            top: 0px;
-            right: 0px;
-            margin: 0;
-        }
-    }
-
-    @media (max-width: 767px),
-    print {
-        .fl-table {
-            display: block;
-            width: 100%;
-        }
-
-        .table-wrappe:before {
-            display: block;
-            text-align: left;
-            font-size: 11px;
-            color: white;
-            padding: 0 0 10px;
-        }
-
-        .fl-table thead,
-        .fl-table tbody,
-        .fl-table thead th {
-            display: block;
-        }
-
-        .fl-table thead th:last-child {
-            border-bottom: none;
-        }
-
-        .fl-table thead {
-            float: right;
-        }
-
-        .fl-table tbody {
-            width: auto;
-            position: relative;
-            overflow-x: auto;
-        }
-
-        .fl-table td,
-        .fl-table th {
-            padding: 20px .625em .625em .625em;
-            height: 60px;
-            vertical-align: middle;
-            box-sizing: border-box;
-            overflow-x: hidden;
-            overflow-y: auto;
-            width: 120px;
-            font-size: 13px;
-            text-overflow: ellipsis;
-        }
-
-        .fl-table thead th {
-            text-align: right;
-            border-bottom: 1px solid #f7f7f9;
-        }
-
-        .fl-table tbody tr {
-            display: table-cell;
-        }
-
-        .fl-table tbody tr:nth-child(odd) {
-            background: none;
-        }
-
-        .fl-table tr:nth-child(even) {
-            background: transparent;
-        }
-
-        .fl-table tr td:nth-child(odd) {
-            background: #F8F8F8;
-            border-left: 1px solid #E6E4E4;
-        }
-
-        .fl-table tr td:nth-child(even) {
-            border-left: 1px solid #E6E4E4;
-        }
-
-        .fl-table tbody td {
-            display: block;
-            text-align: center;
-        }
-    }
-</style>
 {% endblock %}
 
 {% block content %}
 
 <div class="sec w-100 h-100">
-    <div class="table-wrappe">
-        <table class="fl-table">
-            <thead>
-                <tr>
-                    <th>الاسم</th>
-                    <th>اسم الأب</th>
-                    <th>اسم الأم</th>
-                    <th>تاريخ الميلاد</th>
-                    <th>الجنس</th>
-                    <th>الهاتف الجوال</th>
-                    <th>الهاتف الأرضي</th>
-                    <th>الإيميل</th>
-                    <th>الحالة الاجتماعية</th>
-                    <th>الوضع العسكري</th>
-                    <th>مكان الإقامة</th>
-                    <th>العنوان الحالي</th>
-                    <th>اللغة</th>
-                    <th>الصفة الحالية</th>
-                    <th>سبب التعيين</th>
-                    <th>تاريخ إعلان المسابقة</th>
-                    <th>الجامعة</th>
-                    <th>الكلية</th>
-                    <th>القسم</th>
-                    <th>سنة التخرج</th>
-                    <th>المعدل</th>
-                    <th>جامعة التعيين</th>
-                    <th>كلية التعيين</th>
-                    <th>قسم التعيين</th>
-                    <th>تخصص التعيين</th>
-                    <th>تاريخ المباشرة</th>
-                    <th>قرارات الإيفاد</th>
-                </tr>
-            </thead>
-            <tbody class="">
-                {% for i in red %}
-                <tr>
-                    <td>{{i.name|default:""}}</td>
-                    <td>{{i.fatherName|default:""}}</td>
-                    <td>{{i.motherName|default:""}}</td>
-                    <td>{{i.birthDate|date:"SHORT_DATE_FORMAT"}}</td>
-                    <td>{{i.get_gender_display}}</td>
-                    <td>{{i.mobile|default:""}}</td>
-                    <td>{{i.telephone|default:"لا يوجد"}}</td>
-                    <td>{{i.email|default:""}}</td>
-                    <td>{{i.get_maritalStatus_display}}</td>
-                    <td>{{i.get_militarySituation_display}}</td>
-                    <td>{{i.home|default:""}}</td>
-                    <td>{{i.residence|default:""}}</td>
-                    <td>{{i.language|default:""}}</td>
-                    <td>{{i.get_currentAdjective_display}}</td>
-                    <td>{{i.get_nominationReason_display}}</td>
-                    <td>{{i.contestAnnouncementDate|date:"SHORT_DATE_FORMAT"}}</td>
-                    <td>{{i.universityDegree.universityDegreeUniversity|default:""}}</td>
-                    <td>{{i.universityDegree.universityDegreeCollege|default:""}}</td>
-                    <td>{{i.universityDegree.universityDegreeSection|default:"لا يوجد"}}</td>
-                    <td>{{i.universityDegree.universityDegreeYear|default:""}}</td>
-                    <td>{{i.universityDegree.universityDegreeAverage|default:""}}</td>
-                    <td>{{i.university|default:""}}</td>
-                    <td>{{i.college|default:""}}</td>
-                    <td>{{i.secion|default:"لا يوجد"}}</td>
-                    <td>{{i.specialization|default:"لا يوجد"}}</td>
-                    <td>{{i.commencementAfterNominationDate|date:"SHORT_DATE_FORMAT"|default:"لا يوجد"}}</td>
-                    <td class="td-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>رقم القرار</th>
-                                    <th>تاريخ القرار</th>
-                                    <th>نوع الإيفاد</th>
-                                    <th>الشهادة المطلوبة</th>
-                                    <th>النفقة</th>
-                                    <th>مدة الإيفاد</th>
-                                    <th style="max-width: 100px; width:100px">تاريخ العودة</th>
-                                    <th>تاريخ الحصول على الشهادة</th>
 
-                                    <th style="max-width: 428px; width:428px">التمديد</th>
-
-                                    <th style="max-width: 428px; width:428px">التجميد</th>
-
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for ex in i.dispatch.all %}
-                                <tr>
-                                    <td>
-                                        {{ex.dispatchDecisionNumber}}/{{ex.get_dispatchDecisionType_display}}
-                                    </td>
-                                    <td>
-                                        {{ex.dispatchDecisionDate|date:"SHORT_DATE_FORMAT"}}</td>
-                                    <td>{{ex.get_dispatchType_display}}</td>
-                                    <td>{{ex.get_requiredCertificate_display}}</td>
-                                    <td>{{ex.get_alimony_display}}</td>
-                                    <td>{{ex.dispatchDurationYear}} سنة, {{ex.dispatchDurationMonth}} شهر,
-                                        {{ex.dispatchDurationDay}} يوم</td>
-                                    <td>{{ex.backDate|date:"SHORT_DATE_FORMAT"|default:"لا يوجد"}}</td>
-                                    <td>{{ex.gettingCertificateDate|default:"لا يوجد"}}</td>
-                                    <td>
-                                        {% for exx in ex.extension.all %}
-                                        قرار رقم
-                                        {{exx.extensionDecisionNumber}}/{{exx.get_extensionDecisionType_display}} بتاريخ
-                                        {{exx.extensionDecisionDate|date:"SHORT_DATE_FORMAT"}} لمدة
-                                        {{exx.extensionDurationYear}} سنة, {{exx.extensionDurationMonth}} شهر,
-                                        {{exx.extensionDurationDay}} يوم <br />
-                                        {% endfor %}
-                                        {% if not ex.extension.all%}
-                                        لا يوجد
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% for exx in ex.freeze.all %}
-                                        قرار رقم {{exx.freezeDecisionNumber}}/{{exx.get_freezeDecisionType_display}}
-                                        بتاريخ
-                                        {{exx.freezeDecisionDate|date:"SHORT_DATE_FORMAT"}} لمدة
-                                        {{exx.freezeDurationYear}} سنة, {{exx.freezeDurationMonth}} شهر,
-                                        {{exx.freezeDurationDay}} يوم <br />
-                                        {% endfor %}
-                                        {% if not ex.freeze.all%}
-                                        لا يوجد
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </td>
-
-                </tr>
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-    </div>
-
+    <query-table src="{{red}}"></query-table>
 
 </div>
 
 {% endblock %}
 {% block files %}
 
+<script src="{% static 'js/query_table.js' %}" type="module"></script>
+
 <script>
+    // console.log("{{red|escapejs}}")
+    let s = "{{red|escapejs}}"
+    s.replace("'", "\"")
+    // console.log(s)
+    // console.log("{{red.freeze|escapejs}}")
+    let regz = [['male', 'ذكر'],
+    ['female', 'أنثى'], ['married', 'متزوج'],
+    ['unmarried', 'أعزب'], ['delayed', 'مؤجل'],
+    ['laid off', 'مسرح'], ['demonstrator', 'معيد'],
+    ['returning', 'عائد'],
+    ['envoy', 'موفد'],
+    ['returning demonstrator', 'معيد عائد'],
+    ['loathes', 'مستنكف'],
+    ['transfer outside the university', 'نقل خارج الجامعة'],
+    ['end services', 'انهاء خدمات'],
+    ['resigned', 'انهاء بحكم المستقيل'], ['contest', 'مسابقة'],
+    ['First graduate', 'خريج أول'], ['s', 'ش.ع'],
+    ['o', 'و'],
+    ['b', 'ب'], ['1', 'سنة أولى'],
+    ['2', 'سنة ثانية'],
+    ['3', 'سنة ثالثة'],
+    ['4', 'سنة رابعة'],
+    ['5', 'سنة خامسة'],
+    ['6', 'سنة سادسة'],
+    ['g', 'تخرج'], ['1', 'الأول'],
+    ['2', 'الثاني'],
+    ['3', 'الثالث'], ['diploma', 'دبلوم'],
+    ['master', 'ماجستير'],
+    ['ph.d', 'دكتوراه'], ['language', 'لغة'], ['inner', 'داخلي'],
+    ['outer', 'خارجي'], ['grant', 'منحة'],
+    ['seat', 'مقعد']]
 
-    const slider = document.querySelector('.table-wrappe');
-    let isDown = false;
-    let startX;
-    let scrollLeft;
-
-    slider.addEventListener('mousedown', (e) => {
-        isDown = true;
-
-        slider.classList.add('ss');
-
-        slider.classList.add('active');
-        slider.classList.add('active');
-        startX = e.pageX - slider.offsetLeft;
-        scrollLeft = slider.scrollLeft;
-    });
-    slider.addEventListener('mouseleave', () => {
-        isDown = false;
-        slider.classList.remove('active');
-        slider.classList.remove('ss');
-
-    });
-    slider.addEventListener('mouseup', () => {
-        isDown = false;
-        slider.classList.remove('active');
-        slider.classList.remove('ss');
-    });
-    slider.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - slider.offsetLeft;
-        const walk = (x - startX) * 3; //scroll-fast
-        slider.scrollLeft = scrollLeft - walk;
-        console.log(walk);
-    });
 
 </script>
+
 {% endblock %}

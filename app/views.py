@@ -15,6 +15,7 @@ from dateutil.relativedelta import relativedelta
 from .models import *
 from .forms import *
 from . import forms
+from ast import literal_eval
 
 
 import os.path
@@ -594,7 +595,7 @@ def SpecializationChangeInsert(request, dispatchId):
 
 
 def getAllDemonstrators(request):
-    data2 = serializers.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college', 'university'))
+    data2 = serializers.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college', 'university', "specialization"))
     return render(request, 'home/allDemonstrators.html', {'result': data2})
 
 
@@ -973,10 +974,13 @@ def QueryDemonstrator(request):
         op = list(query.keys())[0]
         obj = makeQuery(query[op], op)
         print(obj)
-        result = Demonstrator.objects.select_related().prefetch_related().filter(obj).values(*request.POST.getlist('cols'))
+        result = Demonstrator.objects.select_related().prefetch_related().filter(obj).values("id",*request.POST['cols'].split(','))
         print(result)
-        
-        return render(request, "registration/result.html", {"red":list(result)})
+        dat = JsonResponse({"data": list(result)})
+        print(dat.content)
+        stringgg = dat.content.decode('utf-8')
+        print(stringgg)
+        return render(request, "registration/result.html", {"red":stringgg})
 
 
 @login_required(login_url='app:login')

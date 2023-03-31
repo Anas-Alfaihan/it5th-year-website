@@ -69,6 +69,10 @@ class DataTabler extends HTMLElement {
         option5.value = 'fields.university';
         option5.text = 'الجامعة';
         select.add(option5);
+        const option6 = document.createElement('option');
+        option6.value = 'fields.specialization';
+        option6.text = 'التخصص';
+        select.add(option6);
 
         const option4 = document.createElement('option');
         option4.value = 'fields.college';
@@ -122,13 +126,13 @@ class DataTabler extends HTMLElement {
         this.nextPage = this.nextPage.bind(this);
         this.previousPage = this.previousPage.bind(this);
         this.search = this.search.bind(this);
-        this.changeSort = this.changeSort.bind(this);
+        this.changeSearch = this.changeSearch.bind(this);
 
         this.options = {
             includeScore: true,
             keys: [select.value],
         };
-        select.addEventListener('change', this.changeSort, false);
+        select.addEventListener('change', this.changeSearch, false);
         nextButton.addEventListener('click', this.nextPage, false);
         prevButton.addEventListener('click', this.previousPage, false);
     }
@@ -189,6 +193,7 @@ class DataTabler extends HTMLElement {
         header += `<th scope='col' data-sort="motherName">اسم الأم</th>`;
         header += `<th scope='col' data-sort="college">الجامعة</th>`;
         header += `<th scope='col' data-sort="college">الكلية</th>`;
+        header += `<th scope='col' data-sort="college">التخصص</th>`;
         header += '</tr>';
         let thead = this.shadowRoot.querySelector('thead');
         thead.innerHTML = header;
@@ -212,7 +217,7 @@ class DataTabler extends HTMLElement {
         this.renderBody();
     }
 
-    changeSort(e) {
+    changeSearch(e) {
         this.options.keys = [e.target.value];
     }
 

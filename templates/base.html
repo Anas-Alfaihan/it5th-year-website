@@ -1,7 +1,7 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en" class="rtl">
+<html lang="en" class="rtl" dir="rtl">
 
 <head>
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
@@ -29,10 +29,10 @@
     <script src="{% static 'js/jquery-3.6.3.min.js' %}"></script>
 </head>
 
-<body>
-    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row navbar-info">
+<body class="sidebar-dark">
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row ">
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-            <a class="navbar-brand brand-logo " href="{% url 'app:home' %}"><img src="{% static 'images/logo.png' %}"
+            <a class="navbar-brand brand-logo " href="{% url 'app:home' %}"><img src="{% static 'images/logo.svg' %}"
                     class="mr-2 h-100 w-auto" alt="logo"></a>
             <a class="navbar-brand brand-logo-mini" href="{% url 'app:home' %}"><img
                     src="{% static 'images/logo-mini.png' %}" alt="logo" style="width: 54px; height: auto"
@@ -61,30 +61,30 @@
     <main class="container-fluid page-body-wrapper">
         <nav class="sidebar sidebar-offcanvas" id="sidebar">
             <ul class="nav">
-                <li class="nav-item">
+                <li class="nav-item" id="nav-1">
                     <a class="nav-link" href="{% url 'app:home' %}">
                         <i class="fa-solid fa-house menu-icon"></i>
                         <span class="menu-title">الصفحة الرئيسية</span>
                     </a>
                 </li>
                 {% if user.is_authenticated %} {% if user.is_superuser %}
-                <li class="nav-item">
+                <li class="nav-item" id="nav-2">
                     <a class="nav-link" href="{% url 'app:register' %}">
                         <i class="fa-solid fa-user-tie menu-icon"></i>
                         <span class="menu-title">تسجيل موظف</span>
                     </a>
                 </li>
                 {% endif %}
-                <li class="nav-item">
+                <li class="nav-item" id="nav-3">
                     <a class="nav-link" href="{% url 'app:insert' %}"><i class="fa-solid fa-user menu-icon"></i><span
                             class="menu-title">تسجيل
                             معيد</span></a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" id="nav-4">
                     <a class="nav-link" href="{% url 'app:allDemonstrators' %}"><i
                             class="fa-solid fa-users menu-icon"></i><span class="menu-title">المعيدين</span></a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" id="nav-5">
                     <a class="nav-link" href="{% url 'app:gett' %}"><i class="fa-solid fa-filter menu-icon"></i><span
                             class="menu-title">استعلام</span></a>
                 </li>
