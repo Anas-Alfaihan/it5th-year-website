@@ -37,6 +37,9 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
 def SendEmailsToLate(request):
 
+    if request.method == "POST":
+        return JsonResponse({"zengo": "noob"})
+
 # If modifying these scopes, delete the file token.json.
 
     """Shows basic usage of the Gmail API.
@@ -83,7 +86,7 @@ def SendEmailsToLate(request):
                         emails.append(late[x]['email'])
 
         for x in emails:
-            emails_str+=x+", "
+            emails_str+=x+" "
 
         
 
@@ -111,13 +114,12 @@ def SendEmailsToLate(request):
         print(f'An error occurred: {error}')
 
 
-    messages.add_message(request, messages.SUCCESS,"تم "+emails_str)
+    
     
 
-    return render(request, 'home/send_email.html')
+    return render(request, 'home/success.html', {"emails": emails_str.split()})
 
 
-    return HttpResponse("<h2 style='text-align:right;'> تم الإرسال الى هذه الايميلات"+"<br>"+emails+"</h2>")
 
 
 def SendEmails(request):
@@ -175,7 +177,7 @@ def SendEmails(request):
         emails_str=""
 
         for x in emails:
-            emails_str+=x+", "
+            emails_str+=x+" "
 
         emails_str=emails_str[:-2]
 
@@ -201,13 +203,7 @@ def SendEmails(request):
         print(f'An error occurred: {error}')
 
 
-    messages.add_message(request, messages.SUCCESS,"تم الإرسال"+emails_str)
-    
-
-    return render(request, 'home/send_email.html')
-
-
-    return HttpResponse("<h2 style='text-align:right;'> تم الإرسال الى هذه الايميلات"+"<br>"+emails+"</h2>")
+    return render(request, 'home/success.html', {"emails": emails_str.split()})
 
 
 def Email(request):
