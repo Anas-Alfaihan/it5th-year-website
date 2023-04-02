@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms.utils import ErrorDict
 from django.http import JsonResponse
-from django.core import serializers
+from django.core import serializers as ser
 from django.contrib import messages
 from django.apps import apps
 from django.db.models import Q, Max
@@ -214,6 +214,7 @@ def SendEmails(request):
 def Email(request):
     return render(request, 'home/send_email.html')
 
+
 @login_required(login_url='app:login')
 def Register(request):
 
@@ -237,7 +238,7 @@ def Register(request):
             return redirect('app:home')
 
     if request.user.is_superuser:
-        permissions= serializers.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
+        permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
         
         return render(request, 'registration/register.html', {'colleges': permissions })
     else:
@@ -319,7 +320,7 @@ def DemonstratorInsert2(request):
                 
 
             messages.add_message(request, messages.SUCCESS,"تم تسجيل المعيد")
-            return redirect('app:allDemonstrators')
+            return redirect('app:insert')
         else :
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
             return redirect('app:insert')
@@ -339,13 +340,13 @@ def GraduateStudiesDegreeInsert(request, demonId):
                 id = generalInsert(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, savePoint)
                 if type(id) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة الشهادة")
-                    return redirect('app:home')
+                    return redirect('app:insertGraduate')
 
             messages.add_message(request, messages.SUCCESS,"تمت إضافة الشهادة")
-            return redirect('app:home')
+            return redirect('app:insertGraduate')
         else :
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
-            return redirect('app:home')
+            return redirect('app:insertGraduate')
 
     else:
         return render(request, 'home/insert.html')
@@ -362,13 +363,13 @@ def CertificateExcellenceYearInsert(request, demonId):
                 id = generalInsert(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, savePoint)
                 if type(id) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة الشهادة")
-                    return redirect('app:home')
+                    return redirect('app:insertExcellence')
 
             messages.add_message(request, messages.SUCCESS,"تمت إضافة الشهادة")
-            return redirect('app:home')
+            return redirect('app:insertExcellence')
         else :
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
-            return redirect('app:home')
+            return redirect('app:insertExcellence')
 
     else:
         return render(request, 'home/insert.html')
@@ -411,21 +412,21 @@ def DispatchInsert(request, demonId):
 
                 savePoint = transaction.savepoint()
 
-                dispatchId = generalInsert(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, savePoint)
+                dispatchId = generalInsert(request, 'dispatchDecisionNumber', {'studentId': demonId }, Dispatch, AddDispatch, savePoint)
                 if type(dispatchId) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة الإيفاد")
-                    return redirect('app:home')
+                    return redirect('app:dispatch')
 
                 id = generalInsert(request, 'regularizationDecisionNumber', {'regularizationDecisionId': dispatchId}, Regularization, AddRegularization, savePoint)
                 if type(id) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة الإيفاد")
-                    return redirect('app:home')
+                    return redirect('app:dispatch')
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة الإيفاد")
-            return redirect('app:home')
+            return redirect('app:dispatch')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
-            return redirect('app:home')
+            return redirect('app:dispatch')
 
     else:
         d = Demonstrator.objects.get(pk=demonId)
@@ -448,14 +449,14 @@ def ReportInsert(request, dispatchId, demonId):
                 reportId = generalInsert(request, 'report', {'dispatchDecisionId': dispatchId}, Report, AddReport, savePoint)
                 if type(reportId) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التقرير")
-                    return redirect('app:home')
+                    return redirect('app:reportinsert')
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة التقرير ")
-            return redirect('app:home')
+            return redirect('app:reportinsert')
             
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
-            return redirect('app:home')
+            return redirect('app:reportinsert')
 
 
 def ExtensionInsert(request, dispatchId,demonId):
@@ -469,13 +470,13 @@ def ExtensionInsert(request, dispatchId,demonId):
                 extensionId = generalInsert(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, savePoint)
                 if type(extensionId) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
-                    return redirect('app:home')
+                    return redirect('app:extinsert')
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد ")
-            return redirect('app:home')
+            return redirect('app:extinsert')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
-            return redirect('app:home')
+            return redirect('app:extinsert')
         
     else:
         return render(request, 'home/ext.html')
@@ -492,13 +493,13 @@ def FreezeInsert(request, dispatchId,demonId):
                 freezeId = generalInsert(request, 'freezeDecisionNumber', {'dispatchDecisionId': dispatchId}, Freeze, AddFreeze, savePoint)
                 if type(freezeId) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التجميد")
-                    return redirect('app:home')
+                    return redirect('app:freinsert')
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة التجميد ")
-            return redirect('app:home')
+            return redirect('app:freinsert')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
-            return redirect('app:home')
+            return redirect('app:freinsert')
     else:
         return render(request, 'registration/dispathInsert.html')
 
@@ -596,7 +597,7 @@ def SpecializationChangeInsert(request, dispatchId):
 
 
 def getAllDemonstrators(request):
-    data2 = serializers.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college', 'university', "specialization"))
+    data2 = ser.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college', 'university', "specialization"))
     return render(request, 'home/allDemonstrators.html', {'result': data2})
 
 
@@ -982,7 +983,7 @@ def QueryDemonstrator(request):
             finalResult= loads(dumps(da.data[0]))
             print(dumps(da.data[0]))
         
-        # data= serializers.serialize('json', result, fields=("id",*request.POST['cols'].split(',')))
+        # data= ser.serialize('json', result, fields=("id",*request.POST['cols'].split(',')))
         # print(data)
 
                         
@@ -1101,6 +1102,6 @@ def do_something(request):
         return render(request, "home/query.html")
 
 def gett(request):
-    data2 = serializers.serialize('json', Demonstrator.objects.select_related().prefetch_related().all())
+    data2 = ser.serialize('json', Demonstrator.objects.select_related().prefetch_related().all())
     
     return JsonResponse(data2, safe=False)
