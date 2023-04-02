@@ -1,14 +1,12 @@
-.fe > div > .card {
+.cardss .card:hover + .cardss .card .card-header {
+    color: #e71d36;
+}
+.cardss .card {
     transition: all 0.2s ease;
-    cursor: pointer;
 }
 
-.fe > div > .card:hover {
-    box-shadow: 5px 6px 6px 2px #e9ecef;
+.cardss .card:hover {
+    box-shadow: 5px 6px 6px 2px #e9ecef !important;
     transform: scale(1.1);
-    border-color: #e71d36 !important;
-}
-.fe > div > .card:hover,
-.fe > div > .card > .fa-solid {
-    color: #e71d36;
+    border-color: none !important;
 }
