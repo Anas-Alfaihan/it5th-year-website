@@ -1,24 +1,25 @@
-{% extends "base.html" %} {% block head_title %}create user{% endblock %}
+{% extends "base.html" %} {% block head_title %} إرسال إيميل{% endblock %}
 {% load static %}
 <!-- something here for nothing  -->
 
 {% block content %}
-<h2 class="tit d-flex p-2 bd-highlight justify-content-center">إرسال ايميل</h2>
+<h2 class="tit">إرسال ايميل</h2>
 
-<div class="mx-auto p-3 mb-2 sec ">
-  <form class="col-md-8  mx-auto" action="../sendEmails/" method="POST">
+<div class="sec ">
+  <form class="col-md-8  mx-auto mt-5" action="../sendEmails/" method="POST">
     {% csrf_token %}
     <div class="mb-3">
       <label for="exampleFormControlInput1" class="form-label">ايميل المستلم :</label>
       <input type="email" class="form-control" name="email" id="exampleFormControlInput1"
         placeholder="name@example.com">
     </div>
-    <div class="col-auto mb-3">
+    <div class=" mb-3">
       <label class="visually-hidden" for="autoSizingInputGroup">Username</label>
       <div class="input-group">
-        <div style="background-color:blueviolet; text-align: left;" class="input-group-text text-white">
+        <div style="background-color:#4b49ac; text-align: left;" class="input-group-text text-white">
           albaath-univ.edu.sy@</div>
-        <input name="user" type="text" class="form-control" id="autoSizingInputGroup" placeholder="Username">
+        <input name="user" type="text" class="form-control" id="autoSizingInputGroup" placeholder="Username"
+          style="direction: ltr;">
       </div>
     </div>
     <div class="mb-3">
@@ -42,9 +43,34 @@
         <label class="text-dark" for="floatingSelect">اختر الكلية :</label>
       </div>
     </div>
-    <button type="submit" style="background-color:blueviolet" class="btn text-white  ">ارسال</button>
+    <button type="submit" style="background-color:#4b49ac" class="btn text-white  ">ارسال</button>
     {% csrf_token %}
-    <button id="notification" style="background-color:blueviolet" class="btn text-white  ">hh</button>
+    <button id="notification" onclick="handleSubmit(event)" style="background-color:#4b49ac"
+      class="btn text-white  ">hh</button>
   </form>
 </div>
+
+
+
+<script>
+  function createElementFromHTML(htmlString) {
+    var div = document.createElement("div");
+    div.innerHTML = htmlString.trim();
+
+    // Change this to div.childNodes to support multiple top-level nodes.
+    return div.firstChild;
+  }
+  let csrf = createElementFromHTML(`{% csrf_token %}`);
+
+  let values = {}
+  values['csrfmiddlewaretoken'] = csrf.value;
+
+  let handleSubmit = (e) => {
+    e.preventDefault()
+    $.post("/app/sendToLate/", values, (data) => {
+      console.log(data)
+    })
+  }
+
+</script>
 {% endblock %}

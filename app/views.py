@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms.utils import ErrorDict
 from django.http import JsonResponse
-from django.core import serializers
+from django.core import serializers as ser
 from django.contrib import messages
 from django.apps import apps
 from django.db.models import Q, Max
@@ -37,6 +37,9 @@ from email.mime.text import MIMEText
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
 def SendEmailsToLate(request):
+
+    if request.method == "POST":
+        return JsonResponse({"zengo": "noob"})
 
 # If modifying these scopes, delete the file token.json.
 
@@ -84,7 +87,7 @@ def SendEmailsToLate(request):
                         emails.append(late[x]['email'])
 
         for x in emails:
-            emails_str+=x+", "
+            emails_str+=x+" "
 
         
 
@@ -112,13 +115,12 @@ def SendEmailsToLate(request):
         print(f'An error occurred: {error}')
 
 
-    messages.add_message(request, messages.SUCCESS,"تم "+emails_str)
+    
     
 
-    return render(request, 'home/send_email.html')
+    return render(request, 'home/success.html', {"emails": emails_str.split()})
 
 
-    return HttpResponse("<h2 style='text-align:right;'> تم الإرسال الى هذه الايميلات"+"<br>"+emails+"</h2>")
 
 
 def SendEmails(request):
@@ -176,7 +178,7 @@ def SendEmails(request):
         emails_str=""
 
         for x in emails:
-            emails_str+=x+", "
+            emails_str+=x+" "
 
         emails_str=emails_str[:-2]
 
@@ -202,13 +204,7 @@ def SendEmails(request):
         print(f'An error occurred: {error}')
 
 
-    messages.add_message(request, messages.SUCCESS,"تم الإرسال"+emails_str)
-    
-
-    return render(request, 'home/send_email.html')
-
-
-    return HttpResponse("<h2 style='text-align:right;'> تم الإرسال الى هذه الايميلات"+"<br>"+emails+"</h2>")
+    return render(request, 'home/success.html', {"emails": emails_str.split()})
 
 
 def Email(request):
@@ -237,7 +233,7 @@ def Register(request):
             return redirect('app:home')
 
     if request.user.is_superuser:
-        permissions= serializers.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
+        permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
         
         return render(request, 'registration/register.html', {'colleges': permissions })
     else:
@@ -596,7 +592,7 @@ def SpecializationChangeInsert(request, dispatchId):
 
 
 def getAllDemonstrators(request):
-    data2 = serializers.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college', 'university', "specialization"))
+    data2 = ser.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college', 'university', "specialization"))
     return render(request, 'home/allDemonstrators.html', {'result': data2})
 
 
@@ -977,9 +973,10 @@ def QueryDemonstrator(request):
         # result = list(Demonstrator.objects.select_related().prefetch_related().filter(obj))
         result2= Demonstrator.objects.filter(obj)
         da = SerializerDemonstrator(result2, many=True)
+        print(da.data)
         finalResult={}
         if len(da.data):
-            finalResult= loads(dumps(da.data[0]))
+            finalResult= loads(dumps(da.data))
             print(dumps(da.data[0]))
         
         # data= serializers.serialize('json', result, fields=("id",*request.POST['cols'].split(',')))
@@ -989,12 +986,12 @@ def QueryDemonstrator(request):
 
         # result = Demonstrator.objects.select_related().prefetch_related().filter(obj).values("id",*request.POST['cols'].split(','))
         # print('res', result)
-        # dat = JsonResponse({"data": list(result)})
+        dat = JsonResponse({"data": finalResult})
         # print('dat', dat.content)
-        # stringgg = dat.content.decode('utf-8')
+        stringgg = dat.content.decode('utf-8')
         # print('str', stringgg)
         print( request.POST['cols'].split(','))
-        return render(request, "registration/result.html", {"result":finalResult, 'fields': request.POST['cols'].split(',')})
+        return render(request, "registration/result.html", {"result":stringgg, 'fields': request.POST['cols']})
 
 
 @login_required(login_url='app:login')
