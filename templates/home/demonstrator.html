@@ -1,7 +1,14 @@
 {% extends "base.html" %} {% block head_title %} {{demonstrator.name}} {%endblock %} {% load static %} {% block style %}
 <link rel="stylesheet" href="{% static 'css/demonstrator.css' %}" />
 <link rel="stylesheet" href="{% static 'css/date-picker.min.css' %}" />
-
+<style>
+  caption {
+    caption-side: top !important;
+    text-align: right !important;
+    padding: 0px !important;
+    font-size: 18px !important;
+  }
+</style>
 {% endblock %}
 
 <!-- something here for nothing  -->
@@ -84,7 +91,7 @@
           </div>
           <p class="ct">
             <span class="editable demon-{{demonstrator.id}}" name="birthDate"
-              data-toggle="datepicker">{{demonstrator.birthDate|date:"SHORT_DATE_FORMAT"}}</span>
+              data-toggle="datepicker">{{demonstrator.birthDate|date:"d/m/Y"}}</span>
           </p>
           <div class="ct">
             <span class="editable demon-{{demonstrator.id}} mul" name="currentAdjective"
@@ -178,7 +185,7 @@
           تاريخ
 
           <span class="" name="dispatchDecisionDate"
-            data-toggle="datepicker">{{demonstrator.nominationDecision.nominationDecisionDate|date:"SHORT_DATE_FORMAT"}}</span>
+            data-toggle="datepicker">{{demonstrator.nominationDecision.nominationDecisionDate|date:"m/d/Y"}}</span>
         </p>
       </div>
       <div class="grd">
@@ -221,7 +228,7 @@
           </p>
           <p class="ct">
             <span class="editable demon-{{demonstrator.id}}" name="commencementAfterNominationDate"
-              data-toggle="datepicker">{{demonstrator.commencementAfterNominationDate|date:"SHORT_DATE_FORMAT"}}</span>
+              data-toggle="datepicker">{{demonstrator.commencementAfterNominationDate|date:"m/d/Y"}}</span>
           </p>
         </div>
       </div>
@@ -462,7 +469,7 @@
                       تاريخ
 
                       <span class="efad-info-{{i.id}} editable" name="dispatchDecisionDate"
-                        data-toggle="datepicker">{{i.dispatchDecisionDate|date:"SHORT_DATE_FORMAT"}}</span>
+                        data-toggle="datepicker">{{i.dispatchDecisionDate|date:"m/d/Y"}}</span>
                     </p>
                   </div>
                 </div>
@@ -507,32 +514,61 @@
 
                   <p class="ct col-6"><span>تاريخ المباشرة:</span><span data-toggle="datepicker"
                       class="efad-info-{{i.id}} editable"
-                      name="commencementDate">{{i.commencementDate|date:"SHORT_DATE_FORMAT"}}</span></p>
+                      name="commencementDate">{{i.commencementDate|date:"m/d/Y"}}</span></p>
                   <p class="ct col-6"><span>تاريخ انتهاء الإيفاد:</span><span data-toggle="datepicker"
                       class="efad-info-{{i.id}} editable"
-                      name="dispatchEndDate">{{i.dispatchEndDate|date:"SHORT_DATE_FORMAT"}}</span></p>
+                      name="dispatchEndDate">{{i.dispatchEndDate|date:"m/d/Y"}}</span></p>
                   <p class="ct col-6"><span>تاريخ العودة:</span><span data-toggle="datepicker"
-                      class="efad-info-{{i.id}} editable" name="backDate">{{i.backDate|date:"SHORT_DATE_FORMAT"}}</span>
+                      class="efad-info-{{i.id}} editable" name="backDate">{{i.backDate|date:"m/d/Y"}}</span>
                   </p>
                   <p class="ct col-6"><span>تاريخ الدفاع:</span><span data-toggle="datepicker"
-                      class="efad-info-{{i.id}} editable"
-                      name="defenseDate">{{i.defenseDate|date:"SHORT_DATE_FORMAT"}}</span></p>
+                      class="efad-info-{{i.id}} editable" name="defenseDate">{{i.defenseDate|date:"m/d/Y"}}</span></p>
                   <p class="ct col-6"><span>تاريخ الحصول على الشهادة:</span><span data-toggle="datepicker"
                       class="efad-info-{{i.id}} editable"
-                      name="gettingCertificateDate">{{i.gettingCertificateDate|date:"SHORT_DATE_FORMAT"}}</span></p>
+                      name="gettingCertificateDate">{{i.gettingCertificateDate|date:"m/d/Y"}}</span></p>
                   <p class="ct col-6"><span>تاريخ الوضع تحت تصرف الجامعة:</span><span data-toggle="datepicker"
                       class="efad-info-{{i.id}} editable"
-                      name="atDisposalOfUniversityDate">{{i.atDisposalOfUniversityDate|date:"SHORT_DATE_FORMAT"}}</span>
+                      name="atDisposalOfUniversityDate">{{i.atDisposalOfUniversityDate|date:"m/d/Y"}}</span>
                   </p>
+                  <p class="col-6"></p>
+                  <p class="ct col-6"><span>تاريخ آخر تقرير:</span><span class="efad-info-{{i.id}} editable"
+                      data-toggle="datepicker" name="lastReportDate">{{i.lastReportDate}}</span></p>
+                  <p class="ct col-6">جدول التغييرات</p>
                 </div>
 
-                <p class="ct"><span>تاريخ آخر تقرير:</span><span class="efad-info-{{i.id}} editable"
-                    data-toggle="datepicker" name="lastReportDate">{{i.lastReportDate}}</span></p>
-                <div class="form-floating mb-4">
-                  <textarea class="form-control w-50" placeholder="Leave a comment here" id="floatingText" rows="10"
-                    style="height: 150px" disabled>{{i.dispatchNotes}}</textarea>
-                  <label for="floatingText" class="fs-6">ملاحظات</label>
+
+                <div class="row g-0">
+                  <div class="col-6">
+                    <div class="form-floating mb-4">
+                      <textarea class="form-control w-100" placeholder="Leave a comment here" id="floatingText"
+                        rows="10" style="height: 150px" disabled>{{i.dispatchNotes}}</textarea>
+                      <label for="floatingText" class="fs-6">ملاحظات</label>
+                    </div>
+                  </div>
+                  <div class="col-6  mb-4">
+                    <table class="table table-fixed  table-primary text-center">
+
+                      <thead>
+                        <tr>
+                          <th>سنة</th>
+                          <th>شهر</th>
+                          <th>يوم</th>
+                        </tr>
+                      </thead>
+                      <tbody >
+                        {% for ch in i.durationChange.all %}
+                        <tr>
+                          <td>{{ch.durationChangeDurationYear}}</td>
+                          <td>{{ch.durationChangeDurationMonth}}</td>
+                          <td>{{ch.durationChangeDurationDay}}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
+
+
                 <div class="row">
                   <div class="col-6">
                     {% for ex in i.extension.all %}
@@ -552,7 +588,7 @@
                         <div class="text-lead text-muted fs-6 d-inline-block">
                           تاريخ
                           <span class="ex-{{ex.id}} editable" name="extensionDecisionDate"
-                            data-toggle="datepicker">{{ex.extensionDecisionDate|date:"SHORT_DATE_FORMAT"}}</span>
+                            data-toggle="datepicker">{{ex.extensionDecisionDate|date:"m/d/Y"}}</span>
                         </div>
                       </div>
                       <div class="card-body">
@@ -601,7 +637,7 @@
                         <div class="text-lead text-muted fs-6 d-inline-block">
                           تاريخ
                           <span class="fr-{{fr.id}} editable" name="freezeDecisionDate"
-                            data-toggle="datepicker">{{fr.freezeDecisionDate|date:"SHORT_DATE_FORMAT"}}</span>
+                            data-toggle="datepicker">{{fr.freezeDecisionDate|date:"m/d/Y"}}</span>
                         </div>
                       </div>
                       <div class="card-body">
@@ -648,7 +684,7 @@
                       {% for re in i.report.all %}
                       <div class="col-12">
                         <div class="card mb-2">
-                          <div class="card-header fs-6 text-muted">{{re.reportDate|date:"SHORT_DATE_FORMAT"}}</div>
+                          <div class="card-header fs-6 text-muted">{{re.reportDate|date:"m/d/Y"}}</div>
                           <div class="card-body">
                             <p class="card-text fs-6">{{re.report}}</p>
                           </div>
@@ -660,8 +696,8 @@
                 </div>
 
                 <div class="row">
-                  <div class="col-6"></div>
-                  <div class="col-6 text-center">
+                  <div class="col-4"></div>
+                  <div class="col-8 text-center">
                     <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal"
                       data-bs-target="#Modalfr{{i.id}}">إضافة تجميد</button>
                     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
@@ -670,6 +706,51 @@
                       onclick="editEfad(event,'{{i.id}}', '{{demonstrator.id}}')" id="efeb-{{i.id}}">تعديل</button>
                     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal"
                       data-bs-target="#Modalre{{i.id}}">إضافة تقرير</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                      data-bs-target="#Modalch{{i.id}}">تغيير المدة</button>
+                  </div>
+                </div>
+
+                <div class="modal fade" id="Modalch{{i.id}}" tabindex="-1" aria-labelledby="ModalLabel{{i.id}}"
+                  aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="ModalLabel{{i.id}}">إضافة تمديد</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body fs-6">
+                        <form method="post" class="needs-validation" novalidate action="/app/durationInsert/{{i.id}}/">
+                          {% csrf_token %}
+
+                          <div class="row">
+                            <p class="col-12">مدة التغيير</p>
+                            <div class="col-4">
+                              <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="floatinyear" placeholder="0"
+                                  name="durationChangeDurationYear" value="0" required />
+                                <label for="floatinyear">سنة</label>
+                              </div>
+                            </div>
+                            <div class="col-4">
+                              <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="floatinmonth" placeholder="0"
+                                  name="durationChangeDurationMonth" value="0" required />
+                                <label for="floatinmonth">شهر</label>
+                              </div>
+                            </div>
+                            <div class="col-4">
+                              <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="floatinday" placeholder="0"
+                                  name="durationChangeDurationDay" value="0" required />
+                                <label for="floatinday">يوم</label>
+                              </div>
+                            </div>
+                          </div>
+                          <input type="submit" value="إضافة" class="btn btn-outline-primary" />
+                        </form>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

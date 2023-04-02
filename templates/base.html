@@ -29,8 +29,8 @@
     <script src="{% static 'js/jquery-3.6.3.min.js' %}"></script>
 </head>
 
-<body class="sidebar-dark">
-    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row ">
+<body>
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row navbar-info ">
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
             <a class="navbar-brand brand-logo " href="{% url 'app:home' %}"><img src="{% static 'images/logo.svg' %}"
                     class="mr-2 h-100 w-auto" alt="logo"></a>
@@ -70,10 +70,16 @@
                         <span class="menu-title">تسجيل موظف</span>
                     </a>
                 </li>
+                <li class="nav-item" id="nav-2">
+                    <a class="nav-link" href="/admin">
+                        <i class="fa-solid fa-server menu-icon"></i>
+                        <span class="menu-title">صفحة المدير</span>
+                    </a>
+                </li>
                 {% endif %}
                 <li class="nav-item" id="nav-3">
-                    <a class="nav-link" href="{% url 'app:insert' %}"><i class="fa-solid fa-user menu-icon"></i><span
-                            class="menu-title">تسجيل
+                    <a class="nav-link" href="{% url 'app:insert' %}"><i
+                            class="fa-solid fa-user-graduate menu-icon"></i><span class="menu-title">تسجيل
                             معيد</span></a>
                 </li>
                 <li class="nav-item" id="nav-4">
