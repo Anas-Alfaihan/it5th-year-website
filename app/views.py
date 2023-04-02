@@ -483,7 +483,7 @@ def ExtensionInsert(request, dispatchId,demonId):
             return redirect('app:demonstrator', id= demonId)
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
-            return redirect('app:demonstrator/', id= demonId)
+            return redirect('app:demonstrator', id= demonId)
     else:
         return render(request, 'home/ext.html')
 
