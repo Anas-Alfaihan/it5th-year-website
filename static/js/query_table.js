@@ -323,25 +323,13 @@ class DataTabler extends HTMLElement {
 
     load() {
         // error handling needs to be done :|
-        this.data = JSON.parse(this.src)['data'];
-        let y = JSON.parse(this.src)['data'];
-        // y.forEach((o) => {
-        //     if (this.data.length === 0) {
-        //         let k = new Set();
-        //         k.add(o['dispatch__dispatchDecisionNumber']);
-        //         o['dispatch__dispatchDecisionNumber'] = k;
-        //         this.data.push(o);
-        //     } else if (o['id'] === this.data[this.data.length - 1]['id']) {
-        //         this.data[this.data.length - 1][
-        //             'dispatch__dispatchDecisionNumber'
-        //         ].add(o['dispatch__dispatchDecisionNumber']);
-        //     } else {
-        //         let k = new Set();
-        //         k.add(o['dispatch__dispatchDecisionNumber']);
-        //         o['dispatch__dispatchDecisionNumber'] = k;
-        //         this.data.push(o);
-        //     }
-        // });
+        
+        this.data = [];
+        let y = JSON.parse(this.src);
+        y.forEach((o) => {
+            let demon = {}
+            
+        });
         console.log(this.data);
         this.df = this.data;
         this.render();

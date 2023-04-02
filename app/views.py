@@ -984,9 +984,10 @@ def QueryDemonstrator(request):
         # result = list(Demonstrator.objects.select_related().prefetch_related().filter(obj))
         result2= Demonstrator.objects.filter(obj)
         da = SerializerDemonstrator(result2, many=True)
+        print(da.data)
         finalResult={}
         if len(da.data):
-            finalResult= loads(dumps(da.data[0]))
+            finalResult= loads(dumps(da.data))
             print(dumps(da.data[0]))
         
         # data= ser.serialize('json', result, fields=("id",*request.POST['cols'].split(',')))
@@ -996,12 +997,12 @@ def QueryDemonstrator(request):
 
         # result = Demonstrator.objects.select_related().prefetch_related().filter(obj).values("id",*request.POST['cols'].split(','))
         # print('res', result)
-        # dat = JsonResponse({"data": list(result)})
+        dat = JsonResponse({"data": finalResult})
         # print('dat', dat.content)
-        # stringgg = dat.content.decode('utf-8')
+        stringgg = dat.content.decode('utf-8')
         # print('str', stringgg)
         print( request.POST['cols'].split(','))
-        return render(request, "registration/result.html", {"result":finalResult, 'fields': request.POST['cols'].split(',')})
+        return render(request, "registration/result.html", {"result":stringgg, 'fields': request.POST['cols']})
 
 
 @login_required(login_url='app:login')

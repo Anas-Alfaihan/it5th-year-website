@@ -26,12 +26,18 @@
                 case '/app/allDemonstrators/':
                     $('#nav-4').addClass('active');
                     break;
+
                 case '/app/gett/':
                     $('#nav-5').addClass('active');
                     break;
                 case '/app/query/':
                     $('#nav-5').addClass('active');
                     break;
+                case '/app/send/':
+                    $('#nav-6').addClass('active');
+                    break;
+                default:
+                    $('#nav-4').addClass('active');
             }
         }
         addActiveClass();
