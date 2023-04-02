@@ -14,6 +14,7 @@ from json import dumps, loads
 from dateutil.relativedelta import relativedelta
 from .models import *
 from .forms import *
+from .serializers import *
 from . import forms
 from ast import literal_eval
 
@@ -969,18 +970,31 @@ def QueryDemonstrator(request):
                        
             return obj
         query = loads(request.POST['query'])
-         
-        print(query)
+        print('q', query)
         op = list(query.keys())[0]
         obj = makeQuery(query[op], op)
-        print(obj)
-        result = Demonstrator.objects.select_related().prefetch_related().filter(obj).values("id",*request.POST['cols'].split(','))
-        print(result)
-        dat = JsonResponse({"data": list(result)})
-        print(dat.content)
-        stringgg = dat.content.decode('utf-8')
-        print(stringgg)
-        return render(request, "registration/result.html", {"red":stringgg})
+
+        # result = list(Demonstrator.objects.select_related().prefetch_related().filter(obj))
+        result2= Demonstrator.objects.filter(obj)
+        da = SerializerDemonstrator(result2, many=True)
+        finalResult={}
+        if len(da.data):
+            finalResult= loads(dumps(da.data[0]))
+            print(dumps(da.data[0]))
+        
+        # data= serializers.serialize('json', result, fields=("id",*request.POST['cols'].split(',')))
+        # print(data)
+
+                        
+
+        # result = Demonstrator.objects.select_related().prefetch_related().filter(obj).values("id",*request.POST['cols'].split(','))
+        # print('res', result)
+        # dat = JsonResponse({"data": list(result)})
+        # print('dat', dat.content)
+        # stringgg = dat.content.decode('utf-8')
+        # print('str', stringgg)
+        print( request.POST['cols'].split(','))
+        return render(request, "registration/result.html", {"result":finalResult, 'fields': request.POST['cols'].split(',')})
 
 
 @login_required(login_url='app:login')
