@@ -52,7 +52,11 @@ body {
     min-height: 90vh;
 } */
 .tit {
-    margin: 35px;
+    margin: 15px 35px 35px 35px;
+}
+.card-header {
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
 }
 
 @font-face {
