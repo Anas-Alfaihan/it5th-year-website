@@ -168,12 +168,12 @@
       </div>
     </div>
     <div class="forth" style="display: none">
-      <div class="row g-0 ct">
-        <div class="text-lead text-muted fs-6 col-2 mb-4">
+      <div class="row g-0 ct" style="margin-bottom: 0 !important;">
+        <div class="text-lead text-muted fs-6 col-2 pr-0">
           رقم القرار /<span class=""
             name="dispatchDecisionNumber">{{demonstrator.nominationDecision.nominationDecisionNumber}}</span>/<span
             class="" name="dispatchDecisionType"
-            value="{{demonstrator.nominationDecision.nominationDecisionType}}">{{demonstrator.nominationDecision.nominationDecisionType}}
+            value="{{demonstrator.nominationDecision.nominationDecisionType}}">{{demonstrator.nominationDecision.get_nominationDecisionType_display}}
           </span>
           <div class="d-none choises dispatchDecisionType">
             <div><strong value="s">ش.ع</strong></div>
@@ -433,8 +433,9 @@
           {% for i in demonstrator.dispatch.all %}
           <div class="accordion-item">
             <h2 class="accordion-header" id="efad-{{i.id}}">
-              <button class="accordion-button collapsed ct" type="button" data-bs-toggle="collapse"
-                data-bs-target="#info-{{i.id}}" aria-expanded="false" aria-controls="info-{{i.id}}"><span>شهادة
+              <button class="accordion-button collapsed ct" style="margin-bottom: 0px !important" type="button"
+                data-bs-toggle="collapse" data-bs-target="#info-{{i.id}}" aria-expanded="false"
+                aria-controls="info-{{i.id}}"><span>شهادة
                   الإيفاد:</span><span id="requiredCertificate">{{i.get_requiredCertificate_display}}</span></button>
             </h2>
             <div class="accordion-collapse collapse" id="info-{{i.id}}" aria-labelledby="efad-{{i.id}}"
@@ -453,8 +454,8 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-12 row g-0 ct">
-                    <div class="text-lead text-muted fs-6 col-2 mb-4">
+                  <div class="col-12 row g-0 ct" style="margin-bottom: 0 !important;">
+                    <div class="text-lead text-muted fs-6 col-2 mb-4 p-0">
                       رقم القرار /<span class="efad-info-{{i.id}} editable"
                         name="dispatchDecisionNumber">{{i.dispatchDecisionNumber}}</span>/<span
                         class=" efad-info-{{i.id}} editable mul" name="dispatchDecisionType"
@@ -545,26 +546,28 @@
                       <label for="floatingText" class="fs-6">ملاحظات</label>
                     </div>
                   </div>
-                  <div class="col-6  mb-4">
-                    <table class="table table-fixed  table-primary text-center">
+                  <div class="col-6  mb-4 ">
+                    <div class="table-wrappe">
+                      <table class="fl-table">
 
-                      <thead>
-                        <tr>
-                          <th>سنة</th>
-                          <th>شهر</th>
-                          <th>يوم</th>
-                        </tr>
-                      </thead>
-                      <tbody >
-                        {% for ch in i.durationChange.all %}
-                        <tr>
-                          <td>{{ch.durationChangeDurationYear}}</td>
-                          <td>{{ch.durationChangeDurationMonth}}</td>
-                          <td>{{ch.durationChangeDurationDay}}</td>
-                        </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
+                        <thead>
+                          <tr>
+                            <th>سنة</th>
+                            <th>شهر</th>
+                            <th>يوم</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for ch in i.durationChange.all %}
+                          <tr>
+                            <td>{{ch.durationChangeDurationYear}}</td>
+                            <td>{{ch.durationChangeDurationMonth}}</td>
+                            <td>{{ch.durationChangeDurationDay}}</td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
 

@@ -65,7 +65,7 @@
 }
 .ct {
     font-size: 18px !important;
-    margin-top: 10px !important;
+    margin: 20px 0 !important;
 }
 .fifth .ct {
     font-size: 16px !important;
@@ -152,4 +152,61 @@ key {
 }
 #keyTips key {
     margin: 0 0.25rem !important;
+}
+
+.table-wrappe {
+    overflow-x: scroll;
+    max-height: 150px !important;
+}
+
+.fl-table {
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: normal;
+    border: none;
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 100%;
+    white-space: nowrap;
+    background-color: white;
+}
+
+.fl-table td,
+.fl-table th {
+    text-align: center;
+    padding: 8px;
+}
+.fl-table td:first-of-type,
+.fl-table th:first-of-type {
+    text-align: center;
+    padding: 8px;
+}
+
+.fl-table td {
+    border-right: 1px solid #f8f8f8;
+    font-size: 16px;
+    border: 1px solid rgb(247, 245, 245);
+}
+
+.fl-table thead th {
+    color: #ffffff;
+    background: #324960;
+}
+
+.fl-table thead th:nth-child(odd) {
+    color: #ffffff;
+    background: #324960;
+}
+
+.fl-table tr:nth-child(even) {
+    background: #f8f8f8;
+}
+
+.td-table > table {
+    padding: 10px;
+}
+
+.td-table th {
+    color: #ffffff;
+    background: #53779b !important;
 }
