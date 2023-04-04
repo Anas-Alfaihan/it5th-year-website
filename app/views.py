@@ -387,7 +387,7 @@ def AdjectiveChangeInsert(request, demonId):
                 demonstrator = Demonstrator.objects.get(pk=demonId)
                 demonstrator.currentAdjective = request.POST['adjectiveChangeAdjective']
                 Demonstrator.full_clean(self=demonstrator)
-                Demonstrator.save()
+                Demonstrator.save(self=demonstrator)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير الصفة")
             return redirect('app:home')
@@ -467,6 +467,7 @@ def ExtensionInsert(request, dispatchId,demonId):
                 if type(extensionId) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
                     return redirect('app:demonstrator', id= demonId)
+
 
 
             informationForEmail={ 'name': college[0]['studentId__name'],
@@ -738,7 +739,7 @@ def UpdateAdjectiveChange(request, id, demonId):
                         for demonstrator in demonstrators:
                             demonstrator.currentAdjective = request.POST['adjectiveChangeAdjective']
                             Demonstrator.full_clean(self=demonstrator)
-                            Demonstrator.save()
+                            Demonstrator.save(self=demonstrator)
                 except:
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
@@ -797,6 +798,48 @@ def UpdateDispatch(request, id, demonId):
                 for dispatch in dispatchs:
                     dispatchId = generalUpdate(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, dispatch, savePoint)
                     if type(dispatchId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+                try:
+                    dispatchObject = Dispatch.objects.filter(pk=id)
+                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
+                    dispatch = loads(dumps(dispatchSerialized.data))
+                    if dispatch[0]['commencementDate']:
+                        dateItem= datetime.datetime.strptime(dispatch[0]['commencementDate'], '%Y-%m-%d').date()
+                        endDate= dateItem
+                        durationChangeLength= len(dispatch[0]['durationChange'])
+                        if durationChangeLength:
+                            day = dispatch[0]['durationChange'][durationChangeLength-1]['durationChangeDurationDay']
+                            month = dispatch[0]['durationChange'][durationChangeLength-1]['durationChangeDurationMonth']
+                            year = dispatch[0]['durationChange'][durationChangeLength-1]['durationChangeDurationYear']
+                            endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year)
+                        else:
+                            day = dispatch[0]['dispatchDurationDay']
+                            month = dispatch[0]['dispatchDurationMonth']
+                            year = dispatch[0]['dispatchDurationYear']
+                            endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year) 
+                        day = dispatch[0]['languageCourseDurationDay']
+                        month = dispatch[0]['languageCourseDurationMonth']
+                        year = dispatch[0]['languageCourseDurationYear']
+                        endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year) 
+                        for extension in dispatch[0]['extension']:
+                            day = extension['extensionDurationDay']
+                            month = extension['extensionDurationMonth']
+                            year = extension['extensionDurationYear']
+                            endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year)
+                        for freeze in dispatch[0]['freeze']:
+                            day = freeze['freezeDurationDay']
+                            month = freeze['freezeDurationMonth']
+                            year = freeze['freezeDurationYear']
+                            endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year)
+
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    return JsonResponse({"status": "bad"})
+                
 
             return JsonResponse({"status": "good"})
         else :
