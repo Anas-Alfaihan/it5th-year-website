@@ -156,7 +156,7 @@ def SendEmails(request):
         dis =[]
         for report in list(reports):
             dis.append(report['dispatchDecisionId_id'])
-        dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis}) & Q(**{'dispatchEndDate__gte' : todayDate})).values('studentId_id')
+        dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis})).values('studentId_id')
         res =[]
         for dispatch in list(dispatchLate):
             res.append(dispatch['studentId_id'])
