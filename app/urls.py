@@ -8,7 +8,7 @@ urlpatterns = [
     path('send/', views.Email, name='email'),
     path('sendEmails/', views.SendEmails, name='send'),
     path('register/', views.Register, name='register'),
-    path('test/<int:id>', views.Test, name='test'),
+    path('test/', views.Test, name='test'),
     path('login/', views.Login, name='login'),
     path('logout/', views.Logout, name='logout'),
     path('insert/', views.DemonstratorInsert2, name='insert'),
@@ -31,7 +31,7 @@ urlpatterns = [
     path('getCollegeEmails/', views.GetCollegeEmails, name='getCollegeEmails'),
     path('reportinsert/<int:demonId>/', views.GraduateStudiesDegreeInsert, name='insertGraduate'),
     path('insertExcellence/<int:demonId>/', views.CertificateExcellenceYearInsert, name='insertExcellence'),
-    path('durationInsert/<int:dispatchId>/', views.DurationChangeInsert, name='durationInsert'),
+    path('durationInsert/<int:dispatchId>/<int:demonId>/', views.DurationChangeInsert, name='durationInsert'),
     path('gett/', views.do_something, name='gett'),
 
 

@@ -24,7 +24,7 @@ MILITARY_SITUATION_CHOICES = [
 ]
 
 ADJECTIVE_CHOICES = [
-    ('demonstrator', 'معيد'),
+    ('demonstrator', 'معيد'), 
     ('returning', 'عائد'),
     ('envoy', 'موفد'),
     ('returning demonstrator', 'معيد عائد'),
