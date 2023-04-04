@@ -72,6 +72,7 @@ def SendEmailsToLate(request):
         todayDate = datetime.date.today() 
         lateDate = datetime.date.today() + relativedelta(months=-3)
         reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
+        print(reports)
         dis =[]
         for report in list(reports):
             dis.append(report['dispatchDecisionId_id'])
@@ -353,7 +354,8 @@ def DemonstratorInsert2(request):
             return redirect('app:insert')
 
     else:
-        return render(request, 'home/insert.html')
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        return render(request, 'home/insert.html', {'permissions': permissionList})
 
 
 def GraduateStudiesDegreeInsert(request, demonId):
@@ -680,7 +682,8 @@ def getAllDemonstrators(request):
 
 def getDemonstrator(request, id):
     demonstrator = Demonstrator.objects.select_related().prefetch_related().all().get(pk=id)
-    return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator})
+    permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+    return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator, 'permissions': permissionList})
    
 
 def GetAllEmails(request):
@@ -1138,21 +1141,29 @@ def QueryDemonstrator(request):
 @login_required(login_url='app:login')
 def home(request):
     result={}
-    result['all'] = Demonstrator.objects.filter().count()
-    # master = Dispatch.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate'))
-    # result['master'] = Demonstrator.objects.filter('dispatch__requiredCertificate'= 'master').count()
-    # result['ph.d'] = Demonstrator.objects.filter('dispatch__requiredCertificate'= 'ph.d').count()
+    result['allDemons'] = Demonstrator.objects.filter().count()
+    todayDate= datetime.date.today() 
+    result['allInDispatch'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate})).count()
+    result['master'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'requiredCertificate':'master'})).count()
+    result['ph.d'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'requiredCertificate':'ph.d'})).count()
+    result['others'] = result['all'] - result['master'] - result['ph.d']
     for adjective in ADJECTIVE_CHOICES:
         result[adjective[0]] = Demonstrator.objects.filter(currentAdjective= adjective[0]).count()
-    return render(request, 'home/home.html', {'statistics': result})
+
+    print(result)
+    return render(request, 'home/home.html', {'statistics': result}) 
+
 
 def Test(request):
-    date= request.user.lastPull.lastPullDate
-    data=[]
-    for model in apps.get_models():
-        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
-            tempData =list( model.objects.filter(lastModifiedDate__gte=date) )
-            data.append( {'modelName': model.__name__, 'data':tempData})
+    # date= request.user.lastPull.lastPullDate
+    # data=[]
+    # for model in apps.get_models():
+    #     if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
+    #         tempData =list( model.objects.filter(lastModifiedDate__gte=date) )
+    #         data.append( {'modelName': model.__name__, 'data':tempData})
+    todayDate = datetime.date.today() 
+    reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
+    print(reports)
     return render(request, 'registration/result.html', {'result': 'done'})
 
 def goToHome(request):
