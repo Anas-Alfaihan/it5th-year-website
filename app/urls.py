@@ -32,7 +32,7 @@ urlpatterns = [
     path('getCollegeEmails/', views.GetCollegeEmails, name='getCollegeEmails'),
     path('reportinsert/<int:demonId>/', views.GraduateStudiesDegreeInsert, name='insertGraduate'),
     path('insertExcellence/<int:demonId>/', views.CertificateExcellenceYearInsert, name='insertExcellence'),
-    path('durationInsert/<int:dispatchId>/', views.DurationChangeInsert, name='durationInsert'),
+    path('durationInsert/<int:dispatchId>/<int:demonId>/', views.DurationChangeInsert, name='durationInsert'),
     path('gett/', views.do_something, name='gett'),
 
 

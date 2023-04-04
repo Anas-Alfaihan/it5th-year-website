@@ -17,6 +17,7 @@ from .forms import *
 from .serializers import *
 from . import forms
 from ast import literal_eval
+from .constantVariables import ADJECTIVE_CHOICES
 
 
 import os.path
@@ -119,8 +120,6 @@ def SendEmailsToLate(request):
     
 
     return render(request, 'home/success.html', {"emails": emails_str.split()})
-
-
 
 
 def SendEmails(request):
@@ -262,6 +261,38 @@ def Logout(request):
     logout(request)
     messages.add_message(request, messages.ERROR,"تم تسجيل الخروج")
     return redirect('app:home')
+
+
+def CalculateDispatchEndDate(dispatch):
+    dateItem= datetime.datetime.strptime(dispatch[0]['commencementDate'], '%Y-%m-%d').date()
+    endDate= dateItem
+    durationChangeLength= len(dispatch[0]['durationChange'])
+    if durationChangeLength:
+        day = dispatch[0]['durationChange'][durationChangeLength-1]['durationChangeDurationDay']
+        month = dispatch[0]['durationChange'][durationChangeLength-1]['durationChangeDurationMonth']
+        year = dispatch[0]['durationChange'][durationChangeLength-1]['durationChangeDurationYear']
+        endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year)
+    else:
+        day = dispatch[0]['dispatchDurationDay']
+        month = dispatch[0]['dispatchDurationMonth']
+        year = dispatch[0]['dispatchDurationYear']
+        endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year) 
+    day = dispatch[0]['languageCourseDurationDay']
+    month = dispatch[0]['languageCourseDurationMonth']
+    year = dispatch[0]['languageCourseDurationYear']
+    endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year) 
+    for extension in dispatch[0]['extension']:
+        day = extension['extensionDurationDay']
+        month = extension['extensionDurationMonth']
+        year = extension['extensionDurationYear']
+        endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year)
+    for freeze in dispatch[0]['freeze']:
+        day = freeze['freezeDurationDay']
+        month = freeze['freezeDurationMonth']
+        year = freeze['freezeDurationYear']
+        endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year)
+
+    return endDate
 
 
 def generalInsert(request, mainField, baseDic, model, addModel, savePoint):
@@ -467,19 +498,30 @@ def ExtensionInsert(request, dispatchId,demonId):
                 if type(extensionId) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
                     return redirect('app:demonstrator', id= demonId)
+                
+                try:
+                    dispatchObject = Dispatch.objects.filter(pk=dispatchId)
+                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
+                    dispatch = loads(dumps(dispatchSerialized.data))
+                    endDate = CalculateDispatchEndDate(dispatch)
+                    for dispatchItem in dispatchObject:
+                        dispatchItem.dispatchEndDate = endDate
+                        Dispatch.full_clean(self=dispatchItem)
+                        Dispatch.save(self=dispatchItem)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
+                    return redirect('app:demonstrator', id= demonId)
 
-
-
-            informationForEmail={ 'name': college[0]['studentId__name'],
-                                  'fatherName': college[0]['studentId__fatherName'],
-                                  'extensionDecisionNumber': request.POST['extensionDecisionNumber'],
-                                  'extensionDecisionDate': request.POST['extensionDecisionDate'],
-                                  'extensionDecisionType': request.POST['extensionDecisionType'],
-                                  'extensionDurationYear': request.POST['extensionDurationYear'],
-                                  'extensionDurationMonth': request.POST['extensionDurationMonth'],
-                                  'extensionDurationDay': request.POST['extensionDurationDay'],
-                                }
-            print(informationForEmail)
+                informationForEmail={ 'name': college[0]['studentId__name'],
+                                    'fatherName': college[0]['studentId__fatherName'],
+                                    'extensionDecisionNumber': request.POST['extensionDecisionNumber'],
+                                    'extensionDecisionDate': request.POST['extensionDecisionDate'],
+                                    'extensionDecisionType': request.POST['extensionDecisionType'],
+                                    'extensionDurationYear': request.POST['extensionDurationYear'],
+                                    'extensionDurationMonth': request.POST['extensionDurationMonth'],
+                                    'extensionDurationDay': request.POST['extensionDurationDay'],
+                                    }
             messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد ")
             return redirect('app:demonstrator', id= demonId)
         else:
@@ -501,6 +543,20 @@ def FreezeInsert(request, dispatchId,demonId):
                 if type(freezeId) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التجميد")
                     return redirect('app:demonstrator', id= demonId)
+                
+                try:
+                    dispatchObject = Dispatch.objects.filter(pk=dispatchId)
+                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
+                    dispatch = loads(dumps(dispatchSerialized.data))
+                    endDate = CalculateDispatchEndDate(dispatch)
+                    for dispatchItem in dispatchObject:
+                        dispatchItem.dispatchEndDate = endDate
+                        Dispatch.full_clean(self=dispatchItem)
+                        Dispatch.save(self=dispatchItem)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التجميد")
+                    return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة التجميد ")
             return redirect('app:demonstrator', id= demonId)
@@ -511,7 +567,7 @@ def FreezeInsert(request, dispatchId,demonId):
         return render(request, 'registration/dispathInsert.html')
 
 
-def DurationChangeInsert(request, dispatchId):
+def DurationChangeInsert(request, dispatchId, demonId):
     if request.method == 'POST':
         college= list(Dispatch.objects.filter(pk=dispatchId).values('studentId__college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
@@ -522,13 +578,27 @@ def DurationChangeInsert(request, dispatchId):
                 id = generalInsert(request, 'durationChangeDurationYear', {'dispatchDecisionId': dispatchId}, DurationChange, AddDurationChange, savePoint)
                 if type(id) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير المدة")
-                    return redirect('app:home')
+                    return redirect('app:demonstrator', id= demonId)
+                
+                try:
+                    dispatchObject = Dispatch.objects.filter(pk=dispatchId)
+                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
+                    dispatch = loads(dumps(dispatchSerialized.data))
+                    endDate = CalculateDispatchEndDate(dispatch)
+                    for dispatchItem in dispatchObject:
+                        dispatchItem.dispatchEndDate = endDate
+                        Dispatch.full_clean(self=dispatchItem)
+                        Dispatch.save(self=dispatchItem)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير المدة")
+                    return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير المدة ")
-            return redirect('app:home')
+            return redirect('app:demonstrator', id= demonId)
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
-            return redirect('app:home')
+            return redirect('app:demonstrator', id= demonId)
         
     else:
         return render(request, 'registration/dispathInsert.html')
@@ -803,39 +873,11 @@ def UpdateDispatch(request, id, demonId):
                     dispatchObject = Dispatch.objects.filter(pk=id)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    if dispatch[0]['commencementDate']:
-                        dateItem= datetime.datetime.strptime(dispatch[0]['commencementDate'], '%Y-%m-%d').date()
-                        endDate= dateItem
-                        durationChangeLength= len(dispatch[0]['durationChange'])
-                        if durationChangeLength:
-                            day = dispatch[0]['durationChange'][durationChangeLength-1]['durationChangeDurationDay']
-                            month = dispatch[0]['durationChange'][durationChangeLength-1]['durationChangeDurationMonth']
-                            year = dispatch[0]['durationChange'][durationChangeLength-1]['durationChangeDurationYear']
-                            endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year)
-                        else:
-                            day = dispatch[0]['dispatchDurationDay']
-                            month = dispatch[0]['dispatchDurationMonth']
-                            year = dispatch[0]['dispatchDurationYear']
-                            endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year) 
-                        day = dispatch[0]['languageCourseDurationDay']
-                        month = dispatch[0]['languageCourseDurationMonth']
-                        year = dispatch[0]['languageCourseDurationYear']
-                        endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year) 
-                        for extension in dispatch[0]['extension']:
-                            day = extension['extensionDurationDay']
-                            month = extension['extensionDurationMonth']
-                            year = extension['extensionDurationYear']
-                            endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year)
-                        for freeze in dispatch[0]['freeze']:
-                            day = freeze['freezeDurationDay']
-                            month = freeze['freezeDurationMonth']
-                            year = freeze['freezeDurationYear']
-                            endDate+= relativedelta(days=day) + relativedelta(months=month) + relativedelta(years=year)
-
-                        for dispatchItem in dispatchObject:
-                            dispatchItem.dispatchEndDate = endDate
-                            Dispatch.full_clean(self=dispatchItem)
-                            Dispatch.save(self=dispatchItem)
+                    endDate = CalculateDispatchEndDate(dispatch)
+                    for dispatchItem in dispatchObject:
+                        dispatchItem.dispatchEndDate = endDate
+                        Dispatch.full_clean(self=dispatchItem)
+                        Dispatch.save(self=dispatchItem)
                 except:
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
@@ -891,9 +933,24 @@ def UpdateExtension(request, id, demonId):
                 savePoint = transaction.savepoint()
 
                 extensions= Extension.objects.filter(pk=id)
+                dispatchId = -1
                 for extension in extensions:
+                    dispatchId= extension.dispatchDecisionId
                     extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': extension.dispatchDecisionId}, Extension, AddExtension, extension, savePoint)
                     if type(extensionId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+                try:
+                    dispatchObject = Dispatch.objects.filter(pk=dispatchId)
+                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
+                    dispatch = loads(dumps(dispatchSerialized.data))
+                    endDate = CalculateDispatchEndDate(dispatch)
+                    for dispatchItem in dispatchObject:
+                        dispatchItem.dispatchEndDate = endDate
+                        Dispatch.full_clean(self=dispatchItem)
+                        Dispatch.save(self=dispatchItem)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
@@ -909,9 +966,24 @@ def UpdateFreeze(request, id, demonId):
                 savePoint = transaction.savepoint()
 
                 freezes= Freeze.objects.filter(pk=id)
+                dispatchId=-1
                 for freeze in freezes:
+                    dispatchId= freeze.dispatchDecisionId
                     freezeId = generalUpdate(request, 'freezeDecisionNumber', {'dispatchDecisionId': freeze.dispatchDecisionId}, Freeze, AddFreeze, freeze, savePoint)
                     if type(freezeId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+                try:
+                    dispatchObject = Dispatch.objects.filter(pk=dispatchId)
+                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
+                    dispatch = loads(dumps(dispatchSerialized.data))
+                    endDate = CalculateDispatchEndDate(dispatch)
+                    for dispatchItem in dispatchObject:
+                        dispatchItem.dispatchEndDate = endDate
+                        Dispatch.full_clean(self=dispatchItem)
+                        Dispatch.save(self=dispatchItem)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
@@ -927,9 +999,24 @@ def UpdateDurationChange(request, id, demonId):
                 savePoint = transaction.savepoint()
 
                 durationChange= DurationChange.objects.filter(pk=id)
+                dispatchId=-1
                 for model in durationChange:
+                    dispatchId=model.dispatchDecisionId
                     resId = generalUpdate(request, 'durationChangeDurationYear', {'dispatchDecisionId': model.dispatchDecisionId}, DurationChange, AddDurationChange, model, savePoint)
                     if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+
+                try:
+                    dispatchObject = Dispatch.objects.filter(pk=dispatchId)
+                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
+                    dispatch = loads(dumps(dispatchSerialized.data))
+                    endDate = CalculateDispatchEndDate(dispatch)
+                    for dispatchItem in dispatchObject:
+                        dispatchItem.dispatchEndDate = endDate
+                        Dispatch.full_clean(self=dispatchItem)
+                        Dispatch.save(self=dispatchItem)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
@@ -1050,7 +1137,14 @@ def QueryDemonstrator(request):
 
 @login_required(login_url='app:login')
 def home(request):
-    return render(request, 'home/home.html')
+    result={}
+    result['all'] = Demonstrator.objects.filter().count()
+    # master = Dispatch.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate'))
+    # result['master'] = Demonstrator.objects.filter('dispatch__requiredCertificate'= 'master').count()
+    # result['ph.d'] = Demonstrator.objects.filter('dispatch__requiredCertificate'= 'ph.d').count()
+    for adjective in ADJECTIVE_CHOICES:
+        result[adjective[0]] = Demonstrator.objects.filter(currentAdjective= adjective[0]).count()
+    return render(request, 'home/home.html', {'statistics': result})
 
 def Test(request):
     date= request.user.lastPull.lastPullDate
