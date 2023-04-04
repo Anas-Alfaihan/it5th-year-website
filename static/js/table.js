@@ -217,8 +217,20 @@ class DataTabler extends HTMLElement {
         this.renderBody();
     }
 
+    searchAfter() {
+        const fuse = new Fuse(this.df, this.options);
+        let sr = this.shadowRoot.querySelector('input').value;
+        const result = fuse.search(sr);
+        this.data = result.map((r) => r.item);
+        if (!sr) {
+            this.data = this.df;
+        }
+        this.renderBody();
+    }
+
     changeSearch(e) {
         this.options.keys = [e.target.value];
+        this.searchAfter();
     }
 
     async sort(e) {
