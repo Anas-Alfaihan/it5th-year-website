@@ -55,7 +55,8 @@ templater.innerHTML = `
     .fl-table th {
         text-align: center;
         padding: 8px;
-        min-width: 200px;
+        max-width: 400px;
+        overflow: auto;
     }
     .fl-table td:first-of-type,
     .fl-table th:first-of-type {
@@ -147,9 +148,10 @@ templater.innerHTML = `
             box-sizing: border-box;
             overflow-x: hidden;
             overflow-y: auto;
-            width: 120px;
+            max-width: 120px;
             font-size: 13px;
             text-overflow: ellipsis;
+            
         }
 
         .fl-table thead th {
@@ -272,9 +274,9 @@ class DataTabler extends HTMLElement {
             home: 'عنوان اﻹقامة',
         };
         this.levelTwo = {
-            dispatch: 'dis',
-            certificateOfExcellence: 'cer',
-            graduateStudies: 'grad',
+            dispatch: 'إيفاد',
+            certificateOfExcellence: 'شهادة التفوق',
+            graduateStudies: 'دراسات عليا',
         };
         this.levelThree = {
             freeze: 'freeze',
@@ -325,25 +327,6 @@ class DataTabler extends HTMLElement {
         const tbody = document.createElement('tbody');
         tbody.classList.add('table-group-divider');
 
-        // this.tableGrad = document.createElement('table');
-        // tableGrad.setAttribute('id', 'tableGrad');
-
-        // this.theadGrad = document.createElement('thead');
-        // theadGrad.setAttribute('id', 'headGrad');
-        // this.tbodyGrad = document.createElement('tbody');
-        // tbodyGrad.setAttribute('id', 'bodyGrad');
-
-        // tableGrad.append(theadGrad, tbodyGrad);
-
-        // const tableDis = document.createElement('table');
-        // const theadDis = document.createElement('thead');
-        // theadDis.setAttribute('id', 'headDis');
-
-        // const tbodyDis = document.createElement('tbody');
-        // tbodyDis.setAttribute('id', 'bodyDis');
-
-        // tableDis.append(theadDis, tbodyDis);
-
         table.append(thead, tbody);
 
         (this.cer = false), (this.dis = false), (this.grad = false);
@@ -368,12 +351,8 @@ class DataTabler extends HTMLElement {
         this.printable = [];
 
         this.exportbtn = this.exportbtn.bind(this);
-        // this.previousPage = this.previousPage.bind(this);
-        // this.search = this.search.bind(this);
-        // this.changeSort = this.changeSort.bind(this);
 
         exportbtn.addEventListener('click', this.exportbtn, false);
-        // prevButton.addEventListener('click', this.previousPage, false);
     }
 
     exportbtn() {
@@ -408,6 +387,8 @@ class DataTabler extends HTMLElement {
         let y = JSON.parse(this.src);
 
         this.data = y['data'];
+        console.log(this.data);
+        console.log(this.cols);
         this.df = this.data;
         this.render();
     }
@@ -450,10 +431,16 @@ class DataTabler extends HTMLElement {
                     h.push(this.levelOne[col]);
                 }
             });
-            // if (this.cer)
-            //     r += `<td>${this.renderCer(c['certificateOfExcellence'])}</td>`;
-            // if (this.grad)
-            //     r += `<td>${this.renderGrad(c['graduateStudies'])}</td>`;
+            if (this.cer) {
+                r += `<td>${this.renderCer(c['certificateOfExcellence'])}</td>`;
+                ob.push(this.renderCer(c['certificateOfExcellence']));
+                h.push(this.levelTwo['certificateOfExcellence']);
+            }
+            if (this.grad) {
+                r += `<td>${this.renderGrad(c['graduateStudies'])}</td>`;
+                ob.push(this.renderGrad(c['graduateStudies']));
+                h.push(this.levelTwo['graduateStudies']);
+            }
             // if (this.dis) r += `<td>${this.renderDis(c['dispatch'])}</td>`;
             if (this.printable.length === 0) {
                 this.printable.push(h);
@@ -467,128 +454,19 @@ class DataTabler extends HTMLElement {
         tbody.innerHTML = result;
     }
 
-    renderCer(c) {
-        if (c.length) {
-            let header = '';
-            c.forEach((o) => {
-                for (let k in o) {
-                    if (
-                        k !== 'id' &&
-                        k !== 'createdDate' &&
-                        k !== 'lastModifiedDate' &&
-                        k !== 'studentId'
-                    ) {
-                        header += `${_.get(o, k) ? _.get(o, k) : ''} `;
-                    }
-                }
-            });
-            return header;
-        }
-        return '';
+    renderCer(l) {
+        let s = '';
+        l.forEach((c) => {
+            s += `شهادة تفوق بدرجة ${c.certificateOfExcellenceDegree} في السنة ${c.certificateOfExcellenceYear} `;
+        });
+        return s;
     }
-    renderDis(c) {
-        if (c.length) {
-            let table = '<table>';
-
-            let header = '<thead><tr>';
-
-            header += `<th>رقم القرار</th>`;
-            header += `<th>تاريخ القرار</th>`;
-            header += `<th>الشهادة المطلوبة</th>`;
-            header += `<th>نوع الإيفاد</th>`;
-            header += `<th>النفقة</th>`;
-            header += `<th>بلد الإيفاد</th>`;
-            header += `<th>جامعة الإيفاد</th>`;
-            header += `<th>مدة الإيفاد</th>`;
-            header += `<th>مدة دورة اللغة</th>`;
-            header += `<th>تاريخ مباشرة الإيفاد</th>`;
-            header += `<th>تاريخ انتهاء الإيفاد</th>`;
-            header += `<th>تاريخ العودة </th>`;
-            header += `<th> المشرف الداخلي </th>`;
-            header += `<th> المشرف الخارجي </th>`;
-            header += `<th> تاريخ الدفاع </th>`;
-            header += `<th> تاريخ الحصول على الشهادة </th>`;
-            header += `<th> تاريخ الوضع تحت تصرف الجامعة </th>`;
-            if (_.has(this.cols, 'extension')) header += `<th> التمديد</th>`;
-            if (_.has(this.cols, 'freeze')) header += `<th> التجميد</th>`;
-
-            header += '</tr></thead>';
-            table += header;
-
-            let res = '<tbody>';
-            c.forEach((o) => {
-                let r = `<tr>`;
-                r += `<td>${o['dispatchDecisionNumber']}/ ${o['dispatchDecisionType']}</td>`;
-                r += `<td>${o['dispatchDecisionDate']}</td>`;
-                r += `<td>${o['requiredCertificate']}</td>`;
-                r += `<td>${o['dispatchType']}</td>`;
-                r += `<td>${o['alimony']}</td>`;
-                r += `<td>${o['dispatchCountry']}</td>`;
-                r += `<td>${o['dispatchUniversity']}</td>`;
-                r += `<td>${o['dispatchDurationYear']} سنة, ${o['dispatchDurationMonth']} شهر, ${o['dispatchDurationDay']} يوم</td>`;
-                r += `<td>${o['languageCourseDurationYear']} سنة, ${o['languageCourseDurationMonth']} شهر, ${o['languageCourseDurationDay']} يوم,</td>`;
-                r += `<td>${o['commencementDate']}</td>`;
-                r += `<td>${o['dispatchEndDate']}</td>`;
-                r += `<td>${o['backDate']}</td>`;
-                r += `<td>${o['innerSupervisor']}</td>`;
-                r += `<td>${o['outerSupervisor']}</td>`;
-                r += `<td>${o['defenseDate']}</td>`;
-                r += `<td>${o['gettingCertificateDate']}</td>`;
-                r += `<td>${o['atDisposalOfUniversityDate']}</td>`;
-
-                r += '</tr>';
-                res += r;
-            });
-            res += '</tbody>';
-            table += res;
-
-            table += '</table>';
-            return table;
-        }
-        return '';
-    }
-    renderFreez(c) {}
-    renderEx(c) {}
-    renderGrad(c) {
-        if (c.length) {
-            let table = '<table>';
-
-            let header = '<thead><tr>';
-
-            header += `<th>${1}</th>`;
-            header += `<th>${2}</th>`;
-            header += `<th>${3}</th>`;
-            header += `<th>${4}</th>`;
-            header += `<th>${5}</th>`;
-            header += `<th>${6}</th>`;
-            header += `<th>${7}</th>`;
-
-            header += '</tr></thead>';
-            table += header;
-
-            let res = '<tbody>';
-            c.forEach((o) => {
-                let r = `<tr>`;
-                for (let k in o) {
-                    if (
-                        k !== 'id' &&
-                        k !== 'createdDate' &&
-                        k !== 'lastModifiedDate' &&
-                        k !== 'studentId'
-                    ) {
-                        r += `<td>${_.get(o, k) ? _.get(o, k) : ''}</td>`;
-                    }
-                }
-                r += '</tr>';
-                res += r;
-            });
-            res += '</tbody>';
-            table += res;
-
-            table += '</table>';
-            return table;
-        }
-        return '';
+    renderGrad(l) {
+        let s = '';
+        l.forEach((g) => {
+            s += `شهادة ${g.graduateStudiesDegree} من جامعة ${g.graduateStudiesUniversity} كلية ${g.graduateStudiesCollege} قسم ${g.graduateStudiesSection} تخصص ${g.graduateStudiesSpecialzaion} بمعدل ${g.graduateStudiesAverage} سنة ${g.graduateStudiesYear}`;
+        });
+        return s;
     }
 
     renderHeader() {
@@ -598,25 +476,20 @@ class DataTabler extends HTMLElement {
         this.cols.forEach((c) => {
             if (c !== 'id' && _.has(this.levelOne, c))
                 header += `<th scope='col' data-sort="${c}">${this.levelOne[c]} </th>`;
-            if (_.has(this.levelTwo, `certificateOfExcellence`)) {
+            else if (
+                _.has(this.levelTwo, `certificateOfExcellence`) &&
+                !this.cer
+            ) {
                 this.cer = true;
-            }
-            if (_.has(this.levelTwo, `graduateStudies`)) {
+                header += `<th scope='col' >${this.levelTwo['certificateOfExcellence']} </th>`;
+            } else if (_.has(this.levelTwo, `graduateStudies`) && !this.grad) {
                 this.grad = true;
-            }
-            if (_.has(this.levelTwo, `dispatch`)) {
+                header += `<th scope='col' >${this.levelTwo['graduateStudies']} </th>`;
+            } else if (_.has(this.levelTwo, `dispatch`) && !this.dis) {
                 this.dis = true;
+                header += `<th scope='col' >${this.levelTwo['dispatch']} </th>`;
             }
         });
-        // if (this.cer) {
-        //     header += `<th scope='col' >شهادات التفوق </th>`;
-        // }
-        // if (this.grad) {
-        //     header += `<th scope='col' >الدراسات العليا </th>`;
-        // }
-        // if (this.dis) {
-        //     header += `<th scope='col' >الإيفادات </th>`;
-        // }
 
         header += '</tr>';
         let thead = this.shadowRoot.querySelector('thead');
@@ -641,9 +514,9 @@ class DataTabler extends HTMLElement {
             });
         } else {
             this.data.sort((a, b) => {
-                if (a['fields'][this.sortCol] < b['fields'][this.sortCol])
+                if (a[this.sortCol] < b[this.sortCol])
                     return this.sortAsc ? 1 : -1;
-                if (a['fields'][this.sortCol] > b['fields'][this.sortCol])
+                if (a[this.sortCol] > b[this.sortCol])
                     return this.sortAsc ? -1 : 1;
                 return 0;
             });

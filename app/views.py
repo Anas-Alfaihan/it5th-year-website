@@ -1169,7 +1169,7 @@ def home(request):
     result['allInDispatch'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate})).count()
     result['master'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'requiredCertificate':'master'})).count()
     result['ph.d'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'requiredCertificate':'ph.d'})).count()
-    result['others'] = result['all'] - result['master'] - result['ph.d']
+    result['others'] = result['allDemons'] - result['master'] - result['ph.d']
     for adjective in ADJECTIVE_CHOICES:
         result[adjective[0]] = Demonstrator.objects.filter(currentAdjective= adjective[0]).count()
 
