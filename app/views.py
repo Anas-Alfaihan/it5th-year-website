@@ -524,30 +524,25 @@ def ExtensionInsert(request, dispatchId,demonId):
                 if type(extensionId) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
                     return redirect('app:demonstrator', id= demonId)
-                
-                try:
-                    dispatchObject = Dispatch.objects.filter(pk=dispatchId)
-                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
-                    dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
-                except:
-                    transaction.savepoint_rollback(savePoint)
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
-                    return redirect('app:demonstrator', id= demonId)
 
-                informationForEmail={ 'name': college[0]['studentId__name'],
-                                    'fatherName': college[0]['studentId__fatherName'],
-                                    'extensionDecisionNumber': request.POST['extensionDecisionNumber'],
-                                    'extensionDecisionDate': request.POST['extensionDecisionDate'],
-                                    'extensionDecisionType': request.POST['extensionDecisionType'],
-                                    'extensionDurationYear': request.POST['extensionDurationYear'],
-                                    'extensionDurationMonth': request.POST['extensionDurationMonth'],
-                                    'extensionDurationDay': request.POST['extensionDurationDay'],
-                                    }
+
+            informationForEmail={ 'name': college[0]['studentId__name'],
+                                  'fatherName': college[0]['studentId__fatherName'],
+                                  'email':college[0]['studentId__email'],
+                                  'dispatchEndDate':college[0]['dispatchEndDate'],
+                                  'extensionDecisionNumber': request.POST['extensionDecisionNumber'],
+                                  'extensionDecisionDate': request.POST['extensionDecisionDate'],
+                                  'extensionDecisionType': request.POST['extensionDecisionType'],
+                                  'extensionDurationYear': request.POST['extensionDurationYear'],
+                                  'extensionDurationMonth': request.POST['extensionDurationMonth'],
+                                  'extensionDurationDay': request.POST['extensionDurationDay'],
+                                }
+
+            message="المعيد\n"+informationForEmail['name']+"نعلمك صدور القرار الوزاري رقم "+informationForEmail['extensionDecisionNumber']+" تاريخ "+informationForEmail['extensionDecisionDate']+"ولمدة "+informationForEmail['extensionDurationYear']+"سنة -"+informationForEmail['extensionDurationMonth']+"شهر - "+informationForEmail['extensionDurationDay']+" يوم "
+            if request.POST['server'] == 'gmail':
+                SendEmailGmail(informationForEmail['email'],"إضافة ايفاد",message)
+            elif request.POST['server'] == 'hotmail':
+                SendEmailHotmail(informationForEmail['email'],"إضافة ايفاد",message)
             messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد ")
             return redirect('app:demonstrator', id= demonId)
         else:
@@ -1169,7 +1164,7 @@ def home(request):
     result['allInDispatch'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate})).count()
     result['master'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'requiredCertificate':'master'})).count()
     result['ph.d'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'requiredCertificate':'ph.d'})).count()
-    result['others'] = result['all'] - result['master'] - result['ph.d']
+    result['others'] = result['allDemons'] - result['master'] - result['ph.d']
     for adjective in ADJECTIVE_CHOICES:
         result[adjective[0]] = Demonstrator.objects.filter(currentAdjective= adjective[0]).count()
 
