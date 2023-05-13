@@ -5,9 +5,19 @@
 {% block content %}
 <h2 class="tit">إرسال ايميل</h2>
 
+
 <div class="sec ">
   <form class="col-md-8  mx-auto mt-5" action="../sendEmails/" method="POST">
     {% csrf_token %}
+    <div class="mb-3">
+      <div >
+        <label for="exampleFormControlSelect" class="form-label">اختر الموقع الذي تريد الإرسال منه :</label>
+        <select name="server" class="form-select" id="exampleFormControlSelect" aria-label="Floating label select example">
+          <option selected value="gmail">Gmail</option>
+          <option value="hotmail">Hotmail</option>
+        </select>
+      </div>
+    </div>
     <div class="mb-3">
       <label for="exampleFormControlInput1" class="form-label">ايميل المستلم :</label>
       <input type="email" class="form-control" name="email" id="exampleFormControlInput1"
@@ -36,20 +46,17 @@
       <div class="form-floating">
         <select name="college" class="form-select" id="floatingSelect" aria-label="Floating label select example">
           <option selected>افتح القائمة لتختار الكلية المرسل إليها :</option>
-          <option value="IT">IT</option>
-          <option value="sience">Sience</option>
-          <option value="all">All Collages</option>
         </select>
         <label class="text-dark" for="floatingSelect">اختر الكلية :</label>
       </div>
     </div>
-    <button type="submit" style="background-color:#4b49ac" class="btn text-white  ">ارسال</button>
+    <button type="submit" name="emails" value="normal" style="background-color:#4b49ac"
+      class="btn text-white  ">ارسال</button>
     {% csrf_token %}
-    <button id="notification" onclick="handleSubmit(event)" style="background-color:#4b49ac"
-      class="btn text-white  ">hh</button>
+    <button id="notification" name="emails" value="late" style="background-color:#4b49ac" class="btn text-white  ">ارسال
+      انذار للمتأخرين</button>
   </form>
 </div>
-
 
 
 <script>
@@ -61,7 +68,6 @@
     return div.firstChild;
   }
   let csrf = createElementFromHTML(`{% csrf_token %}`);
-
   let values = {}
   values['csrfmiddlewaretoken'] = csrf.value;
 
@@ -70,7 +76,29 @@
     $.post("/app/sendToLate/", values, (data) => {
       console.log(data)
     })
+
   }
+  $(document).ready(function () {
+    var selects = "{{select|escapejs}}";
+
+    selects = JSON.parse(selects)
+    let select = document.getElementById("floatingSelect");
+
+    console.log(typeof selects["data"])
+
+    selects["data"].forEach(o => {
+      let op = document.createElement("option")
+      op.value = o["permissionsCollege"]
+      op.text = o["permissionsCollege"]
+      select.add(op)
+    })
+
+    var last = document.createElement("option");
+    last.text = "كل الكليات";
+    last.value = "all";
+    select.add(last);
+
+  });
 
 </script>
 {% endblock %}
