@@ -93,3 +93,9 @@ class AddSpecializationChange(ModelForm):
         model = SpecializationChange
         exclude = []
 
+
+class AddDeletedObjects(ModelForm):
+    class Meta:
+        model = DeletedObjects
+        exclude = []
+
