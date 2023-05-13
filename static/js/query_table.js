@@ -69,6 +69,7 @@ templater.innerHTML = `
         border-right: 1px solid #f8f8f8;
         font-size: 16px;
         border: 1px solid rgb(247, 245, 245)
+
     }
 
     .fl-table thead th {
@@ -433,15 +434,35 @@ class DataTabler extends HTMLElement {
             });
             if (this.cer) {
                 r += `<td>${this.renderCer(c['certificateOfExcellence'])}</td>`;
-                ob.push(this.renderCer(c['certificateOfExcellence']));
+                ob.push(
+                    _.replace(
+                        this.renderCer(c['certificateOfExcellence']),
+                        /<br\/>/g,
+                        ''
+                    )
+                );
                 h.push(this.levelTwo['certificateOfExcellence']);
             }
             if (this.grad) {
                 r += `<td>${this.renderGrad(c['graduateStudies'])}</td>`;
-                ob.push(this.renderGrad(c['graduateStudies']));
+                ob.push(
+                    _.replace(this.renderGrad(c['graduateStudies'])),
+                    /<br\/>/g,
+                    ''
+                );
                 h.push(this.levelTwo['graduateStudies']);
             }
-            // if (this.dis) r += `<td>${this.renderDis(c['dispatch'])}</td>`;
+            if (this.dis) {
+                r += `<td dir="auto" style="unicode-bidi: embed;display: flex;justify-content: space-between; flex-direction: column">${this.renderDis(
+                    c['dispatch']
+                )}</td>`;
+                ob.push(
+                    _.replace(this.renderDis(c['dispatch'])),
+                    /<br\/>/g,
+                    ''
+                );
+                h.push(this.levelTwo['dispatch']);
+            }
             if (this.printable.length === 0) {
                 this.printable.push(h);
             }
@@ -454,10 +475,20 @@ class DataTabler extends HTMLElement {
         tbody.innerHTML = result;
     }
 
+    renderDis(l) {
+        let s = '';
+        l.forEach((c) => {
+            s += `<span style="display: flex; justify-content: space-between"><span>${c.requiredCertificate}</span> | <span>${c.alimony}</span> | <span>${c.dispatchCountry}</span> | <span>${c.dispatchDecisionNumber}\\${c.dispatchDecisionType}</span>  | <span>${c.dispatchDecisionDate}</span> | <span>${c.dispatchDurationDay}-${c.dispatchDurationMonth}-${c.dispatchDurationYear}</span>`;
+            s += '</span>';
+        });
+        return s;
+    }
+
     renderCer(l) {
         let s = '';
         l.forEach((c) => {
-            s += `شهادة تفوق بدرجة ${c.certificateOfExcellenceDegree} في السنة ${c.certificateOfExcellenceYear} `;
+            s += `شهادة تفوق بدرجة ${c.certificateOfExcellenceDegree} في السنة ${c.certificateOfExcellenceYear}`;
+            s += '<br/>';
         });
         return s;
     }
@@ -465,6 +496,7 @@ class DataTabler extends HTMLElement {
         let s = '';
         l.forEach((g) => {
             s += `شهادة ${g.graduateStudiesDegree} من جامعة ${g.graduateStudiesUniversity} كلية ${g.graduateStudiesCollege} قسم ${g.graduateStudiesSection} تخصص ${g.graduateStudiesSpecialzaion} بمعدل ${g.graduateStudiesAverage} سنة ${g.graduateStudiesYear}`;
+            s += '<br/>';
         });
         return s;
     }
