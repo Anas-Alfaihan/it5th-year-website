@@ -1,7 +1,7 @@
 import datetime
-import pythoncom
+# import pythoncom
 import time
-import win32com.client
+# import win32com.client
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
