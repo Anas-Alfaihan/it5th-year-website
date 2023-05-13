@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +41,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'app'
 ]
+
+GRAPH_MODELS ={
+'all_applications': True,
+'graph_models': True,
+}
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',

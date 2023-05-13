@@ -519,6 +519,9 @@
                   <p class="ct col-6"><span>تاريخ انتهاء الإيفاد:</span><span data-toggle="datepicker"
                       class="efad-info-{{i.id}} editable"
                       name="dispatchEndDate">{{i.dispatchEndDate|date:"m/d/Y"}}</span></p>
+                  <p class="ct col-6"><span>المدة المتبقية الإيفاد:</span><span data-toggle="datepicker"
+                      class="efad-info-{{i.id}} editable"
+                      name="dispatchEndDate">{{i.remainingTime.days}}</span></p>
                   <p class="ct col-6"><span>تاريخ العودة:</span><span data-toggle="datepicker"
                       class="efad-info-{{i.id}} editable" name="backDate">{{i.backDate|date:"m/d/Y"}}</span>
                   </p>

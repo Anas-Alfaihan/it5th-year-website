@@ -224,7 +224,7 @@ def Register(request):
                 email=request.POST['email']
             )
             for perm in request.POST.getlist('permissions'):
-                permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
+                permission, created= Permissions.objects.get_or_create(permissionsCollege=perm, deletedDate__isnull=True)
                 user.permissions.add(permission.id)
             LastPull.objects.create(userId= user)
             messages.add_message(request, messages.SUCCESS,"أهلاً و سهلاً")
@@ -234,7 +234,7 @@ def Register(request):
             return redirect('app:home')
 
     if request.user.is_superuser:
-        permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
+        permissions= ser.serialize('json', Permissions.objects.filter(deletedDate__isnull=True).all(),fields=('permissionsCollege'))
         
         return render(request, 'registration/register.html', {'colleges': permissions })
     else:
@@ -676,19 +676,19 @@ def SpecializationChangeInsert(request, dispatchId):
 
 
 def getAllDemonstrators(request):
-    data2 = ser.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college', 'university', "specialization"))
+    data2 = ser.serialize('json', Demonstrator.objects.filter(deletedDate__isnull=True).all(), fields=('id', 'name', 'fatherName', 'motherName', 'college', 'university', "specialization"))
     return render(request, 'home/allDemonstrators.html', {'result': data2})
 
 
 def getDemonstrator(request, id):
-    demonstrator = Demonstrator.objects.select_related().prefetch_related().all().get(pk=id)
+    demonstrator = Demonstrator.objects.select_related().prefetch_related().all().get(pk=id, deletedDate__isnull=True)
     permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
     return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator, 'permissions': permissionList})
    
 
 def GetAllEmails(request):
     if request.method == 'POST':
-        all = Demonstrator.objects.filter().values('email', 'mobile', 'name')
+        all = Demonstrator.objects.filter(deletedDate__isnull=True).values('email', 'mobile', 'name')
         print(all)
         return render(request, 'registration/result.html', {'result': 'done'})
 
@@ -697,23 +697,23 @@ def GetLateEmails(request):
     if request.method == 'POST':
         todayDate = datetime.date.today() 
         lateDate = datetime.date.today() + relativedelta(months=-3)
-        reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
+        reports = Report.objects.filter(deletedDate__isnull=True).values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
         dis =[]
         for report in list(reports):
             dis.append(report['dispatchDecisionId_id'])
-        dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis}) & Q(**{'dispatchEndDate__gte' : todayDate})).values('studentId_id')
+        dispatchLate= Dispatch.objects.filter(Q(**{'deletedDate__isnull': True}) & Q(**{'id__in': dis}) & Q(**{'dispatchEndDate__gte' : todayDate})).values('studentId_id')
         res =[]
         for dispatch in list(dispatchLate):
             res.append(dispatch['studentId_id'])
         
-        late = Demonstrator.objects.filter(pk__in=res).values('email', 'mobile', 'name')
+        late = Demonstrator.objects.filter(pk__in=res, deletedDate__isnull=True).values('email', 'mobile', 'name')
         print(late)
         return render(request, 'registration/result.html', {'result': 'done'})
 
 
 def GetCollegeEmails(request):
     if request.method == 'POST':
-        college = Demonstrator.objects.filter(college=request.POST['college']).values('email', 'mobile', 'name')
+        college = Demonstrator.objects.filter(college=request.POST['college'], deletedDate__isnull=True).values('email', 'mobile', 'name')
         print(college)
         return render(request, 'registration/result.html', {'result': 'done'})
 
@@ -886,7 +886,7 @@ def UpdateDispatch(request, id, demonId):
                     return JsonResponse({"status": "bad"})
                 
 
-            return JsonResponse({"status": "good"})
+            return JsonResponse({"status": "good" , 'endDate': endDate})
         else :
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
@@ -955,7 +955,7 @@ def UpdateExtension(request, id, demonId):
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
-            return JsonResponse({"status": "good"})
+            return JsonResponse({"status": "good", 'endDate': endDate})
         else :
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
@@ -988,7 +988,7 @@ def UpdateFreeze(request, id, demonId):
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
-            return JsonResponse({"status": "good"})
+            return JsonResponse({"status": "good", 'endDate': endDate})
         else :
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
@@ -1086,7 +1086,7 @@ def QueryDemonstrator(request):
         
         
         def makeQuery(query, op):
-            obj = Q()
+            obj = Q(**{'deletedDate__isnull': True})
             for item in query: 
                 q = list(item.keys())[0]
                 if type(item[q]) is list:
@@ -1108,7 +1108,7 @@ def QueryDemonstrator(request):
                     else: 
                         obj = obj & Q(**{q: item[q]})
                        
-            return obj
+            return obj & Q(**{'deletedDate__isnull': True})
         query = loads(request.POST['query'])
         print('q', query)
         op = list(query.keys())[0]
@@ -1130,6 +1130,7 @@ def QueryDemonstrator(request):
 
         # result = Demonstrator.objects.select_related().prefetch_related().filter(obj).values("id",*request.POST['cols'].split(','))
         # print('res', result)
+        print(finalResult)
         dat = JsonResponse({"data": finalResult})
         # print('dat', dat.content)
         stringgg = dat.content.decode('utf-8')
@@ -1141,14 +1142,14 @@ def QueryDemonstrator(request):
 @login_required(login_url='app:login')
 def home(request):
     result={}
-    result['allDemons'] = Demonstrator.objects.filter().count()
+    result['allDemons'] = Demonstrator.objects.filter(deletedDate__isnull=True).count()
     todayDate= datetime.date.today() 
-    result['allInDispatch'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate})).count()
-    result['master'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'requiredCertificate':'master'})).count()
-    result['ph.d'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'requiredCertificate':'ph.d'})).count()
-    result['others'] = result['all'] - result['master'] - result['ph.d']
+    result['allInDispatch'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'deletedDate__isnull': True})).count()
+    result['master'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'requiredCertificate':'master'}) & Q(**{'deletedDate__isnull': True})).count()
+    result['ph.d'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'requiredCertificate':'ph.d'}) & Q(**{'deletedDate__isnull': True})).count()
+    result['others'] = result['allDemons'] - result['master'] - result['ph.d']
     for adjective in ADJECTIVE_CHOICES:
-        result[adjective[0]] = Demonstrator.objects.filter(currentAdjective= adjective[0]).count()
+        result[adjective[0]] = Demonstrator.objects.filter(currentAdjective= adjective[0], deletedDate__isnull=True).count()
 
     print(result)
     return render(request, 'home/home.html', {'statistics': result}) 
@@ -1162,7 +1163,7 @@ def Test(request):
     #         tempData =list( model.objects.filter(lastModifiedDate__gte=date) )
     #         data.append( {'modelName': model.__name__, 'data':tempData})
     todayDate = datetime.date.today() 
-    reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
+    reports = Report.objects.filter(deletedDate__isnull=True).values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
     print(reports)
     return render(request, 'registration/result.html', {'result': 'done'})
 
@@ -1180,10 +1181,12 @@ def pullData(request):
                     data={}
                     for model in apps.get_models():
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
-                            added = list (model.objects.filter(createdDate__gte=lastPullDate))
-                            updated =list( model.objects.filter(Q(lastModifiedDate__gte=lastPullDate) & ~Q(createdDate__gte=lastPullDate) ) )
-                            data.update( {model.__name__: {'updated':updated, 'added':added} })
+                            added = list (model.objects.filter(createdDate__gte=lastPullDate, deletedDate__isnull=True))
+                            updated =list( model.objects.filter(Q(lastModifiedDate__gte=lastPullDate) & ~Q(createdDate__gte=lastPullDate) & Q(deletedDate__isnull=True) ) )
+                            deleted =list( model.objects.filter(Q(deletedDate__isnull=False) & Q(deletedDate__gte=lastPullDate) ) )
+                            data.update( {model.__name__: {'updated':updated, 'added':added, 'deleted': deleted} })
                         LastPull.objects.filter(pk=1).update(lastPullDate=datetime.datetime.now)
+                        # //remember to delete the deleted objects
                     return render(request, 'registration/result.html', {'result': 'done'})
                 except:
                     transaction.savepoint_rollback(savePoint)
@@ -1242,7 +1245,9 @@ def pushData(request, data):
                                 for obj in objs:
                                     id = generalPushUpdate(request, added , obj, addModel, savePoint)
                                     if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                                                 
+
+                            # delete
+                            # remember to delete            
                     return render(request, 'registration/result.html', {'result': 'done'})
                 except:
                     transaction.savepoint_rollback(savePoint)
