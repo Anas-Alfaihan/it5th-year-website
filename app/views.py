@@ -1,4 +1,5 @@
 import datetime
+import pythoncom
 import time
 import win32com.client
 from django.shortcuts import render, redirect
@@ -60,7 +61,7 @@ def RemoveOldToken():
 
                 
 def SendEmailHotmail(email,subject,message):
-    ol=win32com.client.Dispatch("outlook.application")
+    ol=win32com.client.Dispatch("outlook.application",pythoncom.CoInitialize())
     olmailitem=0x0 
     newmail=ol.CreateItem(olmailitem)
     newmail.Subject= subject
