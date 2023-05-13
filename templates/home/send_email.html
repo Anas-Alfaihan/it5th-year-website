@@ -9,6 +9,16 @@
 <div class="sec ">
   <form class="col-md-8  mx-auto mt-5" action="../sendEmails/" method="POST">
     {% csrf_token %}
+        <div class="mb-3">
+      <div class="form-floating">
+        <select name="server" class="form-select" aria-label="Floating label select example">
+          <option selected>افتح القائمة لتختار الموقع الذي يتم الارسال منه :</option> 
+          <option value="gmail">Gmail</option>
+          <option value="hotmail">Hotmail</option>
+        </select>
+        <label class="text-dark" for="floatingSelect">اختر الموقع :</label>
+      </div>
+    </div>
     <div class="mb-3">
       <label for="exampleFormControlInput1" class="form-label">ايميل المستلم :</label>
       <input type="email" class="form-control" name="email" id="exampleFormControlInput1"

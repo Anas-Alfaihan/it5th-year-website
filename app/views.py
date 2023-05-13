@@ -58,8 +58,18 @@ def RemoveOldToken():
                     os.remove(file_location)
 
                 
+def SendEmailHotmail(email,subject,message):
+    import win32com.client
+    ol=win32com.client.Dispatch("outlook.application")
+    olmailitem=0x0 
+    newmail=ol.CreateItem(olmailitem)
+    newmail.Subject= subject
+    newmail.To=email
+    newmail.CC=email
+    newmail.Body=message
+    newmail.Send()
 
-def SendEmailTo(email,subject,message):
+def SendEmailGmail(email,subject,message):
     RemoveOldToken()
     creds = None
     if os.path.exists('token.json'):
@@ -162,7 +172,10 @@ def SendEmails(request):
 
             for x in emails:
                 emails_str+=x+", "
-                SendEmailTo(x,request.POST['subject'],request.POST['msg'])
+                if request.POST['server'] == 'gmail':
+                    SendEmailGmail(x,request.POST['subject'],request.POST['msg'])
+                elif request.POST['server'] == 'hotmail':
+                    SendEmailHotmail(x,request.POST['subject'],request.POST['msg'])
 
             emails_str=emails_str[:-2]
 
@@ -199,8 +212,10 @@ def SendEmails(request):
         for x in emails:
             emails_str+=x+", "
             message="تم انتهاء المدة القانونية الخاصة بك يطلب اليك بالسرعة القصوى ارسال تقرير دراسي مفصل...."
-            SendEmailTo(x,"إنذار",message)
-
+            if request.POST['server'] == 'gmail':
+                SendEmailGmail(x,"إنذار",message)
+            elif request.POST['server'] == 'hotmail':
+                SendEmailHotmail(x,"إنذار",message)
 
         emails_str=emails_str[:-2]
 
