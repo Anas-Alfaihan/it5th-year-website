@@ -36,6 +36,7 @@
     color: #ffffff;
   }
 </style>
+<link rel="stylesheet" href="{% static 'css/multi-select.min.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -67,19 +68,12 @@
           </div>
         </div>
       </div>
-      <div class="form-floating mb-3">
-        <input id="floatingEmail" type="email" autocomplete="new-password" name="email" placeholder="anas@anas.com"
-          class="form-control" required />
-        <label for="floatingEmail">الإيميل </label>
-      </div>
-
       <div class="row">
         <div class="col-6">
-          <div class=" mb-3 autocomplete">
-            <select id="floatingP" name="permissions" placeholder="nothing" class="form-select" required />
-            <option>اختر السماحيات</option>
-            <label for="floatingP">السماحية </label>
-            </select>
+          <div class="form-floating mb-3">
+            <input id="floatingEmail" type="email" autocomplete="new-password" name="email" placeholder="anas@anas.com"
+              class="form-control" required />
+            <label for="floatingEmail">الإيميل </label>
           </div>
         </div>
         <div class="col-6">
@@ -91,6 +85,18 @@
         </div>
       </div>
 
+      <div class="row">
+        <div class="col-12">
+          <div class=" mb-3 autocomplete">
+            <select id="floatingP" name="permissions" placeholder="nothing" class="form-select" multiple required />
+
+            <label for="floatingP">السماحية </label>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
       <input type="submit" class="btn btn-lg btn-primary" value="إنشاء حساب" />
     </form>
   </div>
@@ -98,6 +104,7 @@
 
 
 <script src="{% static 'js/autocomplete.js'%}"></script>
+<script src="{% static 'js/multi-select.js'%}"></script>
 <script>
   // let y = JSON.parse("{{colleges|escapejs}}")
   // let values = []
@@ -120,6 +127,7 @@
       select.add(op)
     })
 
+    new MultiSelectTag('floatingP')
 
   });
 
