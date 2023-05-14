@@ -4,6 +4,14 @@ from django.contrib.auth.models import User
 import datetime
 
 
+class UploadedFile(models.Model):
+    file = models.FileField(upload_to='uploads/')
+    upload_date = models.DateTimeField(auto_now_add=True)
+    filename = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.filename
+
 class LastPull(models.Model):
     userId= models.OneToOneField(User,on_delete=models.CASCADE, related_name='lastPull')
     lastPullDate= models.DateTimeField(auto_now=True)

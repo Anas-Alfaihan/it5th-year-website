@@ -1,0 +1,13 @@
+
+{% extends "base.html" %} {% block head_title %} إرسال إيميل{% endblock %}
+{% load static %}
+<!-- something here for nothing  -->
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload</button>
+</form>
+
+{% endblock %}

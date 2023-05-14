@@ -39,9 +39,36 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import base64
 from email.mime.text import MIMEText
+from django.shortcuts import render
+from .forms import UploadFileForm
+from django.http import FileResponse
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+
+def UploadFile(request):
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            # If a custom filename is provided, use it. Otherwise, use the original filename.
+            custom_filename = form.cleaned_data.get('custom_filename') or "gg"
+            # Create a new UploadedFile object and save it to the database
+            uploaded=request.FILES['file']
+            uploaded._name="gg.json"
+            uploaded_file = UploadedFile(file=uploaded, filename=custom_filename)
+            uploaded_file.save()
+            return render(request, 'home/success.html')
+    else:
+        form = UploadFileForm()
+    return render(request, 'home/upload.html', {'form': form})
+
+
+def DownloadFile(request):
+    response = FileResponse(open("uploads/gg.json", 'rb'))
+    response['Content-Disposition'] = 'attachment; filename=' + "GG.json"
+    response['Content-Type'] = 'application/octet-stream'
+    return response
+
 
 def RemoveOldToken():
     N = 6

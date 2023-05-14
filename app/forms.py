@@ -2,8 +2,11 @@
 
 from django.forms import ModelForm
 from .models import *
+from django import forms
 
-
+class UploadFileForm(forms.Form):
+    file = forms.FileField()
+    
 class AddDemonstrator(ModelForm):
     class Meta:
         model = Demonstrator
