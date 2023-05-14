@@ -1,7 +1,7 @@
 import datetime
-import pythoncom
+# import pythoncom
 import time
-import win32com.client
+# import win32com.client
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -13,14 +13,17 @@ from django.core import serializers as ser
 from django.contrib import messages
 from django.apps import apps
 from django.db.models import Q, Max
-from json import dumps, loads
+from json import dumps, loads, dump
 from dateutil.relativedelta import relativedelta
 from .models import *
 from .forms import *
 from .serializers import *
 from . import forms
+from . import serializers
 from ast import literal_eval
 from .constantVariables import ADJECTIVE_CHOICES
+from rest_framework.serializers import Serializer
+
 
 
 import os.path
@@ -1589,8 +1592,10 @@ def Test(request):
     # todayDate = datetime.date.today() 
     # reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
     # print(reports)
-    for model in apps.get_models():
-        print(model.__name__)
+    user = User.objects.get(pk=1)
+    LastPull.objects.create(userId= user)
+    # for model in apps.get_models():
+    #     print(model.__name__)
     return render(request, 'registration/result.html', {'result': 'done'})
 
 
@@ -1599,7 +1604,7 @@ def goToHome(request):
 
 
 def pullData(request):
-    if request.method=='POST':
+    if request.method=='GET':
         if request.user.is_superuser:
              with transaction.atomic():
                 savePoint= transaction.savepoint()
@@ -1607,20 +1612,40 @@ def pullData(request):
                     lastPullDate= request.user.lastPull.lastPullDate
                     data={}
                     for model in apps.get_models():
-                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
+                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects']:
+                            # model_serializers = []
+                            # for serializer in serializer_helpers.get_serializer_classes():
+                            #     if issubclass(serializer, serializer_helpers.ModelSerializer):
+                            #         model_serializers.append(serializer)
+
+                            # # Print the names of the model serializers
+                            # for serializer in model_serializers:
+                            #     print(serializer.__name__)
+                            # sers = serializers.ModelForm.__subclasses__()
+                            # ser= filter(lambda x:x.Meta.model == model, sers)[0] 
                             added = list (model.objects.filter(createdDate__gte=lastPullDate))
                             updated =list( model.objects.filter(Q(lastModifiedDate__gte=lastPullDate) & ~Q(createdDate__gte=lastPullDate) ) )
                             deleted = list( DeletedObjects.objects.filter(modelName=model.__name__))
                             data.update( {model.__name__: {'updated':updated, 'added':added, 'deleted': deleted} })
-                    LastPull.objects.filter(pk=1).update(lastPullDate=datetime.datetime.now)
+                            # print('heiliso')
+                    print('dt is:',data)
                     deleteAll = DeletedObjects.objects.filter().delete()
-                    finalData = dumps(data)
-                    with open('synchronization.json', 'w') as file:
-                        file.write(finalData)
-                    return render(request, 'registration/result.html', {'result': 'done'})
-                except:
+                    # finalData = dumps(data)
+                    # with open('synchronization.json', 'w') as file:
+                    #     dump(data, file)
+                        # file.write(finalData)
+                except Exception as e:
+                    print(str(e))
                     transaction.savepoint_rollback(savePoint)
                     return render(request, 'registration/result.html', {'result': 'done'}) 
+            #  temp = LastPull.objects.filter(pk=1).update(lastPullDate=datetime.datetime.now)
+             temp = LastPull.objects.get(pk=1)
+             temp.lastPullDate=datetime.datetime.now
+             LastPull.save(self=temp)
+             return render(request, 'registration/result.html', {'result': 'done'})
+           
+
+
         else:
             return render(request, 'registration/result.html', {'result': 'done'})
     else:
