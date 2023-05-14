@@ -160,6 +160,12 @@ class Dispatch(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
 
+    @property
+    def remainingTime(self):
+        if (self.dispatchEndDate):
+            return self.dispatchEndDate - self.commencementDate
+        else:
+            return None
 
 class Report(models.Model):
     dispatchDecisionId = models.ForeignKey(Dispatch, on_delete=models.CASCADE, related_name='report')
@@ -242,5 +248,9 @@ class SpecializationChange(models.Model):
     newSpecialization = models.CharField(max_length=100)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+
+class DeletedObjects(models.Model):
+    modelName = models.CharField(max_length=255)
+    objectId = models.IntegerField()
 
 

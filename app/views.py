@@ -231,7 +231,6 @@ def Email(request):
     return render(request, 'home/send_email.html',{"select": strr})
 
 
-
 @login_required(login_url='app:login')
 def Register(request):
 
@@ -256,7 +255,7 @@ def Register(request):
 
     if request.user.is_superuser:
         # permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
-        permissions=list(Permissions.objects.all().values('permissionsCollege'))
+        permissions=list(Permissions.objects.filter().values('permissionsCollege'))
         d = JsonResponse({"data": permissions})
         strr = d.content.decode("utf-8")
         
@@ -524,25 +523,30 @@ def ExtensionInsert(request, dispatchId,demonId):
                 if type(extensionId) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
                     return redirect('app:demonstrator', id= demonId)
+                
+                try:
+                    dispatchObject = Dispatch.objects.filter(pk=dispatchId)
+                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
+                    dispatch = loads(dumps(dispatchSerialized.data))
+                    endDate = CalculateDispatchEndDate(dispatch)
+                    for dispatchItem in dispatchObject:
+                        dispatchItem.dispatchEndDate = endDate
+                        Dispatch.full_clean(self=dispatchItem)
+                        Dispatch.save(self=dispatchItem)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
+                    return redirect('app:demonstrator', id= demonId)
 
-
-            informationForEmail={ 'name': college[0]['studentId__name'],
-                                  'fatherName': college[0]['studentId__fatherName'],
-                                  'email':college[0]['studentId__email'],
-                                  'dispatchEndDate':college[0]['dispatchEndDate'],
-                                  'extensionDecisionNumber': request.POST['extensionDecisionNumber'],
-                                  'extensionDecisionDate': request.POST['extensionDecisionDate'],
-                                  'extensionDecisionType': request.POST['extensionDecisionType'],
-                                  'extensionDurationYear': request.POST['extensionDurationYear'],
-                                  'extensionDurationMonth': request.POST['extensionDurationMonth'],
-                                  'extensionDurationDay': request.POST['extensionDurationDay'],
-                                }
-
-            message="المعيد\n"+informationForEmail['name']+"نعلمك صدور القرار الوزاري رقم "+informationForEmail['extensionDecisionNumber']+" تاريخ "+informationForEmail['extensionDecisionDate']+"ولمدة "+informationForEmail['extensionDurationYear']+"سنة -"+informationForEmail['extensionDurationMonth']+"شهر - "+informationForEmail['extensionDurationDay']+" يوم "
-            if request.POST['server'] == 'gmail':
-                SendEmailGmail(informationForEmail['email'],"إضافة ايفاد",message)
-            elif request.POST['server'] == 'hotmail':
-                SendEmailHotmail(informationForEmail['email'],"إضافة ايفاد",message)
+                informationForEmail={ 'name': college[0]['studentId__name'],
+                                    'fatherName': college[0]['studentId__fatherName'],
+                                    'extensionDecisionNumber': request.POST['extensionDecisionNumber'],
+                                    'extensionDecisionDate': request.POST['extensionDecisionDate'],
+                                    'extensionDecisionType': request.POST['extensionDecisionType'],
+                                    'extensionDurationYear': request.POST['extensionDurationYear'],
+                                    'extensionDurationMonth': request.POST['extensionDurationMonth'],
+                                    'extensionDurationDay': request.POST['extensionDurationDay'],
+                                    }
             messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد ")
             return redirect('app:demonstrator', id= demonId)
         else:
@@ -694,12 +698,12 @@ def SpecializationChangeInsert(request, dispatchId):
 
 
 def getAllDemonstrators(request):
-    data2 = ser.serialize('json', Demonstrator.objects.all(), fields=('id', 'name', 'fatherName', 'motherName', 'college', 'university', "specialization"))
+    data2 = ser.serialize('json', Demonstrator.objects.filter().all(), fields=('id', 'name', 'fatherName', 'motherName', 'college', 'university', "specialization"))
     return render(request, 'home/allDemonstrators.html', {'result': data2})
 
 
 def getDemonstrator(request, id):
-    demonstrator = Demonstrator.objects.select_related().prefetch_related().all().get(pk=id)
+    demonstrator = Demonstrator.objects.select_related().prefetch_related().all().get(pk=id )
     permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
     return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator, 'permissions': permissionList})
    
@@ -719,12 +723,12 @@ def GetLateEmails(request):
         dis =[]
         for report in list(reports):
             dis.append(report['dispatchDecisionId_id'])
-        dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis}) & Q(**{'dispatchEndDate__gte' : todayDate})).values('studentId_id')
+        dispatchLate= Dispatch.objects.filter( Q(**{'id__in': dis}) & Q(**{'dispatchEndDate__gte' : todayDate})).values('studentId_id')
         res =[]
         for dispatch in list(dispatchLate):
             res.append(dispatch['studentId_id'])
         
-        late = Demonstrator.objects.filter(pk__in=res).values('email', 'mobile', 'name')
+        late = Demonstrator.objects.filter(pk__in=res ).values('email', 'mobile', 'name')
         print(late)
         return render(request, 'registration/result.html', {'result': 'done'})
 
@@ -828,7 +832,7 @@ def UpdateAdjectiveChange(request, id, demonId):
                     if 'adjectiveChangeAdjective' in request.POST:
                         demonstrators= Demonstrator.objects.filter(pk=demonId)
                         for demonstrator in demonstrators:
-                            demonstrator.currentAdjective = request.POST['adjectiveChangeAdjective']
+                            demonstrator.currentAdjective = demonstrator['adjectiveChange'][len(demonstrator['adjectiveChange'])-1]
                             Demonstrator.full_clean(self=demonstrator)
                             Demonstrator.save(self=demonstrator)
                 except:
@@ -904,7 +908,7 @@ def UpdateDispatch(request, id, demonId):
                     return JsonResponse({"status": "bad"})
                 
 
-            return JsonResponse({"status": "good"})
+            return JsonResponse({"status": "good" , 'endDate': endDate})
         else :
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
@@ -973,7 +977,7 @@ def UpdateExtension(request, id, demonId):
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
-            return JsonResponse({"status": "good"})
+            return JsonResponse({"status": "good", 'endDate': endDate})
         else :
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
@@ -1006,7 +1010,7 @@ def UpdateFreeze(request, id, demonId):
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
-            return JsonResponse({"status": "good"})
+            return JsonResponse({"status": "good", 'endDate': endDate})
         else :
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
 
@@ -1098,6 +1102,408 @@ def UpdateSpecializationChange(request, id, demonId):
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
  
 
+def DeleteDemonstrator(request, id):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=id).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college'] in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    demonstrators = Demonstrator.objects.filter(pk=id).delete()
+
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'Demonstrator'
+                    deletedObject.objectId = id
+
+                    deletedObject.save()
+                except:
+                    return JsonResponse({"status": "bad"})
+                
+
+
+
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteUniversityDegree(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+
+                    universityDegrees= UniversityDegree.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'UniversityDegree'
+                    deletedObject.objectId = id
+
+                    deletedObject.save()
+                except:
+                    return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteNomination(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    nominations= Nomination.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'Nomination'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+                except:
+                    return JsonResponse({"status": "bad"})
+
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteAdjectiveChange(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    adjectiveChange= AdjectiveChange.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'AdjectiveChange'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+                except:
+                    return JsonResponse({"status": "bad"})
+
+
+                try:
+                    if 'adjectiveChangeAdjective' in request.POST:
+                        demonstrators= Demonstrator.objects.filter(pk=demonId)
+                        for demonstrator in demonstrators:
+                            demonstrator.currentAdjective = demonstrator['adjectiveChange'][len(demonstrator['adjectiveChange'])-1]
+                            Demonstrator.full_clean(self=demonstrator)
+                            Demonstrator.save(self=demonstrator)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    return JsonResponse({"status": "bad"})
+
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteCertificateOfExcellence(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    certificateOfExcellence= CertificateOfExcellence.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'CertificateOfExcellence'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+                except:
+                    return JsonResponse({"status": "bad"})
+
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteGraduateStudies(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    graduateStudies= GraduateStudies.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'GraduateStudies'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+                except:
+                    return JsonResponse({"status": "bad"})
+
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteDispatch(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                
+                try:
+                    dispatchs= Dispatch.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'Dispatch'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+
+                    dispatchObject = Dispatch.objects.filter(pk=id)
+                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
+                    dispatch = loads(dumps(dispatchSerialized.data))
+                    endDate = CalculateDispatchEndDate(dispatch)
+                    for dispatchItem in dispatchObject:
+                        dispatchItem.dispatchEndDate = endDate
+                        Dispatch.full_clean(self=dispatchItem)
+                        Dispatch.save(self=dispatchItem)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    return JsonResponse({"status": "bad"})
+                
+
+            return JsonResponse({"status": "good" , 'endDate': endDate})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteReport(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    reports= Report.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'Report'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+                except:
+                    return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteRegularization(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    regularizations= Regularization.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'Regularization'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+                except:
+                    return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteExtension(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                try:
+                    extensions2= Extension.objects.filter(pk=id)
+                    dispatchId = -1
+                    for extension in extensions2:
+                        dispatchId= extension.dispatchDecisionId
+
+                    extensions= Extension.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'Extension'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+
+
+                    dispatchObject = Dispatch.objects.filter(pk=dispatchId)
+                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
+                    dispatch = loads(dumps(dispatchSerialized.data))
+                    endDate = CalculateDispatchEndDate(dispatch)
+                    for dispatchItem in dispatchObject:
+                        dispatchItem.dispatchEndDate = endDate
+                        Dispatch.full_clean(self=dispatchItem)
+                        Dispatch.save(self=dispatchItem)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good", 'endDate': endDate})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteFreeze(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                try:
+                    freezes2= Freeze.objects.filter(pk=id)
+                    dispatchId=-1
+                    for freeze in freezes2:
+                        dispatchId= freeze.dispatchDecisionId
+
+                    freezes= Freeze.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'Freeze'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+
+
+                    dispatchObject = Dispatch.objects.filter(pk=dispatchId)
+                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
+                    dispatch = loads(dumps(dispatchSerialized.data))
+                    endDate = CalculateDispatchEndDate(dispatch)
+                    for dispatchItem in dispatchObject:
+                        dispatchItem.dispatchEndDate = endDate
+                        Dispatch.full_clean(self=dispatchItem)
+                        Dispatch.save(self=dispatchItem)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good", 'endDate': endDate})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteDurationChange(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+
+                try:
+                    durationChange2= DurationChange.objects.filter(pk=id)
+                    dispatchId=-1
+                    for model in durationChange2:
+                        dispatchId=model.dispatchDecisionId
+
+                    durationChange= DurationChange.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'DurationChange'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+
+
+                    dispatchObject = Dispatch.objects.filter(pk=dispatchId)
+                    dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
+                    dispatch = loads(dumps(dispatchSerialized.data))
+                    endDate = CalculateDispatchEndDate(dispatch)
+                    for dispatchItem in dispatchObject:
+                        dispatchItem.dispatchEndDate = endDate
+                        Dispatch.full_clean(self=dispatchItem)
+                        Dispatch.save(self=dispatchItem)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteAlimonyChange(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    alimonyChange= AlimonyChange.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'AlimonyChange'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+                except:
+                    return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteUniversityChange(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    universityChange= UniversityChange.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'UniversityChange'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+                except:
+                    return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
+def DeleteSpecializationChange(request, id, demonId):
+    if request.method == 'POST':
+        college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['college']  in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    specializationChange= SpecializationChange.objects.filter(pk=id).delete()
+                    deletedObject= DeletedObjects()
+                    deletedObject.modelName= 'SpecializationChange'
+                    deletedObject.objectId = id
+                    deletedObject.save()
+                except:
+                    return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+
+
 def QueryDemonstrator(request):
     if request.method == 'POST':
         print(request.POST['cols'])
@@ -1148,6 +1554,7 @@ def QueryDemonstrator(request):
 
         # result = Demonstrator.objects.select_related().prefetch_related().filter(obj).values("id",*request.POST['cols'].split(','))
         # print('res', result)
+        print(finalResult)
         dat = JsonResponse({"data": finalResult})
         # print('dat', dat.content)
         stringgg = dat.content.decode('utf-8')
@@ -1179,10 +1586,13 @@ def Test(request):
     #     if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
     #         tempData =list( model.objects.filter(lastModifiedDate__gte=date) )
     #         data.append( {'modelName': model.__name__, 'data':tempData})
-    todayDate = datetime.date.today() 
-    reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
-    print(reports)
+    # todayDate = datetime.date.today() 
+    # reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
+    # print(reports)
+    for model in apps.get_models():
+        print(model.__name__)
     return render(request, 'registration/result.html', {'result': 'done'})
+
 
 def goToHome(request):
     return redirect('app:home')
@@ -1200,8 +1610,13 @@ def pullData(request):
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
                             added = list (model.objects.filter(createdDate__gte=lastPullDate))
                             updated =list( model.objects.filter(Q(lastModifiedDate__gte=lastPullDate) & ~Q(createdDate__gte=lastPullDate) ) )
-                            data.update( {model.__name__: {'updated':updated, 'added':added} })
-                        LastPull.objects.filter(pk=1).update(lastPullDate=datetime.datetime.now)
+                            deleted = list( DeletedObjects.objects.filter(modelName=model.__name__))
+                            data.update( {model.__name__: {'updated':updated, 'added':added, 'deleted': deleted} })
+                    LastPull.objects.filter(pk=1).update(lastPullDate=datetime.datetime.now)
+                    deleteAll = DeletedObjects.objects.filter().delete()
+                    finalData = dumps(data)
+                    with open('synchronization.json', 'w') as file:
+                        file.write(finalData)
                     return render(request, 'registration/result.html', {'result': 'done'})
                 except:
                     transaction.savepoint_rollback(savePoint)
@@ -1260,7 +1675,10 @@ def pushData(request, data):
                                 for obj in objs:
                                     id = generalPushUpdate(request, added , obj, addModel, savePoint)
                                     if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
-                                                 
+
+                            # delete
+                            for deleted in data[model.__name__]['deleted']:
+                                deletedObject= model.objects.filter(pk=deleted.id).delete()        
                     return render(request, 'registration/result.html', {'result': 'done'})
                 except:
                     transaction.savepoint_rollback(savePoint)
@@ -1270,9 +1688,16 @@ def pushData(request, data):
     else:
         return render(request, 'registration/result.html', {'result': 'done'})
 
+
+def GetAllUsers(request):
+    users = User.objects.select_related().prefetch_related().all()
+    print(users)
+    return render(request, 'home/demonstrator.html', {'users': users})
+
+
 def do_something(request):
-        
         return render(request, "home/query.html")
+
 
 def gett(request):
     data2 = ser.serialize('json', Demonstrator.objects.select_related().prefetch_related().all())
