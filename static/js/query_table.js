@@ -446,21 +446,17 @@ class DataTabler extends HTMLElement {
             if (this.grad) {
                 r += `<td>${this.renderGrad(c['graduateStudies'])}</td>`;
                 ob.push(
-                    _.replace(this.renderGrad(c['graduateStudies'])),
-                    /<br\/>/g,
-                    ''
+                    _.replace(
+                        this.renderGrad(c['graduateStudies']),
+                        /<br\/>/g,
+                        ''
+                    )
                 );
                 h.push(this.levelTwo['graduateStudies']);
             }
             if (this.dis) {
-                r += `<td dir="auto" style="unicode-bidi: embed;display: flex;justify-content: space-between; flex-direction: column">${this.renderDis(
-                    c['dispatch']
-                )}</td>`;
-                ob.push(
-                    _.replace(this.renderDis(c['dispatch'])),
-                    /<br\/>/g,
-                    ''
-                );
+                r += `<td>${this.mapToListString(c['dispatch'])}</td>`;
+                ob.push(this.renderDis(c['dispatch']));
                 h.push(this.levelTwo['dispatch']);
             }
             if (this.printable.length === 0) {
@@ -478,10 +474,47 @@ class DataTabler extends HTMLElement {
     renderDis(l) {
         let s = '';
         l.forEach((c) => {
-            s += `<span style="display: flex; justify-content: space-between"><span>${c.requiredCertificate}</span> | <span>${c.alimony}</span> | <span>${c.dispatchCountry}</span> | <span>${c.dispatchDecisionNumber}\\${c.dispatchDecisionType}</span>  | <span>${c.dispatchDecisionDate}</span> | <span>${c.dispatchDurationDay}-${c.dispatchDurationMonth}-${c.dispatchDurationYear}</span>`;
-            s += '</span>';
+            s += `${c.requiredCertificate} | ${c.alimony} | ${c.dispatchCountry} | ${c.dispatchDecisionNumber}\\${c.dispatchDecisionType}  | ${c.dispatchDecisionDate} | ${c.dispatchDurationDay}-${c.dispatchDurationMonth}-${c.dispatchDurationYear}`;
+            s += '';
         });
+        console.log(s);
         return s;
+    }
+    mapToListString(list) {
+        let table = '<table>';
+        table +=
+            '<thead><tr><th>القرار</th><th>نوع الإيفاد</th><th>دولة الإيفاد</th><th>جامعة الإيفاد</th><th>مدة الإيفاد</th></tr></thead>';
+        table += '<tbody>';
+
+        for (let i = 0; i < list.length; i++) {
+            let row = '<tr>';
+            row +=
+                '<td>' +
+                list[i].dispatchDecisionNumber +
+                '/' +
+                list[i].dispatchDecisionType +
+                ' بتاريخ ' +
+                list[i].dispatchDecisionDate +
+                '</td>';
+
+            row += '<td>' + list[i].dispatchType + '</td>';
+            row += '<td>' + list[i].dispatchCountry + '</td>';
+            row += '<td>' + list[i].dispatchUniversity + '</td>';
+            row +=
+                '<td>' +
+                list[i].dispatchDurationYear +
+                ' سنة ' +
+                list[i].dispatchDurationMonth +
+                ' شهر ' +
+                list[i].dispatchDurationDay +
+                ' يوم</td>';
+            row += '</tr>';
+            table += row;
+        }
+
+        table += '</tbody></table>';
+        if (list.length === 0) return '';
+        return table;
     }
 
     renderCer(l) {
