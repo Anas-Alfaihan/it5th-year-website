@@ -82,43 +82,45 @@
   <div class="col-md-6 grid-margin transparent">
     <div class="row">
       <div class="col-md-6 mb-4 stretch-card transparent">
-        <div class="card card-tale">
+        <div class="card card-dark-blue">
           <div class="card-body">
-            <p class="mb-4">عدد المعيدين</p>
-            <p class="fs-30 mb-2">278</p>
-            <p> (30 days)</p>
+            <p class="mb-4">العدد الكلي</p>
+            <p class="fs-30 mb-2">{{statistics.allDemons}}</p>
+
           </div>
         </div>
       </div>
       <div class="col-md-6 mb-4 stretch-card transparent">
-        <div class="card card-dark-blue">
+        <div class="card card-tale">
           <div class="card-body">
-            <p class="mb-4">العدد الكلي</p>
-            <p class="fs-30 mb-2">834</p>
+            <p class="mb-4">عدد المعيدين</p>
+            <p class="fs-30 mb-2">{{statistics.allInDispatch}}</p>
 
           </div>
         </div>
       </div>
+
     </div>
     <div class="row">
-      <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
-        <div class="card card-light-blue">
-          <div class="card-body">
-            <p class="mb-4">الدكتوراه</p>
-            <p class="fs-30 mb-2">278</p>
-
-          </div>
-        </div>
-      </div>
       <div class="col-md-6 stretch-card transparent">
         <div class="card card-light-danger">
           <div class="card-body">
             <p class="mb-4">الماجستير</p>
-            <p class="fs-30 mb-2">278</p>
+            <p class="fs-30 mb-2">{{statistics.master}}</p>
 
           </div>
         </div>
       </div>
+      <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
+        <div class="card card-light-blue">
+          <div class="card-body">
+            <p class="mb-4">الدكتوراه</p>
+            <p class="fs-30 mb-2">{{statistics.phd}}</p>
+
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -254,7 +256,7 @@
   let data = {
     labels: ["معيد", "عائد", "موفد", "معيد عائد", "مستنكف", "نقل خارج الجامعة", "إنهاء خدمات", "مستقيلٍ"],
     datasets: [{
-      data: [1, 2, 3, 4, 5, 4, 3, 2],
+      data: ["{{statistics.demonstrator}}", "{{statistics.returning}}", "{{statistics.envoy}}", "{{statistics.returning_demonstrator}}", "{{statistics.loathes}}", "{{statistics.transfer_outside_the_university}}", "{{statistics.end_services}}", "{{statistics.resigned}}"],
       label: '# من المعيدين',
       base: 0,
       backgroundColor: [

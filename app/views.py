@@ -1,7 +1,7 @@
 import datetime
-import pythoncom
+# import pythoncom
 import time
-import win32com.client
+# import win32com.client
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -1604,7 +1604,10 @@ def home(request):
     result['others'] = result['allDemons'] - result['master'] - result['ph.d']
     for adjective in ADJECTIVE_CHOICES:
         result[adjective[0]] = Demonstrator.objects.filter(currentAdjective= adjective[0]).count()
-
+    result['phd'] = result['ph.d']
+    result['returning_demonstrator'] = result['returning demonstrator']
+    result['transfer_outside_the_university'] = result['transfer outside the university']
+    result['end_services'] = result['end services']
     print(result)
     return render(request, 'home/home.html', {'statistics': result}) 
 
