@@ -398,7 +398,7 @@ class DataTabler extends HTMLElement {
         if (!this.cols) this.cols = Object.keys(this.data[0]);
 
         this.renderHeader();
-        this.renderBody();
+        if (Object.keys(this.data).length !== 0) this.renderBody();
     }
 
     renderBody() {
