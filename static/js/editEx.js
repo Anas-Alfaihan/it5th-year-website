@@ -10,8 +10,19 @@ function resetEx() {
         );
         $(`.${exId}[data-toggle="datepicker"]`).datepicker('destroy');
         for (let i = 0; i < items1.length; i++) {
-            items1[i].innerHTML = originals[items1[i].getAttribute('name')];
-            items1[i].className = `editable ${exId}`;
+            if (items1[i].classList.contains('mul')) {
+                items1[i].innerHTML =
+                    originals[items1[i].getAttribute('name')][1];
+                items1[i].setAttribute(
+                    'value',
+                    originals[items1[i].getAttribute('name')][0]
+                );
+                items1[i].className = `editable ${exId} mul`;
+            } else {
+                items1[i].innerHTML = originals[items1[i].getAttribute('name')];
+                items1[i].className = `editable ${exId}`;
+            }
+
             items1[i].setAttribute('contenteditable', 'false');
         }
         editMode = false;
@@ -44,6 +55,10 @@ function editEx(e, id, did) {
             originals[items1[i].getAttribute('name')] = items1[i].innerHTML;
             items1[i].setAttribute('contenteditable', 'true');
             if (items1[i].classList.contains('mul')) {
+                originals[items1[i].getAttribute('name')] = [
+                    items1[i].getAttribute('value'),
+                    items1[i].innerHTML,
+                ];
                 items1[
                     i
                 ].className = `editable border border-dark rounded p-2 ex-${id} mul activee`;

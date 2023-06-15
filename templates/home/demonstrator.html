@@ -26,7 +26,7 @@
 <section class="sec">
   <class class="container">
     <div id="nav">
-      <ul>
+      <!-- <ul>
         <li class="aactive first">
           <button type="button">المعلومات الشخصية</button>
         </li>
@@ -51,13 +51,15 @@
         <li class="eigth">
           <button type="button">الإيفادات</button>
         </li>
-      </ul>
-      <button type="button" class="btn btn-sm btn-outline-success deb" onclick="editDemon(event, '{{demonstrator.id}}')"
+      </ul> -->
+      <button type="button" class="btn btn btn-outline-success deb" onclick="editDemon(event, '{{demonstrator.id}}')"
         id="deb-{{demonstrator.id}}">تعديل</button>
     </div>
   </class>
-  <div class="container" id="content">
-    <div class="first">
+  <div class="" id="content">
+    <p class="contp accord">المعلومات الشخصية</p>
+    <div class="first cont panel">
+
       <div class="grd">
         <div class="gr-1">
           <p class="ct">
@@ -73,7 +75,7 @@
             <span> تاريخ الميلاد:</span>
           </p>
           <p class="ct">
-            <span> الصفة الحالية</span>
+            <span> الصفة الحالية:</span>
           </p>
         </div>
         <div class="gr-2">
@@ -109,8 +111,10 @@
           </div>
         </div>
       </div>
+
     </div>
-    <div class="second" style="display: none">
+    <p class="contp accord">معلومات الاتصال</p>
+    <div class="second cont panel">
       <div class="grd">
         <div class="gr-1">
           <p class="ct"><span> الإيميل:</span></p>
@@ -137,7 +141,8 @@
         </div>
       </div>
     </div>
-    <div class="third" style="display: none">
+    <p class="contp accord">الحالة الاجتماعية</p>
+    <div class="third cont panel">
       <div class="grd">
         <div class="gr-1">
           <p class="ct">
@@ -167,7 +172,8 @@
         </div>
       </div>
     </div>
-    <div class="forth" style="display: none">
+    <p class="contp accord">معلومات التعيين</p>
+    <div class="forth cont panel">
       <div class="row g-0 ct" style="margin-bottom: 0 !important;">
         <div class="text-lead text-muted fs-6 col-2 pr-0">
           رقم القرار /<span class=""
@@ -233,7 +239,8 @@
         </div>
       </div>
     </div>
-    <div class="fifth" style="display: none">
+    <p class="contp accord">الشهادة الجامعية</p>
+    <div class="fifth cont panel">
       <div class="grd">
         <div class="gr-1">
           <p class="ct">
@@ -280,7 +287,8 @@
         onclick="editUnv(event, '{{demonstrator.universityDegree.pk}}', '{{demonstrator.id}}')"
         id="unveb-{{demonstrator.universityDegree.pk}}">تعديل</button>
     </div>
-    <div class="sixth" style="display: none">
+    <p class="contp accord">دراسات عليا</p>
+    <div class="sixth cont panel">
       {% for grad in demonstrator.graduateStudies.all %}
       <div class="card mb-3">
         <div class="card-body">
@@ -411,7 +419,8 @@
       </div>
       {% endif %}
     </div>
-    <div class="seventh" style="display: none">
+    <p class="contp accord">شهادات التفوق</p>
+    <div class="seventh cont panel">
       <div class="row">
         {% for cer in demonstrator.certificateOfExcellence.all %}
         <div class="col-3">
@@ -424,10 +433,12 @@
           </div>
         </div>
 
-        {% endfor %}{% if not demonstrator.certificateOfExcellence.all%} لا يوجد شهادات تفوق {% endif %}
+        {% endfor %}
       </div>
+      {% if not demonstrator.certificateOfExcellence.all%} لا يوجد شهادات تفوق {% endif %}
     </div>
-    <div class="eigth" style="display: none">
+    <p class="contp accord">الإيفادات</p>
+    <div class="eigth cont panel">
       <div class="row justify-content-center mx-auto">
         <div class="accordion" id="efads">
           {% for i in demonstrator.dispatch.all %}
@@ -1042,114 +1053,24 @@
 <script src="{% static 'js/editUnv.js' %}"></script>
 <script src="{% static 'js/editGrad.js' %}"></script>
 
+
 <script>
-  // $("nav").mouseenter(function () {
-  //   console.log("asdf");
-  //   l = $(".line").css("left").slice(0, -2);
-  //   $(".line").animate(
-  //     {
-  //       left: "-=160px",
-  //       transition: "all 0.5s ease",
-  //     },
-  //     350
-  //   );
-  // });
-  // $("nav").mouseleave(function () {
-  //   l = $(".line").css("left").slice(0, -2);
-  //   $(".line").animate(
-  //     {
-  //       left: "+=160px",
-  //     },
-  //     350
-  //   );
-  // });
+  var acc = document.getElementsByClassName("accord");
+  var i;
 
-  $(document).ready(function () {
-    var nav = $("#nav");
-    var line = $("<div />").addClass("line");
-    line.appendTo(nav);
-
-    var active = nav.find(".aactive");
-    var pos = 0;
-    var wid = 0;
-    let div = $("div.first");
-
-    if (active.length) {
-      pos = active.position().left;
-      wid = active.width();
-      line.css({
-        left: pos,
-        width: wid,
-      });
-    }
-
-    nav.find("ul li button").click(function (e) {
-      e.preventDefault();
-
-      if (!$(this).parent().hasClass("aactive") && !nav.hasClass("animate")) {
-        nav.addClass("animate");
-
-        var _this = $(this);
-
-        let div2 = $(`div.${_this.parent().prop("class").split(" ")[0]}`);
-        div.fadeOut(300, function () {
-          div2.fadeIn(150);
-          div = div2;
-        });
-
-        nav.find("ul li").removeClass("aactive");
-
-        var position = _this.parent().position();
-        var width = _this.parent().width();
-
-        if (position.left >= pos) {
-          line.animate(
-            {
-              width: position.left - pos + width,
-            },
-            300,
-            function () {
-              line.animate(
-                {
-                  width: width,
-                  left: position.left,
-                },
-                150,
-                function () {
-                  nav.removeClass("animate");
-                }
-              );
-              _this.parent().addClass("aactive");
-            }
-          );
-        } else {
-          line.animate(
-            {
-              left: position.left,
-              width: pos - position.left + wid,
-            },
-            300,
-            function () {
-              line.animate(
-                {
-                  width: width,
-                },
-                150,
-                function () {
-                  nav.removeClass("animate");
-                }
-              );
-
-              _this.parent().addClass("aactive");
-            }
-          );
-        }
-
-        pos = position.left;
-        wid = width;
+  for (i = 0; i < acc.length; i++) {
+    acc[i].addEventListener("click", function () {
+      this.classList.toggle("act");
+      var panel = this.nextElementSibling;
+      if (panel.style.maxHeight) {
+        panel.style.maxHeight = null;
+      } else {
+        panel.style.maxHeight = panel.scrollHeight + "px";
       }
     });
-  });
+  }
 </script>
+
+
 
 {% endblock %}

@@ -19,7 +19,7 @@ select {
     font: inherit;
 }
 body {
-    font-family: tajawal !important;
+    font-family: tajawal, monospace !important;
 }
 
 /* main {
@@ -61,5 +61,5 @@ body {
 
 @font-face {
     font-family: tajawal;
-    src: url(../fonts/Tajawal-Regular.ttf);
+    src: url(../fonts/Droid-Arabic-Naskh-Regular.ttf);
 }
