@@ -1,4 +1,3 @@
-
 {% extends "base.html" %} {% block head_title %} إرسال إيميل{% endblock %}
 {% load static %}
 <!-- something here for nothing  -->
@@ -6,8 +5,18 @@
 {% block content %}
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload</button>
+    <form method="post" enctype="multipart/form-data">
+
+        <p class="h3 m-3">اختر ملف للتصدير</p>
+
+        <div class="input-group">
+            <label class="input-group-text" for="id_file">الملف:</label>
+            <input type="file" class="form-control" name="file" required="" id="id_file">
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-5">تصدير</button>
+    </form>
+
 </form>
 
 {% endblock %}
