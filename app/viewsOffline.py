@@ -95,7 +95,7 @@ def RemoveOldToken():
                     os.remove(file_location)
 
 
-@login_required(login_url='app:login')                
+@login_required(login_url='app:login')
 def SendEmailHotmail(email,subject,message):
     ol=win32com.client.Dispatch("outlook.application",pythoncom.CoInitialize())
     olmailitem=0x0 
@@ -304,7 +304,6 @@ def Register(request):
         return render(request, 'registration/result.html', {'result': 'denied'})
 
 
-@login_required(login_url='app:login')
 def Login(request):
 
     if request.method == 'POST':
@@ -368,6 +367,7 @@ def generalInsert(request, mainField, baseDic, model, addModel, savePoint):
     for i in range(len(request.POST.getlist(mainField))):
         dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken']}
         dic.update(baseDic)
+        dic.update({'isOffline': True})
         for field in model._meta.local_fields:
             if field.name in request.POST:
                 dic[field.name] = request.POST.getlist(field.name)[i]
@@ -1186,6 +1186,7 @@ def generalDelete(modelName, objectId):
     deletedObject= DeletedObjects()
     deletedObject.modelName= modelName
     deletedObject.objectId = objectId
+    deletedObject.isOffline= True
     deletedObject.save()
 
 
@@ -1691,7 +1692,7 @@ def pullData(request):
                     for model in apps.get_models():
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             serializerClass = getSerializer(model.__name__)
-                            added = serializerClass(model.objects.filter(createdDate__gte=lastPullDate), many= True).data
+                            added = serializerClass(model.objects.filter(isOffline=True), many= True).data
                             updated =serializerClass(model.objects.filter(Q(lastModifiedDate__gte=lastPullDate) & ~Q(createdDate__gte=lastPullDate) ), many= True).data
                             deleted = SerializerDeletedObjects( DeletedObjects.objects.filter(modelName=model.__name__, createdDate__gte=lastPullDate), many= True).data
                             data.update( {model.__name__: {'updated':updated, 'added':added, 'deleted': deleted} })
@@ -1708,6 +1709,7 @@ def pullData(request):
             #  temp = LastPull.objects.filter(pk=1).update(lastPullDate=datetime.datetime.now)
              temp = LastPull.objects.get(pk=1)
              temp.lastPullDate=datetime.datetime.now
+             temp.waitingMerge = True
              LastPull.save(self=temp)
              return render(request, 'registration/result.html', {'result': 'done'})
            
@@ -1835,11 +1837,21 @@ def pushData(request):
                     idMap = {}
                     with open('uploads/synchronization.json', 'r') as f:
                         data = load(f)
+                    
+                    #delete offline changes before merge
+                    for model in apps.get_models():
+                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'UploadedFile']:
+                            delObjs= model.objects.filter(isOffline=True).delete()
+
+      
                     for model in apps.get_models():
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
                             # add
                             for added in data[model.__name__]['added']:
+                                isExist = model.objects.filter(pk=added['id'])
+                                if isExist.count()>0:
+                                    continue
                                 id = generalPushAdd(request, added , addModel, model.__name__, idMap, savePoint)
                                 if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
@@ -1892,8 +1904,7 @@ def pushData(request):
                                         demonstrator.currentAdjective = updated.adjectiveChangeAdjective
                                         Demonstrator.full_clean(self=demonstrator)
                                         Demonstrator.save(self=demonstrator)
-
-                                   
+                 
                     for model in apps.get_models():
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
@@ -1902,6 +1913,9 @@ def pushData(request):
                                 if idMap[model.__name__]:
                                     if idMap[model.__name__][deleted.id]:
                                         deleted.id = idMap[model.__name__][deleted.id]
+                                isExist = model.objects.filter(pk=deleted.id)
+                                if isExist.count()==0:
+                                    continue
                                 deletedObj= model.objects.filter(pk=deleted.id).delete()
                                 if model.__name__ in [ 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = deletedObj.dispatchDecisionId
@@ -1923,12 +1937,11 @@ def pushData(request):
                                 deletedObject= DeletedObjects()
                                 deletedObject.modelName= model.__name__
                                 deletedObject.objectId = deleted.id
-                                deletedObject.isOffline = False
                                 deletedObject.save()
 
-                                
-
-
+                    temp = LastPull.objects.get(pk=1)
+                    temp.waitingMerge = False
+                    LastPull.save(self=temp)
                             
                     return render(request, 'registration/result.html', {'result': 'done'})
                 except Exception as e:

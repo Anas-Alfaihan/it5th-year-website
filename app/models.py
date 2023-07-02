@@ -12,9 +12,11 @@ class UploadedFile(models.Model):
     def __str__(self):
         return self.filename
 
+
 class LastPull(models.Model):
     userId= models.OneToOneField(User,on_delete=models.CASCADE, related_name='lastPull')
     lastPullDate= models.DateTimeField(auto_now=True)
+    waitingMerge= models.BooleanField(null=True, blank=True, default=False)
 
 
 class Permissions(models.Model):
@@ -22,6 +24,7 @@ class Permissions(models.Model):
     permissionsCollege = models.CharField(max_length=100)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class Demonstrator(models.Model):
@@ -55,6 +58,7 @@ class Demonstrator(models.Model):
     commencementAfterNominationDate = models.DateField(null=True, blank=True)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
     def __str__(self):
         return f'{self.name} {self.fatherName} son of {self.motherName  }'
@@ -75,6 +79,7 @@ class UniversityDegree(models.Model):
         max_digits=5, decimal_places=2)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class Nomination(models.Model):
@@ -86,6 +91,7 @@ class Nomination(models.Model):
         max_length=10, choices=DECISION_TYPE_CHOICES)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class AdjectiveChange(models.Model):
@@ -100,6 +106,7 @@ class AdjectiveChange(models.Model):
     adjectiveChangeReason = models.TextField(null=True, blank=True)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class CertificateOfExcellence(models.Model):
@@ -111,6 +118,7 @@ class CertificateOfExcellence(models.Model):
         max_length=1, choices=EXCELLENCE_DEGREE_CHOICES)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class GraduateStudies(models.Model):
@@ -132,6 +140,7 @@ class GraduateStudies(models.Model):
         max_digits=5, decimal_places=2)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class Dispatch(models.Model):
@@ -167,6 +176,7 @@ class Dispatch(models.Model):
     dispatchNotes = models.TextField(null=True, blank=True)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
     @property
     def remainingTime(self):
@@ -175,12 +185,14 @@ class Dispatch(models.Model):
         else:
             return None
 
+
 class Report(models.Model):
     dispatchDecisionId = models.ForeignKey(Dispatch, on_delete=models.CASCADE, related_name='report')
     report = models.TextField()
     reportDate = models.DateField()
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class Regularization(models.Model):
@@ -193,6 +205,7 @@ class Regularization(models.Model):
     regularizationDecisionNotes = models.TextField(null=True, blank=True)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class Extension(models.Model):
@@ -207,6 +220,7 @@ class Extension(models.Model):
     extensionDurationDay = models.IntegerField()
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class Freeze(models.Model):
@@ -221,6 +235,7 @@ class Freeze(models.Model):
     freezeDurationDay = models.IntegerField()
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class DurationChange(models.Model):
@@ -231,6 +246,7 @@ class DurationChange(models.Model):
     durationChangeDurationDay = models.IntegerField()
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class AlimonyChange(models.Model):
@@ -240,6 +256,7 @@ class AlimonyChange(models.Model):
         max_length=25, choices=ALIMONY)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class UniversityChange(models.Model):
@@ -248,6 +265,7 @@ class UniversityChange(models.Model):
     newUniversity = models.CharField(max_length=100)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class SpecializationChange(models.Model):
@@ -256,9 +274,13 @@ class SpecializationChange(models.Model):
     newSpecialization = models.CharField(max_length=100)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
+
 
 class DeletedObjects(models.Model):
     modelName = models.CharField(max_length=255)
     objectId = models.IntegerField()
+    createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
 
 

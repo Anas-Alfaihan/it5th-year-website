@@ -7,6 +7,13 @@ from django import forms
 class UploadFileForm(forms.Form):
     file = forms.FileField()
     
+
+class AddPermissions(ModelForm):
+    class Meta:
+        model= Permissions
+        exclude = []
+
+
 class AddDemonstrator(ModelForm):
     class Meta:
         model = Demonstrator
