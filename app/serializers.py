@@ -2,6 +2,18 @@ from rest_framework import serializers
 from .models import *
 
 
+class SerializerDeletedObjects(serializers.ModelSerializer):
+    class Meta:
+        model = DeletedObjects
+        fields = '__all__'
+
+
+class SerializerPermissions(serializers.ModelSerializer):
+    class Meta:
+        model = Permissions
+        fields = '__all__'
+
+
 class SerializerReport(serializers.ModelSerializer):
     class Meta:
         model = Report
@@ -65,6 +77,12 @@ class SerializerDispatch(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SerializerDispatchSingle(serializers.ModelSerializer):
+    class Meta:
+        model = Dispatch
+        fields = '__all__'
+
+
 class SerializerGraduateStudies(serializers.ModelSerializer):
     class Meta:
         model = GraduateStudies
@@ -103,6 +121,12 @@ class SerializerDemonstrator(serializers.ModelSerializer):
     graduateStudies= SerializerGraduateStudies(many=True)
     dispatch = SerializerDispatch( many=True)
 
+    class Meta:
+        model = Demonstrator
+        fields = '__all__'
+
+
+class SerializerDemonstratorSingle(serializers.ModelSerializer):
     class Meta:
         model = Demonstrator
         fields = '__all__'
