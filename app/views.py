@@ -304,7 +304,6 @@ def Register(request):
         return render(request, 'registration/result.html', {'result': 'denied'})
 
 
-@login_required(login_url='app:login')
 def Login(request):
 
     if request.method == 'POST':
