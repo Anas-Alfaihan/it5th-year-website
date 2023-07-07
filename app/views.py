@@ -361,7 +361,6 @@ def CalculateDispatchEndDate(dispatch):
     return endDate
 
 
-@login_required(login_url='app:login')
 def generalInsert(request, mainField, baseDic, model, addModel, savePoint):
     id = None
     for i in range(len(request.POST.getlist(mainField))):
@@ -802,7 +801,6 @@ def GetCollegeEmails(request):
         return render(request, 'registration/result.html', {'result': 'done'})
 
 
-@login_required(login_url='app:login')
 def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint):
     try:
         id = None
@@ -1180,8 +1178,8 @@ def UpdateSpecializationChange(request, id, demonId):
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
  
 
-@login_required(login_url='app:login')
 def generalDelete(modelName, objectId):
+    print(objectId)
     deletedObject= DeletedObjects()
     deletedObject.modelName= modelName
     deletedObject.objectId = objectId
@@ -1198,8 +1196,9 @@ def DeleteDemonstrator(request, id):
                 savePoint = transaction.savepoint()
                 try:
                     demonstrators = Demonstrator.objects.filter(pk=id).delete()
-                    generalDelete('Demonstrator', id) 
-                except:
+                    generalDelete('Demonstrator', id)
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
 
@@ -1220,6 +1219,7 @@ def DeleteUniversityDegree(request, id, demonId):
                     universityDegrees= UniversityDegree.objects.filter(pk=id).delete()
                     generalDelete('UniversityDegree', id)  
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1239,6 +1239,7 @@ def DeleteNomination(request, id, demonId):
                     nominations= Nomination.objects.filter(pk=id).delete()
                     generalDelete('Nomination', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
 
@@ -1258,11 +1259,7 @@ def DeleteAdjectiveChange(request, id, demonId):
                 try:
                     adjectiveChange= AdjectiveChange.objects.filter(pk=id).delete()
                     generalDelete('AdjectiveChange', id)
-                except:
-                    return JsonResponse({"status": "bad"})
-
-
-                try:
+                
                     if 'adjectiveChangeAdjective' in request.POST:
                         demonstrators= Demonstrator.objects.filter(pk=demonId)
                         for demonstrator in demonstrators:
@@ -1291,6 +1288,7 @@ def DeleteCertificateOfExcellence(request, id, demonId):
                     certificateOfExcellence= CertificateOfExcellence.objects.filter(pk=id).delete()
                     generalDelete('CertificateOfExcellence', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
 
@@ -1311,6 +1309,7 @@ def DeleteGraduateStudies(request, id, demonId):
                     graduateStudies= GraduateStudies.objects.filter(pk=id).delete()
                     generalDelete('GraduateStudies', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
 
@@ -1353,6 +1352,7 @@ def DeleteReport(request, id, demonId):
                     reports= Report.objects.filter(pk=id).delete()
                     generalDelete('Report', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1372,6 +1372,7 @@ def DeleteRegularization(request, id, demonId):
                     regularizations= Regularization.objects.filter(pk=id).delete()
                     generalDelete('Regularization', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1496,6 +1497,7 @@ def DeleteAlimonyChange(request, id, demonId):
                     alimonyChange= AlimonyChange.objects.filter(pk=id).delete()
                     generalDelete('AlimonyChange', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1515,6 +1517,7 @@ def DeleteUniversityChange(request, id, demonId):
                     universityChange= UniversityChange.objects.filter(pk=id).delete()
                     generalDelete('UniversityChange', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1534,6 +1537,7 @@ def DeleteSpecializationChange(request, id, demonId):
                     specializationChange= SpecializationChange.objects.filter(pk=id).delete()
                     generalDelete('SpecializationChange', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1549,7 +1553,7 @@ def QueryDemonstrator(request):
         
         def makeQuery(query, op):
             obj = Q()
-            for item in query: 
+            for item in query:
                 q = list(item.keys())[0]
                 if type(item[q]) is list:
                     if op == 'or':
