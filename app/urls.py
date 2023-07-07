@@ -5,12 +5,12 @@ app_name = 'app'
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('download/', views.DownloadFile, name='download'),
+    path('download/', views.pullData, name='download'),
     path('upload/', views.UploadFile, name='upload_file'),
     path('send/', views.Email, name='email'),
     path('sendEmails/', views.SendEmails, name='send'),
     path('register/', views.Register, name='register'),
-    path('test/', views.pullData, name='test'),
+    path('test/', views.pushData, name='test'),
     path('login/', views.Login, name='login'),
     path('logout/', views.Logout, name='logout'),
     path('insert/', views.DemonstratorInsert2, name='insert'),
