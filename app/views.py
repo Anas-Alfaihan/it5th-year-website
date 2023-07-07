@@ -577,12 +577,15 @@ def ExtensionInsert(request, dispatchId,demonId):
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
-                except:
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        print(endDate)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
+                except Exception as e:
+                    print(str(e))
                     transaction.savepoint_rollback(savePoint)
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
                     return redirect('app:demonstrator', id= demonId)
@@ -623,11 +626,12 @@ def FreezeInsert(request, dispatchId,demonId):
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
                 except:
                     transaction.savepoint_rollback(savePoint)
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التجميد")
@@ -660,11 +664,12 @@ def DurationChangeInsert(request, dispatchId, demonId):
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
                 except:
                     transaction.savepoint_rollback(savePoint)
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير المدة")
@@ -965,11 +970,12 @@ def UpdateDispatch(request, id, demonId):
                     dispatchObject = Dispatch.objects.filter(pk=id)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
                 except:
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
@@ -1038,11 +1044,12 @@ def UpdateExtension(request, id, demonId):
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
                 except:
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
@@ -1072,11 +1079,12 @@ def UpdateFreeze(request, id, demonId):
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
                 except:
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
@@ -1106,11 +1114,12 @@ def UpdateDurationChange(request, id, demonId):
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
                 except:
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
@@ -1400,11 +1409,12 @@ def DeleteExtension(request, id, demonId):
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
                 except:
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
@@ -1435,11 +1445,12 @@ def DeleteFreeze(request, id, demonId):
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
                 except:
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
@@ -1470,11 +1481,12 @@ def DeleteDurationChange(request, id, demonId):
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
                 except:
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
@@ -1853,11 +1865,12 @@ def pushData(request):
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
-                                    endDate = CalculateDispatchEndDate(dispatch)
-                                    for dispatchItem in dispatchObject:
-                                        dispatchItem.dispatchEndDate = endDate
-                                        Dispatch.full_clean(self=dispatchItem)
-                                        Dispatch.save(self=dispatchItem)
+                                    if dispatch[0]['commencementDate']:
+                                        endDate = CalculateDispatchEndDate(dispatch)
+                                        for dispatchItem in dispatchObject:
+                                            dispatchItem.dispatchEndDate = endDate
+                                            Dispatch.full_clean(self=dispatchItem)
+                                            Dispatch.save(self=dispatchItem)
                                 if model.__name__ == 'AdjectiveChange':
                                     demonId= added.studentId
                                     demonstrator = Demonstrator.objects.get(pk=demonId)
@@ -1883,11 +1896,12 @@ def pushData(request):
                                         dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                         dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                         dispatch = loads(dumps(dispatchSerialized.data))
-                                        endDate = CalculateDispatchEndDate(dispatch)
-                                        for dispatchItem in dispatchObject:
-                                            dispatchItem.dispatchEndDate = endDate
-                                            Dispatch.full_clean(self=dispatchItem)
-                                            Dispatch.save(self=dispatchItem)
+                                        if dispatch[0]['commencementDate']:
+                                            endDate = CalculateDispatchEndDate(dispatch)
+                                            for dispatchItem in dispatchObject:
+                                                dispatchItem.dispatchEndDate = endDate
+                                                Dispatch.full_clean(self=dispatchItem)
+                                                Dispatch.save(self=dispatchItem)
                                     if model.__name__ == 'AdjectiveChange':
                                         demonId= updated.studentId
                                         demonstrator = Demonstrator.objects.get(pk=demonId)
@@ -1910,11 +1924,12 @@ def pushData(request):
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
-                                    endDate = CalculateDispatchEndDate(dispatch)
-                                    for dispatchItem in dispatchObject:
-                                        dispatchItem.dispatchEndDate = endDate
-                                        Dispatch.full_clean(self=dispatchItem)
-                                        Dispatch.save(self=dispatchItem)
+                                    if dispatch[0]['commencementDate']:
+                                        endDate = CalculateDispatchEndDate(dispatch)
+                                        for dispatchItem in dispatchObject:
+                                            dispatchItem.dispatchEndDate = endDate
+                                            Dispatch.full_clean(self=dispatchItem)
+                                            Dispatch.save(self=dispatchItem)
                                 if model.__name__ == 'AdjectiveChange':
                                     demonId= deletedObj.studentId
                                     demonstrators= Demonstrator.objects.filter(pk=demonId)
