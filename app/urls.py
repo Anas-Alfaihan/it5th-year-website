@@ -42,6 +42,7 @@ urlpatterns = [
     path('durationInsert/<int:dispatchId>/<int:demonId>/', views.DurationChangeInsert, name='durationInsert'),
     path('getAllUsers/', views.GetAllUsers, name='getAllUsers'),
     path('gett/', views.do_something, name='gett'),
+    path('test/', views.Test, name='test'),
 
 
 ]
