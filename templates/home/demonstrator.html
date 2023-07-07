@@ -23,7 +23,7 @@
     <key>esc</key> - إلغاء التعديل
   </div>
 </div>
-<section class="sec">
+<section class="">
   <class class="container">
     <div id="nav">
       <!-- <ul>
@@ -54,6 +54,27 @@
       </ul> -->
       <button type="button" class="btn btn btn-outline-success deb" onclick="editDemon(event, '{{demonstrator.id}}')"
         id="deb-{{demonstrator.id}}">تعديل</button>
+      <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+        data-bs-target="#deleteDemon">حذف</button>
+      <div class="modal fade" id="deleteDemon" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog ">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="staticBackdropLabel">حذف معيد</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>هل أنت متأكد من حذف المعيد {{demonstrator.name}}</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إغلاق</button>
+              <button type="button" class="btn btn-outline-warning"
+                onclick="del('demon', '{{demonstrator.id}}')">تأكيد</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </class>
   <div class="" id="content">
@@ -336,8 +357,8 @@
         </div>
       </div>
 
-      {% endfor %}{% if not demonstrator.graduateStudies.all %} لا يوجد دراسات عليا
-
+      {% endfor %}{% if not demonstrator.graduateStudies.all %} <p> لا يوجد دراسات عليا
+      </p>
       <div class="row justify-content-center mt-5">
         <div class="col-6 text-center">
           <button type="button" class="btn btn-lg btn-outline-primary" data-bs-toggle="modal"
@@ -435,7 +456,7 @@
 
         {% endfor %}
       </div>
-      {% if not demonstrator.certificateOfExcellence.all%} لا يوجد شهادات تفوق {% endif %}
+      {% if not demonstrator.certificateOfExcellence.all%} <p> لا يوجد شهادات تفوق </p>{% endif %}
     </div>
     <p class="contp accord">الإيفادات</p>
     <div class="eigth cont panel">
@@ -552,8 +573,9 @@
                 <div class="row g-0">
                   <div class="col-6">
                     <div class="form-floating mb-4">
-                      <textarea class="form-control w-100" placeholder="Leave a comment here" id="floatingText"
-                        rows="10" style="height: 150px" disabled>{{i.dispatchNotes}}</textarea>
+                      <textarea class="form-control w-100" placeholder="Leave a comment here"
+                        id="EfadfloatingText-{{i.id}}" rows="10" style="height: 150px"
+                        disabled>{{i.dispatchNotes}}</textarea>
                       <label for="floatingText" class="fs-6">ملاحظات</label>
                     </div>
                   </div>
@@ -591,7 +613,7 @@
                         <div class="text-lead text-muted fs-6 d-inline-block" style="margin-left: 20px">
                           رقم القرار /<span class="ex-{{ex.id}} editable"
                             name="extensionDecisionNumber">{{ex.extensionDecisionNumber}}</span>/<span
-                            class="ex-{{ex.id}} editable" name="extensionDecisionType" name="extensionDecisionType"
+                            class="ex-{{ex.id}} editable mul" name="extensionDecisionType" name="extensionDecisionType"
                             value="{{ex.extensionDecisionType}}">{{ex.get_extensionDecisionType_display}}</span>
                           <div class="d-none choises extensionDecisionType">
                             <div><strong value="s">ش.ع</strong></div>
@@ -612,7 +634,32 @@
                           </div>
                           <div class="col-4 text-end"><button type="button" class="btn btn-sm btn-outline-success"
                               onclick="editEx(event,'{{ex.id}}', '{{demonstrator.id}}')"
-                              id="exeb-{{ex.id}}">تعديل</button></div>
+                              id="exeb-{{ex.id}}">تعديل</button>
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                              data-bs-target="#deleteEx-{{ex.id}}">حذف</button>
+                            <div class="modal fade" id="deleteEx-{{ex.id}}" data-bs-backdrop="static"
+                              data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
+                              aria-hidden="true">
+                              <div class="modal-dialog ">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="staticBackdropLabel">حذف تمديد</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                      aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <p>هل أنت متأكد من حذف هذا التمديد</p>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary"
+                                      data-bs-dismiss="modal">إغلاق</button>
+                                    <button type="button" class="btn btn-outline-warning"
+                                      onclick="del('ex', '{{demonstrator.id}}', '{{ex.id}}')">تأكيد</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
 
                         <div class="row">
@@ -663,6 +710,30 @@
                             <button type="button" class="btn btn-sm btn-outline-success"
                               onclick="editFrez(event,'{{fr.id}}', '{{demonstrator.id}}')"
                               id="freb-{{fr.id}}">تعديل</button>
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                              data-bs-target="#deleteFr-{{fr.id}}">حذف</button>
+                            <div class="modal fade" id="deleteFr-{{fr.id}}" data-bs-backdrop="static"
+                              data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
+                              aria-hidden="true">
+                              <div class="modal-dialog ">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="staticBackdropLabel">حذف تجميد</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                      aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <p>هل أنت متأكد من حذف هذا التجميد</p>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary"
+                                      data-bs-dismiss="modal">إغلاق</button>
+                                    <button type="button" class="btn btn-outline-warning"
+                                      onclick="del('fr', '{{demonstrator.id}}', '{{fr.id}}')">تأكيد</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
 
@@ -685,8 +756,7 @@
                     {% endfor %}
                   </div>
                 </div>
-                <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
-                  data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">التقارير</button>
+
                 <div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="true" tabindex="-1"
                   id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
                   <div class="offcanvas-header">
@@ -709,19 +779,44 @@
                   </div>
                 </div>
 
-                <div class="row">
-                  <div class="col-4"></div>
-                  <div class="col-8 text-center">
-                    <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal"
+                <div class="row mt-3">
+                  <div class="col-4">
+                    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                      data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">التقارير</button>
+                  </div>
+                  <div class="col-8 text-center d-flex justify-content-end">
+                    <button type="button" class="btn btn-outline-warning mr-1" data-bs-toggle="modal"
                       data-bs-target="#Modalfr{{i.id}}">إضافة تجميد</button>
-                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                    <button type="button" class="btn btn-outline-primary mr-1" data-bs-toggle="modal"
                       data-bs-target="#Modalex{{i.id}}">إضافة تمديد</button>
-                    <button type="button" class="btn btn-outline-success"
+                    <button type="button" class="btn btn-outline-success mr-1"
                       onclick="editEfad(event,'{{i.id}}', '{{demonstrator.id}}')" id="efeb-{{i.id}}">تعديل</button>
-                    <button type="button" class="btn btn-outline-info" data-bs-toggle="modal"
+                    <button type="button" class="btn btn-outline-info mr-1" data-bs-toggle="modal"
                       data-bs-target="#Modalre{{i.id}}">إضافة تقرير</button>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                    <button type="button" class="btn btn-outline-secondary mr-1" data-bs-toggle="modal"
                       data-bs-target="#Modalch{{i.id}}">تغيير المدة</button>
+                    <button type="button" class="btn btn-outline-danger mr-1" data-bs-toggle="modal"
+                      data-bs-target="#deleteEfad-{{i.id}}">حذف</button>
+                  </div>
+
+                  <div class="modal fade" id="deleteEfad-{{i.id}}" data-bs-backdrop="static" data-bs-keyboard="false"
+                    tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog ">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="staticBackdropLabel">حذف الإيفاد</h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <p>هل أنت متأكد من حذف هذا الإيفاد</p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إغلاق</button>
+                          <button type="button" class="btn btn-outline-warning"
+                            onclick="del('efad', '{{demonstrator.id}}', '{{i.id}}')">تأكيد</button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -933,7 +1028,7 @@
               </div>
             </div>
           </div>
-          {% endfor %} {% if not demonstrator.dispatch.all%} لا يوجد إيفاد بعد {% endif %}
+          {% endfor %} {% if not demonstrator.dispatch.all%} <p> لا يوجد إيفاد بعد </p>{% endif %}
         </div>
       </div>
       <div class="row justify-content-center">
@@ -995,6 +1090,52 @@
       }
     });
   }
+
+  function del(type, did, id = 1) {
+    links = {
+      efad: `/app/deleteDispatch/${id}/${did}/`,
+      ex: `/app/deleteExtension/${id}/${did}/`,
+      fr: `/app/deleteFreeze/${id}/${did}/`,
+      unv: `/app/deleteUnv/${id}/${did}/`,
+      grad: `/app/deleteGrad/${id}/${did}/`,
+      demon: `/app/deleteDemon/${did}/`,
+    };
+    let obj = { 'csrfmiddlewaretoken': csrf.value };
+    $.post(links[type], obj, function (data) {
+      if (data.status === "good") {
+        Toastify({
+          text: "تم الحذف بنجاح",
+          duration: 3000,
+          close: true,
+          gravity: "top", // `top` or `bottom`
+          position: "left", // `left`, `center` or `right`
+          stopOnFocus: true, // Prevents dismissing of toast on hover
+          style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+            width: "300px",
+            border: "16px",
+          },
+        }).showToast();
+      } else {
+        Toastify({
+          text: "لا تملك الصلاحية ",
+          duration: 3000,
+          close: true,
+          gravity: "top", // `top` or `bottom`
+          position: "left", // `left`, `center` or `right`
+          stopOnFocus: true, // Prevents dismissing of toast on hover
+          style: {
+            background: "red",
+            width: "300px",
+            border: "16px",
+          },
+        }).showToast();
+      }
+    });
+  }
+
+
+
 
   let editMode = false,
     efadId = "",
@@ -1063,9 +1204,13 @@
       this.classList.toggle("act");
       var panel = this.nextElementSibling;
       if (panel.style.maxHeight) {
+        panel.style.border = "none"
         panel.style.maxHeight = null;
       } else {
-        panel.style.maxHeight = panel.scrollHeight + "px";
+        panel.style.maxHeight = "5000px";
+        // panel.style.borderColor = ""
+        panel.style.border = "1px solid #bdbbc7"
+        // panel.style.borderColor = ""
       }
     });
   }
