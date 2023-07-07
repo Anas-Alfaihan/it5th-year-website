@@ -1,7 +1,12 @@
+let g;
+
 function resetEfad() {
     if (editMode && efadId) {
         resetChoise();
         btn = document.getElementById(btnId);
+        textarea = document.getElementById(`EfadfloatingText-${g}`);
+        console.log(`EfadfloatingText-${efadId}`);
+        textarea.setAttribute('disabled', 'true');
         btn.innerHTML = 'تعديل';
         $(`#requiredCertificateo`).addClass('d-none');
 
@@ -40,7 +45,8 @@ function editEfad(e, id, did) {
     editMode = true;
     efadId = `efad-info-${id}`;
     btnId = `efeb-${id}`;
-    textarea = document.getElementById('floatingText');
+    g = id;
+    textarea = document.getElementById(`EfadfloatingText-${id}`);
     let items1 = Array.prototype.slice.call(
         document.getElementsByClassName(efadId),
         0

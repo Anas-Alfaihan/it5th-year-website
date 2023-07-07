@@ -53,11 +53,13 @@
     font-size: 24px !important;
 }
 .cont {
-    border: 1px solid #f1effa !important;
+    border: none;
     background-color: #f9f9fc !important;
+
     padding: 10px;
     margin-bottom: 80px;
     border-radius: 0.5rem !important;
+    transition: border 0.1s ease-in-out;
 }
 .contp {
     margin-bottom: 30px;
@@ -224,13 +226,13 @@ key {
 }
 
 .accord {
-    background-color: #eee;
+    background-color: #fff;
     color: #444;
     cursor: pointer;
     padding: 18px;
     width: 100%;
     text-align: right;
-    border: none;
+    border: solid 1px #eee;
     outline: none;
     transition: 0.8s;
 }
@@ -246,7 +248,10 @@ key {
     background-color: white;
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.5s ease-out;
+    transition: max-height 0.2s ease-in-out;
+}
+.panel > * {
+    margin: 30px 10px;
 }
 
 .accord:after {
