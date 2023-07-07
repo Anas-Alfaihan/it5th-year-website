@@ -361,7 +361,6 @@ def CalculateDispatchEndDate(dispatch):
     return endDate
 
 
-@login_required(login_url='app:login')
 def generalInsert(request, mainField, baseDic, model, addModel, savePoint):
     id = None
     for i in range(len(request.POST.getlist(mainField))):
@@ -802,7 +801,6 @@ def GetCollegeEmails(request):
         return render(request, 'registration/result.html', {'result': 'done'})
 
 
-@login_required(login_url='app:login')
 def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint):
     try:
         id = None
@@ -1180,8 +1178,8 @@ def UpdateSpecializationChange(request, id, demonId):
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
  
 
-@login_required(login_url='app:login')
 def generalDelete(modelName, objectId):
+    print(objectId)
     deletedObject= DeletedObjects()
     deletedObject.modelName= modelName
     deletedObject.objectId = objectId
@@ -1198,8 +1196,9 @@ def DeleteDemonstrator(request, id):
                 savePoint = transaction.savepoint()
                 try:
                     demonstrators = Demonstrator.objects.filter(pk=id).delete()
-                    generalDelete('Demonstrator', id) 
-                except:
+                    generalDelete('Demonstrator', id)
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
 
@@ -1220,6 +1219,7 @@ def DeleteUniversityDegree(request, id, demonId):
                     universityDegrees= UniversityDegree.objects.filter(pk=id).delete()
                     generalDelete('UniversityDegree', id)  
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1239,6 +1239,7 @@ def DeleteNomination(request, id, demonId):
                     nominations= Nomination.objects.filter(pk=id).delete()
                     generalDelete('Nomination', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
 
@@ -1258,11 +1259,7 @@ def DeleteAdjectiveChange(request, id, demonId):
                 try:
                     adjectiveChange= AdjectiveChange.objects.filter(pk=id).delete()
                     generalDelete('AdjectiveChange', id)
-                except:
-                    return JsonResponse({"status": "bad"})
-
-
-                try:
+                
                     if 'adjectiveChangeAdjective' in request.POST:
                         demonstrators= Demonstrator.objects.filter(pk=demonId)
                         for demonstrator in demonstrators:
@@ -1291,6 +1288,7 @@ def DeleteCertificateOfExcellence(request, id, demonId):
                     certificateOfExcellence= CertificateOfExcellence.objects.filter(pk=id).delete()
                     generalDelete('CertificateOfExcellence', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
 
@@ -1311,6 +1309,7 @@ def DeleteGraduateStudies(request, id, demonId):
                     graduateStudies= GraduateStudies.objects.filter(pk=id).delete()
                     generalDelete('GraduateStudies', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
 
@@ -1353,6 +1352,7 @@ def DeleteReport(request, id, demonId):
                     reports= Report.objects.filter(pk=id).delete()
                     generalDelete('Report', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1372,6 +1372,7 @@ def DeleteRegularization(request, id, demonId):
                     regularizations= Regularization.objects.filter(pk=id).delete()
                     generalDelete('Regularization', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1496,6 +1497,7 @@ def DeleteAlimonyChange(request, id, demonId):
                     alimonyChange= AlimonyChange.objects.filter(pk=id).delete()
                     generalDelete('AlimonyChange', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1515,6 +1517,7 @@ def DeleteUniversityChange(request, id, demonId):
                     universityChange= UniversityChange.objects.filter(pk=id).delete()
                     generalDelete('UniversityChange', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1534,6 +1537,7 @@ def DeleteSpecializationChange(request, id, demonId):
                     specializationChange= SpecializationChange.objects.filter(pk=id).delete()
                     generalDelete('SpecializationChange', id)
                 except:
+                    transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1549,7 +1553,7 @@ def QueryDemonstrator(request):
         
         def makeQuery(query, op):
             obj = Q()
-            for item in query: 
+            for item in query:
                 q = list(item.keys())[0]
                 if type(item[q]) is list:
                     if op == 'or':
@@ -1630,7 +1634,7 @@ def Test(request):
     # todayDate = datetime.date.today() 
     # reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
     # print(reports)
-    user = User.objects.get(pk=2)
+    user = User.objects.get(pk=1)
     LastPull.objects.create(userId= user)
     # for model in apps.get_models():
     #     print(model.__name__)
@@ -1699,17 +1703,15 @@ def pullData(request):
                     print('data is: ',data)
                     with open('uploads/synchronization.json', 'w') as file:
                         dump(data, file, indent=None)
-                    DownloadFile()
                         
                 except Exception as e:
                     print(str(e))
                     transaction.savepoint_rollback(savePoint)
                     return render(request, 'registration/result.html', {'result': 'done'}) 
             #  temp = LastPull.objects.filter(pk=1).update(lastPullDate=datetime.datetime.now)
-             temp = LastPull.objects.get(userId_id__is_superuser=1)
+             temp = LastPull.objects.get(pk=1)
              temp.lastPullDate=datetime.datetime.now
              LastPull.save(self=temp)
-
              return render(request, 'registration/result.html', {'result': 'done'})
            
 
@@ -1723,61 +1725,21 @@ def pullData(request):
 @login_required(login_url='app:login')
 def generalPushAdd(request ,added, addModel, modelName, idMap, savePoint):
     id = None
-    haveId = 'id' in added
-    if haveId:
-        oldId = added['id']
-        del added['id']
+    oldId = added['id']
+    del added['id']
     dic = {'csrfmiddlewaretoken': get_token(request)}
     dic.update(added)
     dic.update({'isOffline': False})
     form = addModel(dic)
     if form.is_valid():
         id = form.save()
-        if haveId:
-            if not modelName in idMap:
-                idMap[modelName] = {}
-            idMap[modelName].update({oldId: id})
+        if not idMap[modelName]:
+            idMap[modelName] = {}
+        idMap[modelName].update({oldId: id})
     else:
         transaction.savepoint_rollback(savePoint)
         return form.errors
     return id
-
-
-
-def generalPushAddHub(request, added, addModel, modelName, idMap, savePoint):
-    #Demonstrator
-    print(modelName)
-
-    if modelName in ['Dispatch', 'GraduateStudies', 'CertificateOfExcellence', 'AdjectiveChange']:
-        #studentId
-        if 'Demonstrator' in idMap:
-            if added['studentId'] in idMap['Demonstrator']:
-                added['studentId'] = idMap['Demonstrator'][added['studentId']]
-    elif modelName == 'Nomination':
-        #nominationDecision
-        if 'Demonstrator' in idMap:
-            if added['nominationDecision'] in idMap['Demonstrator']:
-                added['nominationDecision'] = idMap['Demonstrator'][added['nominationDecision']]
-    elif modelName == 'UniversityDegree':
-        #universityDegree
-        if 'Demonstrator' in idMap:
-            if added['universityDegree'] in idMap['Demonstrator']:
-                added['universityDegree'] = idMap['Demonstrator'][added['universityDegree']]
-
-    #Dispatch
-    elif modelName in ['Report', 'Extension', 'Freeze', 'DurationChange', 'AlimonyChange', 'UniversityChange', 'SpecializationChange']:
-        #dispatchDecisionId
-        if 'Dispatch' in idMap:
-            if added['dispatchDecisionId'] in idMap['Dispatch']:
-                added['dispatchDecisionId'] = idMap['Dispatch'][added['dispatchDecisionId']]
-    elif modelName == 'Regularization':
-        #regularizationDecisionId
-        if 'Dispatch' in idMap:
-            if added['regularizationDecisionId'] in idMap['Dispatch']:
-                added['regularizationDecisionId'] = idMap['Dispatch'][added['regularizationDecisionId']]
-
-    return generalPushAdd(request, added , addModel, modelName, idMap, savePoint)
-
 
 
 @login_required(login_url='app:login')
@@ -1799,30 +1761,30 @@ def generalUpdateHub(request, added, obj, addModel, modelName, idMap, savePoint)
     #Demonstrator
     if modelName in ['Dispatch', 'GraduateStudies', 'CertificateOfExcellence', 'AdjectiveChange']:
         #studentId
-        if modelName in idMap:
-            if added['studentId'] in idMap[modelName]:
+        if idMap[modelName]:
+            if idMap[modelName][added['studentId']]:
                 added['studentId'] = idMap[modelName][added['studentId']]
     elif modelName == 'Nomination':
         #nominationDecision
-        if modelName in idMap:
-            if added['nominationDecision'] in idMap[modelName]:
+        if idMap[modelName]:
+            if idMap[modelName][added['nominationDecision']]:
                 added['nominationDecision'] = idMap[modelName][added['nominationDecision']]
     elif modelName == 'UniversityDegree':
         #universityDegree
-        if modelName in idMap:
-            if added['universityDegree'] in idMap[modelName]:
+        if idMap[modelName]:
+            if idMap[modelName][added['universityDegree']]:
                 added['universityDegree'] = idMap[modelName][added['universityDegree']]
 
     #Dispatch
     elif modelName in ['Report', 'Extension', 'Freeze', 'DurationChange', 'AlimonyChange', 'UniversityChange', 'SpecializationChange']:
         #dispatchDecisionId
-        if modelName in idMap:
-            if added['dispatchDecisionId'] in idMap[modelName]:
+        if idMap[modelName]:
+            if idMap[modelName][added['dispatchDecisionId']]:
                 added['dispatchDecisionId'] = idMap[modelName][added['dispatchDecisionId']]
     elif modelName == 'Regularization':
         #regularizationDecisionId
-        if modelName in idMap:
-            if added['regularizationDecisionId'] in idMap[modelName]:
+        if idMap[modelName]:
+            if idMap[modelName][added['regularizationDecisionId']]:
                 added['regularizationDecisionId'] = idMap[modelName][added['regularizationDecisionId']]
 
     return generalPushUpdate(request, added, obj, addModel, savePoint)
@@ -1881,7 +1843,7 @@ def pushData(request):
                             addModel= getForm(model.__name__)
                             # add
                             for added in data[model.__name__]['added']:
-                                id = generalPushAddHub(request, added , addModel, model.__name__, idMap, savePoint)
+                                id = generalPushAdd(request, added , addModel, model.__name__, idMap, savePoint)
                                 if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = 1
