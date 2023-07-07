@@ -328,7 +328,6 @@ def Logout(request):
     return redirect('app:home')
 
 
-@login_required(login_url='app:login')
 def CalculateDispatchEndDate(dispatch):
     dateItem= datetime.datetime.strptime(dispatch[0]['commencementDate'], '%Y-%m-%d').date()
     endDate= dateItem
