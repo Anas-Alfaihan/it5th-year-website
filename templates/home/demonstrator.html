@@ -25,7 +25,7 @@
 </div>
 <section class="">
   <class class="container">
-    <div id="nav">
+    <div id="nav" class="row justify-content-between">
       <!-- <ul>
         <li class="aactive first">
           <button type="button">المعلومات الشخصية</button>
@@ -52,10 +52,14 @@
           <button type="button">الإيفادات</button>
         </li>
       </ul> -->
-      <button type="button" class="btn btn btn-outline-success deb" onclick="editDemon(event, '{{demonstrator.id}}')"
-        id="deb-{{demonstrator.id}}">تعديل</button>
-      <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
-        data-bs-target="#deleteDemon">حذف</button>
+      <div class="col-4"></div>
+      <div class="col-4 d-flex justify-content-end ml-4">
+        <button type="button" class="btn btn btn-outline-success ml-3" onclick="editDemon(event, '{{demonstrator.id}}')"
+          id="deb-{{demonstrator.id}}">تعديل</button>
+        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+          data-bs-target="#deleteDemon">حذف</button>
+      </div>
+
       <div class="modal fade" id="deleteDemon" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog ">
@@ -460,10 +464,10 @@
     </div>
     <p class="contp accord">الإيفادات</p>
     <div class="eigth cont panel">
-      <div class="row justify-content-center mx-auto">
+      <div class="row justify-content-center mx-auto" id="efds">
         <div class="accordion" id="efads">
           {% for i in demonstrator.dispatch.all %}
-          <div class="accordion-item">
+          <div class="accordion-item" id="Efad-{{i.id}}">
             <h2 class="accordion-header" id="efad-{{i.id}}">
               <button class="accordion-button collapsed ct" style="margin-bottom: 0px !important" type="button"
                 data-bs-toggle="collapse" data-bs-target="#info-{{i.id}}" aria-expanded="false"
@@ -608,7 +612,7 @@
                 <div class="row">
                   <div class="col-6">
                     {% for ex in i.extension.all %}
-                    <div class="card card-outline-primary  mb-3">
+                    <div class="card card-outline-primary  mb-3" id="Extension-{{ex.id}}">
                       <div class="card-header">
                         <div class="text-lead text-muted fs-6 d-inline-block" style="margin-left: 20px">
                           رقم القرار /<span class="ex-{{ex.id}} editable"
@@ -653,7 +657,7 @@
                                   <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary"
                                       data-bs-dismiss="modal">إغلاق</button>
-                                    <button type="button" class="btn btn-outline-warning"
+                                    <button type="button" class="btn btn-outline-warning" data-bs-dismiss="modal"
                                       onclick="del('ex', '{{demonstrator.id}}', '{{ex.id}}')">تأكيد</button>
                                   </div>
                                 </div>
@@ -682,7 +686,7 @@
                   </div>
                   <div class="col-6">
                     {% for fr in i.freeze.all %}
-                    <div class="card card-outline-warning mb-3">
+                    <div class="card card-outline-warning mb-3" id="Freeze-{{fr.id}}">
                       <div class="card-header">
                         <div class="text-lead text-muted fs-6 d-inline-block" style="margin-left: 20px">
                           رقم القرار /<span class="fr-{{fr.id}} editable"
@@ -729,7 +733,8 @@
                                     <button type="button" class="btn btn-outline-secondary"
                                       data-bs-dismiss="modal">إغلاق</button>
                                     <button type="button" class="btn btn-outline-warning"
-                                      onclick="del('fr', '{{demonstrator.id}}', '{{fr.id}}')">تأكيد</button>
+                                      onclick="del('fr', '{{demonstrator.id}}', '{{fr.id}}')"
+                                      data-bs-dismiss="modal">تأكيد</button>
                                   </div>
                                 </div>
                               </div>
@@ -812,7 +817,7 @@
                         </div>
                         <div class="modal-footer">
                           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إغلاق</button>
-                          <button type="button" class="btn btn-outline-warning"
+                          <button type="button" class="btn btn-outline-warning" data-bs-dismiss="modal"
                             onclick="del('efad', '{{demonstrator.id}}', '{{i.id}}')">تأكيد</button>
                         </div>
                       </div>
@@ -1022,7 +1027,7 @@
               </div>
             </div>
           </div>
-          {% endfor %} {% if not demonstrator.dispatch.all%} <p> لا يوجد إيفاد بعد </p>{% endif %}
+          {% endfor %} {% if not demonstrator.dispatch.all%} <p> لا يوجد إيفادات بعد </p>{% endif %}
         </div>
       </div>
       <div class="row justify-content-center">
@@ -1062,7 +1067,7 @@
           position: "left", // `left`, `center` or `right`
           stopOnFocus: true, // Prevents dismissing of toast on hover
           style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)",
+            background: "linear-gradient(-45deg, #00ff9c, #00d1ff)",
             width: "300px",
             border: "16px",
           },
@@ -1070,14 +1075,14 @@
       } else {
         console.log(data)
         Toastify({
-          text: "لا تملك الصلاحية ",
+          text: data["status"],
           duration: 3000,
           close: true,
           gravity: "top", // `top` or `bottom`
           position: "left", // `left`, `center` or `right`
           stopOnFocus: true, // Prevents dismissing of toast on hover
           style: {
-            background: "red",
+            background: "linear-gradient(45deg, #ff0084, #ff8c00)",
             width: "300px",
             border: "16px",
           },
@@ -1095,6 +1100,13 @@
       grad: `/app/deleteGrad/${id}/${did}/`,
       demon: `/app/deleteDemon/${did}/`,
     };
+    ids = {
+      efad: `Efad-${id}`,
+      ex: `Extension-${id}`,
+      fr: `Freeze-${id}`,
+      unv: `/app/deleteUnv/${id}/${did}/`,
+      grad: `/app/deleteGrad/${id}/${did}/`,
+    }
     let obj = { 'csrfmiddlewaretoken': csrf.value };
     $.post(links[type], obj, function (data) {
       if (data.status === "good") {
@@ -1106,22 +1118,34 @@
           position: "left", // `left`, `center` or `right`
           stopOnFocus: true, // Prevents dismissing of toast on hover
           style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)",
+            background: "linear-gradient(45deg, #ff5e5e, #f9a43a)",
             width: "300px",
             border: "16px",
           },
         }).showToast();
+        $(`#${ids[type]}`).remove()
+        if (type === "demon") {
+          setTimeout(function () {
+            window.location.href = "/app/allDemonstrators"
+          }, 500);
+        }
+        let ef = $("#efads")
+        if (ef.children().length === 0 && type === "efad") {
+
+          let newElement = $("<p>لا يوجد إيفادات بعد</p>")
+          ef.prepend(newElement)
+        }
       } else {
         console.log(data)
         Toastify({
-          text: "لا تملك الصلاحية ",
+          text: data["status"],
           duration: 3000,
           close: true,
           gravity: "top", // `top` or `bottom`
           position: "left", // `left`, `center` or `right`
           stopOnFocus: true, // Prevents dismissing of toast on hover
           style: {
-            background: "red",
+            background: "linear-gradient(45deg, #ff0084, #ff8c00);",
             width: "300px",
             border: "16px",
           },
@@ -1194,6 +1218,7 @@
 <script>
   var acc = document.getElementsByClassName("accord");
   var i;
+  console.log();
 
   for (i = 0; i < acc.length; i++) {
     acc[i].addEventListener("click", function () {
