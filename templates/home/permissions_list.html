@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Permissions List</h1>
+<form method="GET">
+    <input type="text" name="search" placeholder="Search by college name">
+    <button type="submit">Search</button>
+</form>
+<ul>
+    {% for permissions in permissions %}
+    <li><a href="{% url 'app:permissions_detail' permissions.pk %}">{{ permissions.permissionsCollege }}</a></li>
+    {% empty %}
+    <li>No permissions found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

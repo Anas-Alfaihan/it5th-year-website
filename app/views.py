@@ -2,7 +2,7 @@ import datetime
 # import pythoncom
 import time
 # import win32com.client
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -1990,4 +1990,24 @@ def gett(request):
     data2 = ser.serialize('json', Demonstrator.objects.select_related().prefetch_related().all())
     
     return JsonResponse(data2, safe=False)
+
+
+def permissions_list(request):
+    permissions = Permissions.objects.all()
+    context = {'permissions': permissions}
+    return render(request, 'home/permissions_list.html', context)
+
+def permissions_detail(request, pk):
+    permissions = get_object_or_404(Permissions, pk=pk)
+    if request.method == 'POST':
+        users = request.POST.getlist('userId')
+        permissions.userId.set(users)
+        permissions.save()
+    try:
+        users = permissions.userId.all()
+    except User.DoesNotExist:
+        raise Http404("User does not exist")
+    all_users = User.objects.all()
+    context = {'permissions': permissions, 'users': users, 'all_users': all_users}
+    return render(request, 'home/permissions_detail.html', context)
 

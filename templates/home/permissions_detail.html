@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block style %}
+
+<link rel="stylesheet" href="{% static 'css/multi-select.min.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<h1>Permissions Detail</h1>
+<p>College: {{ permissions.permissionsCollege }}</p>
+<p>Department: {{ permissions.permissionsDepartment }}</p>
+<p>User(s):
+    {% for user in users %}
+    {{ user.username }}{% if not forloop.last %}, {% endif %}
+    {% empty %}
+    None
+    {% endfor %}
+</p>
+
+<h3>Select users:</h3>
+<form method="post">
+    {% csrf_token %}
+    <div class=" mb-3 autocomplete">
+        <select id="floatingP" name="userId" placeholder="nothing" class="form-select" multiple required />
+
+        <label for="floatingP">السماحية </label>
+        </select>
+    </div>
+
+    <br>
+    <button type="submit">Save</button>
+</form>
+<script src="{% static 'js/multi-select.js'%}"></script>
+
+<script>
+    $(document).ready(function () {
+        let op
+        let select = document.getElementById("floatingP");
+        "{% for user in all_users %}"
+        op = document.createElement("option")
+        op.value = "{{user.pk}}"
+        op.text = "{{user}}"
+        "{% if user in users %}"
+        op.selected = true
+        "{% endif %}"
+        select.add(op)
+        "{% endfor %}"
+
+
+
+
+
+
+
+        new MultiSelectTag('floatingP')
+
+    });
+</script>
+{% endblock %}
+
+
+
+{% block styles %}
+<style>
+    h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    p {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    select {
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    button {
+        font-size: 1.2rem;
+        padding: 0.5rem 1rem;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

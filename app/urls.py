@@ -43,6 +43,8 @@ urlpatterns = [
     path('getAllUsers/', views.GetAllUsers, name='getAllUsers'),
     path('gett/', views.do_something, name='gett'),
     path('test/', views.Test, name='test'),
+    path('permissions/', views.permissions_list, name='permissions_list'),
+    path('permissions/<int:pk>/', views.permissions_detail, name='permissions_detail'),
 
 
 ]
