@@ -550,6 +550,16 @@ def ReportInsert(request, dispatchId, demonId):
                 if type(reportId) == ErrorDict: 
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التقرير")
                     return redirect('app:demonstrator', id= demonId)
+                try:
+                    dispatchs= Dispatch.objects.filter(pk=dispatchId)
+                    for dispatch in dispatchs:
+                        dispatch.lastReportDate = request.POST['reportDate']
+                        Dispatch.full_clean(self=dispatch)
+                        Dispatch.save(self=dispatch)
+                except:
+                    transaction.savepoint_rollback(savePoint)
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التقرير")
+                    return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة التقرير ")
             return redirect('app:demonstrator', id= demonId)
@@ -780,15 +790,21 @@ def GetAllEmails(request):
 
 @login_required(login_url='app:login')
 def GetLateEmails(request):
-    if request.method == 'POST':
+    # if request.method == 'POST':
+    if True:
         todayDate = datetime.date.today() 
-        lateDate = datetime.date.today() + relativedelta(months=-3)
-        reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
-        dis =[]
-        for report in list(reports):
-            dis.append(report['dispatchDecisionId_id'])
-        dispatchLate= Dispatch.objects.filter( Q(**{'id__in': dis}) & Q(**{'dispatchEndDate__gte' : todayDate})).values('studentId_id')
-        res =[]
+        lateDate = datetime.date.today() + relativedelta(days=-1)
+        #old system
+        # reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
+        # dis =[]
+        # for report in list(reports):
+        #     dis.append(report['dispatchDecisionId_id'])
+        # dispatchLate= Dispatch.objects.filter( Q(**{'id__in': dis}) & Q(**{'dispatchEndDate__gte' : todayDate})).values('studentId_id')
+        # res =[]
+
+        #new system
+        dispatchLate= Dispatch.objects.filter(Q(**{'dispatchEndDate__gte' : todayDate}) & ( Q(**{'lastReportDate__lte':lateDate}) | ( Q(**{'lastReportDate':None}) & Q(**{'commencementDate__lte':lateDate}) ) ) ).values('studentId_id')
+        res= []
         for dispatch in list(dispatchLate):
             res.append(dispatch['studentId_id'])
         

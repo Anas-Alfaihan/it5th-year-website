@@ -175,6 +175,7 @@ class Dispatch(models.Model):
     atDisposalOfUniversityDate = models.DateField(null=True, blank=True)
     dispatchNotes = models.TextField(null=True, blank=True)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
+    lastReportDate = models.DateField(null=True, blank=True, default=None)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
 
