@@ -1052,7 +1052,7 @@ def UpdateExtension(request, id, demonId):
                 extensions= Extension.objects.filter(pk=id)
                 dispatchId = -1
                 for extension in extensions:
-                    dispatchId= extension.dispatchDecisionId
+                    dispatchId= extension.dispatchDecisionId.id
                     extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': extension.dispatchDecisionId}, Extension, AddExtension, extension, savePoint)
                     if type(extensionId) == ErrorDict: return JsonResponse({"status": "bad"})
 
@@ -1066,7 +1066,8 @@ def UpdateExtension(request, id, demonId):
                             dispatchItem.dispatchEndDate = endDate
                             Dispatch.full_clean(self=dispatchItem)
                             Dispatch.save(self=dispatchItem)
-                except:
+                except Exception as e:
+                    print(str(e))
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
@@ -1087,7 +1088,7 @@ def UpdateFreeze(request, id, demonId):
                 freezes= Freeze.objects.filter(pk=id)
                 dispatchId=-1
                 for freeze in freezes:
-                    dispatchId= freeze.dispatchDecisionId
+                    dispatchId= freeze.dispatchDecisionId.id
                     freezeId = generalUpdate(request, 'freezeDecisionNumber', {'dispatchDecisionId': freeze.dispatchDecisionId}, Freeze, AddFreeze, freeze, savePoint)
                     if type(freezeId) == ErrorDict: return JsonResponse({"status": "bad"})
 
@@ -1101,7 +1102,8 @@ def UpdateFreeze(request, id, demonId):
                             dispatchItem.dispatchEndDate = endDate
                             Dispatch.full_clean(self=dispatchItem)
                             Dispatch.save(self=dispatchItem)
-                except:
+                except Exception as e:
+                    print(str(e))
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
@@ -1203,7 +1205,6 @@ def UpdateSpecializationChange(request, id, demonId):
  
 
 def generalDelete(modelName, objectId):
-    print(objectId)
     deletedObject= DeletedObjects()
     deletedObject.modelName= modelName
     deletedObject.objectId = objectId
@@ -1417,11 +1418,9 @@ def DeleteExtension(request, id, demonId):
                     extensions2= Extension.objects.filter(pk=id)
                     dispatchId = -1
                     for extension in extensions2:
-                        dispatchId= extension.dispatchDecisionId
-
+                        dispatchId= extension.dispatchDecisionId.id
                     extensions= Extension.objects.filter(pk=id).delete()
                     generalDelete('Extension', id)
-
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
@@ -1431,7 +1430,8 @@ def DeleteExtension(request, id, demonId):
                             dispatchItem.dispatchEndDate = endDate
                             Dispatch.full_clean(self=dispatchItem)
                             Dispatch.save(self=dispatchItem)
-                except:
+                except Exception as e:
+                    print(str(e))
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
@@ -1453,7 +1453,7 @@ def DeleteFreeze(request, id, demonId):
                     freezes2= Freeze.objects.filter(pk=id)
                     dispatchId=-1
                     for freeze in freezes2:
-                        dispatchId= freeze.dispatchDecisionId
+                        dispatchId= freeze.dispatchDecisionId.id
 
                     freezes= Freeze.objects.filter(pk=id).delete()
                     generalDelete('Freeze', id)
@@ -1467,7 +1467,8 @@ def DeleteFreeze(request, id, demonId):
                             dispatchItem.dispatchEndDate = endDate
                             Dispatch.full_clean(self=dispatchItem)
                             Dispatch.save(self=dispatchItem)
-                except:
+                except Exception as e:
+                    print(str(e))
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
@@ -1489,7 +1490,7 @@ def DeleteDurationChange(request, id, demonId):
                     durationChange2= DurationChange.objects.filter(pk=id)
                     dispatchId=-1
                     for model in durationChange2:
-                        dispatchId=model.dispatchDecisionId
+                        dispatchId=model.dispatchDecisionId.id
 
                     durationChange= DurationChange.objects.filter(pk=id).delete()
                     generalDelete('DurationChange', id)
@@ -1875,7 +1876,7 @@ def pushData(request):
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = 1
                                     if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                        dispatchId = added.dispatchDecisionId
+                                        dispatchId = added.dispatchDecisionId.id
                                     else:
                                         dispatchId = added.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
@@ -1906,7 +1907,7 @@ def pushData(request):
                                     if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                         dispatchId = 1
                                         if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                            dispatchId = updated.dispatchDecisionId
+                                            dispatchId = updated.dispatchDecisionId.id
                                         else:
                                             dispatchId = updated.id
                                         dispatchObject = Dispatch.objects.filter(pk=dispatchId)
@@ -1936,7 +1937,7 @@ def pushData(request):
                                         deleted.id = idMap[model.__name__][deleted.id]
                                 deletedObj= model.objects.filter(pk=deleted.id).delete()
                                 if model.__name__ in [ 'Freeze', 'Extension', 'DurationChange']:
-                                    dispatchId = deletedObj.dispatchDecisionId
+                                    dispatchId = deletedObj.dispatchDecisionId.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
