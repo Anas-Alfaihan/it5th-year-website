@@ -1994,8 +1994,13 @@ def gett(request):
 
 
 def permissions_list(request):
-    permissions = Permissions.objects.all()
-    context = {'permissions': permissions}
+    query = request.GET.get('search')
+    if query:
+        permissions = Permissions.objects.filter(permissionsCollege__icontains=query)
+    else:
+        permissions = Permissions.objects.all()
+    context = {'permissions': permissions, 'query': query}
+    
     return render(request, 'home/permissions_list.html', context)
 
 def permissions_detail(request, pk):
