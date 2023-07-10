@@ -120,7 +120,7 @@ function editDemon(e, id) {
                 return validator.isEmail(str);
             },
             birthDate: (str) => {
-                return validator.isDate(str, { format: 'mm/dd/yyyy' });
+                return validator.isDate(str, { format: 'dd/mm/yyyy' });
             },
             gender: (str) => {
                 return (

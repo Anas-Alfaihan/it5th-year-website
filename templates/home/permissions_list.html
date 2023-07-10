@@ -1,16 +1,40 @@
 {% extends 'base.html' %}
 
+{% block style %}
+
+<style>
+    .sect {
+        margin: 50px;
+        height: 100vh;
+        padding: 50px 40px;
+    }
+</style>
+
+{% endblock %}
+
 {% block content %}
-<h1>Permissions List</h1>
-<form method="GET">
-    <input type="text" name="search" placeholder="Search by college name">
-    <button type="submit">Search</button>
-</form>
-<ul>
-    {% for permissions in permissions %}
-    <li><a href="{% url 'app:permissions_detail' permissions.pk %}">{{ permissions.permissionsCollege }}</a></li>
-    {% empty %}
-    <li>No permissions found.</li>
-    {% endfor %}
-</ul>
+<div class="sec sect">
+
+    <h1 class="mb-5">السماحيات</h1>
+    <form method="GET">
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1"><i
+                    class="fa-sharp fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" name="search" class="form-control" {% if query %} value="{{query}}" {% endif %}
+                placeholder="ابحث عن اسم الاختصاص">
+
+
+            <button type="submit" class="btn btn-outline-secondary">بحث</button>
+
+        </div>
+    </form>
+    <div class="list-group list-group-flush rounded">
+        {% for permissions in permissions %}
+        <a class="list-group-item mb-1"
+            href="{% url 'app:permissions_detail' permissions.pk %}">{{permissions.permissionsCollege }}</a>
+        {% empty %}
+        <p>لا يوجد سماحيات</p>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
