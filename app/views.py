@@ -114,7 +114,7 @@ def SendEmailAlbaath(email,subject,message):
     smtp_server = "albaath-univ.edu.sy"
     port = 465  # For starttls
     sender_email = "test1234@albaath-univ.edu.sy"
-    receiver_email = "email"
+    receiver_email = email
     password = '9Xpas66@'
     msg = f"Subject: {subject}\n\n{message}"
     context = ssl.create_default_context()
