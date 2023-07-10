@@ -26,7 +26,8 @@ from .constantVariables import ADJECTIVE_CHOICES
 from rest_framework.serializers import Serializer
 
 
-
+import smtplib
+import ssl
 import os.path
 from email.message import EmailMessage
 
@@ -50,9 +51,13 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
 @login_required(login_url='app:login')
 def UploadFile(request):
+    print('lmmm22')
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
+            if os.path.exists("uploads/synchronization.json"):
+                os.remove("uploads/synchronization.json")
+                print('lmmm')
             # If a custom filename is provided, use it. Otherwise, use the original filename.
             custom_filename = form.cleaned_data.get('custom_filename') or "synchronization"
             # Create a new UploadedFile object and save it to the database
@@ -74,7 +79,6 @@ def DownloadFile(request):
     return response
 
 
-@login_required(login_url='app:login')
 def RemoveOldToken():
     N = 6
     
@@ -95,7 +99,6 @@ def RemoveOldToken():
                     os.remove(file_location)
 
 
-@login_required(login_url='app:login')                
 def SendEmailHotmail(email,subject,message):
     ol=win32com.client.Dispatch("outlook.application",pythoncom.CoInitialize())
     olmailitem=0x0 
@@ -107,7 +110,23 @@ def SendEmailHotmail(email,subject,message):
     newmail.Send()
 
 
-@login_required(login_url='app:login')
+def SendEmailAlbaath(email,subject,message):
+    smtp_server = "albaath-univ.edu.sy"
+    port = 465  # For starttls
+    sender_email = "test1234@albaath-univ.edu.sy"
+    receiver_email = "email"
+    password = '9Xpas66@'
+    msg = f"Subject: {subject}\n\n{message}"
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, msg)
+        
+    print("Email sent successfully!")
+
+
+
 def SendEmailGmail(email,subject,message):
     RemoveOldToken()
     creds = None
@@ -177,7 +196,6 @@ def SendEmailGmail(email,subject,message):
         print(f'An error occurred: {error}')
 
 
-@login_required(login_url='app:login')
 def SendEmails(request):
     if request.POST['emails'] == 'normal':
         try:
@@ -216,6 +234,8 @@ def SendEmails(request):
                     SendEmailGmail(x,request.POST['subject'],request.POST['msg'])
                 elif request.POST['server'] == 'hotmail':
                     SendEmailHotmail(x,request.POST['subject'],request.POST['msg'])
+                elif request.POST['server'] == 'albaath':
+                    SendEmailAlbaath(x,request.POST['subject'],request.POST['msg'])
 
             emails_str=emails_str[:-2]
 
@@ -262,7 +282,6 @@ def SendEmails(request):
         return render(request, 'home/success.html', {"emails": emails})
 
 
-@login_required(login_url='app:login')
 def Email(request):
     # permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
     permissions=list(Permissions.objects.all().values('permissionsCollege'))

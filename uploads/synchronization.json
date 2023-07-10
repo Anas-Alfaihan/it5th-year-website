@@ -1,1 +1,58 @@
-{"Permissions": {"updated": [], "added": [], "deleted": []}, "Demonstrator": {"updated": [], "added": [{"id": 13, "name": "Abdullah Buhlaq", "fatherName": "asdf", "motherName": "hedaya", "gender": "male", "birthDate": "2023-12-31", "home": "asdf", "email": "3bdullah.bu7la8@gmail.com", "mobile": "0937776435", "telephone": "0937776435", "maritalStatus": "unmarried", "militarySituation": "delayed", "residence": "asdf", "language": "asdf", "currentAdjective": "demonstrator", "nominationReason": "First graduate", "contestAnnouncementDate": null, "university": "sadf", "college": "\u0627\u0644\u062a\u0631\u0628\u064a\u0629", "section": "B", "specialization": "O", "commencementAfterNominationDate": null, "createdDate": "2023-07-03T13:28:19.433718Z", "lastModifiedDate": "2023-07-03T13:28:19.433718Z", "isOffline": false}, {"id": 14, "name": "abodifromoff", "fatherName": "asdf", "motherName": "hedaya", "gender": "male", "birthDate": "2023-12-31", "home": "asdf", "email": "3bdullah.bu7la8@gmail.com", "mobile": "0937776435", "telephone": "0937776435", "maritalStatus": "unmarried", "militarySituation": "delayed", "residence": "asdf", "language": "asdf", "currentAdjective": "demonstrator", "nominationReason": "First graduate", "contestAnnouncementDate": null, "university": "sadf", "college": "\u0627\u0644\u062a\u0631\u0628\u064a\u0629", "section": "B", "specialization": "O", "commencementAfterNominationDate": null, "createdDate": "2023-07-03T17:05:29.671934Z", "lastModifiedDate": "2023-07-03T17:05:29.671934Z", "isOffline": false}], "deleted": []}, "UniversityDegree": {"updated": [], "added": [{"universityDegree": 13, "universityDegreeUniversity": "\u062c\u0627\u0645\u0639\u0629 \u063a\u0627\u0644\u0648\u0644 \u0627\u0644\u0646\u0648\u0628", "universityDegreeCollege": "\u0634\u0633\u064a\u0628", "universityDegreeSection": "sadf", "universityDegreeYear": "2002-2003", "universityDegreeAverage": "60.00", "createdDate": "2023-07-03T13:28:19.529660Z", "lastModifiedDate": "2023-07-03T13:28:19.529660Z", "isOffline": false}, {"universityDegree": 14, "universityDegreeUniversity": "\u062c\u0627\u0645\u0639\u0629 \u063a\u0627\u0644\u0648\u0644 \u0627\u0644\u0646\u0648\u0628", "universityDegreeCollege": "\u0634\u0633\u064a\u0628", "universityDegreeSection": "sadf", "universityDegreeYear": "2002-2003", "universityDegreeAverage": "60.00", "createdDate": "2023-07-03T17:05:29.722906Z", "lastModifiedDate": "2023-07-03T17:05:29.722906Z", "isOffline": false}], "deleted": []}, "Nomination": {"updated": [], "added": [{"nominationDecision": 13, "nominationDecisionNumber": 3, "nominationDecisionDate": "2023-12-31", "nominationDecisionType": "s", "createdDate": "2023-07-03T13:28:19.494682Z", "lastModifiedDate": "2023-07-03T13:28:19.494682Z", "isOffline": false}, {"nominationDecision": 14, "nominationDecisionNumber": 3, "nominationDecisionDate": "2023-12-31", "nominationDecisionType": "s", "createdDate": "2023-07-03T17:05:29.764882Z", "lastModifiedDate": "2023-07-03T17:05:29.765881Z", "isOffline": false}], "deleted": []}, "AdjectiveChange": {"updated": [], "added": [], "deleted": []}, "CertificateOfExcellence": {"updated": [], "added": [], "deleted": []}, "GraduateStudies": {"updated": [], "added": [], "deleted": []}, "Dispatch": {"updated": [], "added": [], "deleted": []}, "Report": {"updated": [], "added": [], "deleted": []}, "Regularization": {"updated": [], "added": [], "deleted": []}, "Extension": {"updated": [], "added": [], "deleted": []}, "Freeze": {"updated": [], "added": [], "deleted": []}, "DurationChange": {"updated": [], "added": [], "deleted": []}, "AlimonyChange": {"updated": [], "added": [], "deleted": []}, "UniversityChange": {"updated": [], "added": [], "deleted": []}, "SpecializationChange": {"updated": [], "added": [], "deleted": []}}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>AbdulRahman</title>
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="icon" href="images/n.png">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Merriweather|Montserrat|Sacramento">
+    </head>
+    <body>
+        <header>
+            <img class="top-cloud" src="images/rain.png" alt="cloud image" width="100px" height="100px">
+            <h1>I'm Nagham</h1>
+            <p>A <span class="pro">pro</span>grammer</p>
+            <img class="bottom-cloud" src="images/rain.png" alt="cloud image" width="100px" height="100px">
+            <img src="images/tree-2-xxl.png" alt="snow image" height="300px" width="300px" style="padding-top: 100px ;">
+            <img src="images/tree-2-xxl.png" alt="snow image" height="300px" width="300px" style="padding-top: 100px ;">
+            <img src="images/tree-2-xxl.png" alt="snow image" height="300px" width="300px" style="padding-top: 100px ;">
+
+        </header>
+        <section>
+            <div>
+              <img src="images/350-nagham.jpg" alt="" width="300px" height="300px" style="border-radius: 200px;">
+              <h2>Hello.</h2>
+              <p>I am a front-end Web Developer, I'm the founder of the genius company, I love 3*1 and Winter</p>
+            </div>
+            <hr>
+            <div>
+              <h2>My Skills.</h2>
+              <div class="skill-row">
+                <img class="cod-img" src="images/scriptwriter.png" alt="">
+                <h3>Design & Development</h3>
+                <p>I started learning to code when I was 20 years old because I wanted to make my own WebSite. Overtime, I have gained a wealth of experience designing and developing web apps  .</p>
+              </div>
+              <div class="skill-row">
+                <img class="snowman-img" src="images/snowman.png" alt="">
+                <h3>Winter Season Challenge</h3>
+                <p>In fact, the season I love the most is winter, it is the source of my happiness and energy, of course with drinking Nescafe, I like to practice hobbies and learn in it more than any other time .</p>
+              </div>
+            </div>
+            <hr>
+            <div class="contact-me">
+              <h2>Get In Touch</h2>
+              <h3>If you are a fan of application development like me and want to communicate</h3>
+              <p>  I will be happy to get to know you and your aspirations, especially if you prefer winter</p>
+              <a class="btn" href="mailto:naghmhoms46@email.com">CONTACT ME</a>
+            </div>
+          </div>    
+        </section>    
+        <footer>
+          <a class="footer-link" href="https://www.facebook.com/people/Nagham-Abdulwahed/100022149846395/">Facebook</a>
+          <a class="footer-link" href="https://t.me/Nagham1968">Telegram</a>
+          <a class="footer-link" href="https://www.instagram.com/nagham6738/">Instagram</a>
+          <p>© 2021 Nagham.</p>
+        </footer>
+        
+    </body>
+</html>
