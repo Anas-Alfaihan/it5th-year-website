@@ -1883,13 +1883,16 @@ def pushData(request):
         if request.user.is_superuser:
              form = UploadFileForm(request.POST, request.FILES)
              if form.is_valid():
-                # If a custom filename is provided, use it. Otherwise, use the original filename.
-                custom_filename = form.cleaned_data.get('custom_filename') or "synchronization"
-                # Create a new UploadedFile object and save it to the database
-                uploaded=request.FILES['file']
-                uploaded._name="synchronization.json"
-                uploaded_file = UploadedFile(file=uploaded, filename=custom_filename)
-                uploaded_file.save()
+                 if os.path.exists("uploads/synchronization.json"):
+                     os.remove("uploads/synchronization.json")
+                     print('lmmm')
+                 # If a custom filename is provided, use it. Otherwise, use the original filename.
+                 custom_filename = form.cleaned_data.get('custom_filename') or "synchronization"
+                 # Create a new UploadedFile object and save it to the database
+                 uploaded=request.FILES['file']
+                 uploaded._name="synchronization.json"
+                 uploaded_file = UploadedFile(file=uploaded, filename=custom_filename)
+                 uploaded_file.save()
             
              with transaction.atomic():
                 savePoint= transaction.savepoint()
