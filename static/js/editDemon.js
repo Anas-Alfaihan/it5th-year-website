@@ -111,16 +111,25 @@ function editDemon(e, id) {
                 return !validator.isEmpty(str);
             },
             mobile: (str) => {
-                return !validator.isEmpty(str);
+                return (
+                    !validator.isEmpty(str) &&
+                    validator.matches(
+                        str,
+                        /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/
+                    )
+                );
             },
             telephone: (str) => {
-                return !validator.isEmpty(str);
+                return (
+                    validator.isEmpty(str) ||
+                    validator.matches(str, /^([0-9]{3}[-]?)?[0-9]{7}$/)
+                );
             },
             email: (str) => {
                 return validator.isEmail(str);
             },
             birthDate: (str) => {
-                return validator.isDate(str, { format: 'dd/mm/yyyy' });
+                return validator.isDate(str, { format: 'mm/dd/yyyy' });
             },
             gender: (str) => {
                 return (

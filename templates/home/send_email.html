@@ -2,6 +2,10 @@
 {% load static %}
 <!-- something here for nothing  -->
 
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/multi-select.min.css' %}">
+{% endblock %}
+
 {% block content %}
 <h2 class="tit">إرسال ايميل</h2>
 
@@ -10,9 +14,10 @@
   <form class="col-md-8  mx-auto mt-5" action="../sendEmails/" method="POST">
     {% csrf_token %}
     <div class="mb-3">
-      <div >
+      <div>
         <label for="exampleFormControlSelect" class="form-label">اختر الموقع الذي تريد الإرسال منه :</label>
-        <select name="server" class="form-select" id="exampleFormControlSelect" aria-label="Floating label select example">
+        <select name="server" class="form-select" id="exampleFormControlSelect"
+          aria-label="Floating label select example">
           <option selected value="gmail">Gmail</option>
           <option value="hotmail">Hotmail</option>
         </select>
@@ -43,12 +48,12 @@
         placeholder="اكتب الرسالة هنا..."></textarea>
     </div>
     <div class="mb-3">
-      <div class="form-floating">
-        <select name="college" class="form-select" id="floatingSelect" aria-label="Floating label select example">
-          <option selected>افتح القائمة لتختار الكلية المرسل إليها :</option>
-        </select>
-        <label class="text-dark" for="floatingSelect">اختر الكلية :</label>
-      </div>
+      <label class="text-dark" for="floatingSelect">اختر الكلية :</label>
+
+      <select name="college" multiple id="floatingSelect" aria-label="Floating label select example" style="">
+        <option selected>افتح القائمة لتختار الكلية المرسل إليها :</option>
+      </select>
+
     </div>
     <button type="submit" name="emails" value="normal" style="background-color:#4b49ac"
       class="btn text-white  ">ارسال</button>
@@ -57,6 +62,8 @@
       انذار للمتأخرين</button>
   </form>
 </div>
+
+<script src="{% static 'js/multi-select.js'%}"></script>
 
 
 <script>
@@ -97,6 +104,8 @@
     last.text = "كل الكليات";
     last.value = "all";
     select.add(last);
+
+    new MultiSelectTag('floatingSelect')
 
   });
 
