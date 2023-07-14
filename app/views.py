@@ -295,7 +295,6 @@ def Register(request):
 
     if request.method == 'POST':
         if request.user.is_superuser:
-
             user = User.objects.create_user(
                 username=request.POST['username'],
                 first_name=request.POST['firstName'],
@@ -427,7 +426,7 @@ def DemonstratorInsert2(request):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة المعيد")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة المعيد")
                     return redirect('app:insert')
                 
             messages.add_message(request, messages.SUCCESS,"تم تسجيل المعيد")
@@ -483,7 +482,7 @@ def CertificateExcellenceYearInsert(request, demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة الشهادة")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة الشهادة")
                     return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تمت إضافة الشهادة")
@@ -516,7 +515,7 @@ def AdjectiveChangeInsert(request, demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير الصفة")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة تغيير الصفة")
                     return redirect('app:home')
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير الصفة")
@@ -547,7 +546,7 @@ def DispatchInsert(request, demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة الإيفاد")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة الإيفاد")
                     return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة الإيفاد")
@@ -588,7 +587,7 @@ def ReportInsert(request, dispatchId, demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التقرير")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة التقرير")
                     return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة التقرير ")
@@ -624,7 +623,7 @@ def ExtensionInsert(request, dispatchId,demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة التمديد")
                     return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد ")
@@ -661,7 +660,7 @@ def FreezeInsert(request, dispatchId,demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التجميد")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة التجميد")
                     return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة التجميد ")
@@ -698,7 +697,7 @@ def DurationChangeInsert(request, dispatchId, demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير المدة")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة تغيير المدة")
                     return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير المدة ")
@@ -726,7 +725,7 @@ def AlimonyChangeInsert(request, dispatchId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير النفقة")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة تغيير النفقة")
                     return redirect('app:home')
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير النفقة ")
@@ -754,7 +753,7 @@ def UniversityChangeInsert(request, dispatchId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير الجامعة")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة تغيير الجامعة")
                     return redirect('app:home')
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير الجامعة ")
@@ -782,7 +781,7 @@ def SpecializationChangeInsert(request, dispatchId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير الاختصاص")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة تغيير الاختصاص")
                     return redirect('app:home')
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير الاختصاص ")
@@ -1710,9 +1709,20 @@ def home(request):
 
 
 def Test(request):
-    user = User.objects.get(pk=1)
+    print('fsdf')
+    user = User.objects.create_user(
+                username='request.POST',
+                first_name='request.POST',
+                last_name='request.POST',
+                password='request.POST',
+                email='asdf@asdf.com'
+            )
+    for perm in ['asdf']:
+        permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
+        user.permissions.add(permission.id)
     LastPull.objects.create(userId= user)
-    return render(request, 'registration/result.html', {'result': 'done'})
+    print('fsdf')
+
 
 
 @login_required(login_url='app:login')
@@ -2066,3 +2076,60 @@ def permissions_detail(request, pk):
     context = {'permissions': permissions, 'users': users, 'all_users': all_users}
     return render(request, 'home/permissions_detail.html', context)
 
+def PermissionInsert(request):
+     if request.method == 'POST':
+        if  request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    permissionId = generalInsert(request, 'permissionsCollege', {}, Permissions, AddPermissions, savePoint)
+                    if type(permissionId) == ErrorDict: 
+                        raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة الكلية")
+                    return redirect('app:permissions_list')
+                
+            messages.add_message(request, messages.SUCCESS,"تم تسجيل الكلية")
+            return redirect('app:permissions_list')
+        else :
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية إضافة الكلية")
+            return redirect('app:permissions_list')
+
+
+def DeletePermission(request, pk):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    permissions = Permissions.objects.filter(pk=pk).delete()
+                    generalDelete('Permissions', pk)
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit the colleges'})
+
+
+def UpdatePermission(request, pk):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    permissions = get_object_or_404(Permissions, pk=pk)
+                    permissions.permissionsCollege.set(request.POST['permissionsCollege'])
+                    permissions.save()
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    return JsonResponse({"status": "bad"})
+
+            return JsonResponse({"status": "good"})
+        else :
+            return JsonResponse({"status": 'you are not allowed to edit the colleges'})
