@@ -4,8 +4,8 @@
     "updated": [],
     "added": [
       {
-        "id": 20,
-        "name": "newonehi",
+        "id": 18,
+        "name": "Abdullah Buhlaq",
         "fatherName": "asdf",
         "motherName": "hedaya",
         "gender": "male",
@@ -26,9 +26,9 @@
         "section": "B",
         "specialization": "O",
         "commencementAfterNominationDate": null,
-        "createdDate": "2023-07-14T08:46:02.018822Z",
-        "lastModifiedDate": "2023-07-14T08:46:02.018822Z",
-        "isOffline": false
+        "createdDate": "2023-07-14T08:05:47.563183Z",
+        "lastModifiedDate": "2023-07-14T08:05:47.563183Z",
+        "isOffline": true
       }
     ],
     "deleted": []
@@ -37,20 +37,20 @@
     "updated": [],
     "added": [
       {
-        "universityDegree": 20,
+        "universityDegree": 18,
         "universityDegreeUniversity": "\u062c\u0627\u0645\u0639\u0629 \u063a\u0627\u0644\u0648\u0644 \u0627\u0644\u0646\u0648\u0628",
         "universityDegreeCollege": "\u0634\u0633\u064a\u0628",
         "universityDegreeSection": "sadf",
         "universityDegreeYear": "2002-2003",
         "universityDegreeAverage": "60.00",
-        "createdDate": "2023-07-14T08:46:02.037812Z",
-        "lastModifiedDate": "2023-07-14T08:46:02.037812Z",
-        "isOffline": false
+        "createdDate": "2023-07-14T08:05:47.620118Z",
+        "lastModifiedDate": "2023-07-14T08:05:47.620118Z",
+        "isOffline": true
       }
     ],
     "deleted": []
   },
-  "Nomination": { "updated": [], "added": [{ "nominationDecision": 20, "nominationDecisionNumber": 3, "nominationDecisionDate": "2023-12-31", "nominationDecisionType": "s", "createdDate": "2023-07-14T08:46:02.032796Z", "lastModifiedDate": "2023-07-14T08:46:02.032796Z", "isOffline": false }], "deleted": [] },
+  "Nomination": { "updated": [], "added": [{ "nominationDecision": 18, "nominationDecisionNumber": 3, "nominationDecisionDate": "2023-12-31", "nominationDecisionType": "s", "createdDate": "2023-07-14T08:05:47.597133Z", "lastModifiedDate": "2023-07-14T08:05:47.597133Z", "isOffline": true }], "deleted": [] },
   "AdjectiveChange": { "updated": [], "added": [], "deleted": [] },
   "CertificateOfExcellence": { "updated": [], "added": [], "deleted": [] },
   "GraduateStudies": { "updated": [], "added": [], "deleted": [] },

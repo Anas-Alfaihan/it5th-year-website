@@ -2,7 +2,7 @@ import datetime
 # import pythoncom
 import time
 # import win32com.client
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -763,7 +763,7 @@ def getAllDemonstrators(request):
 
 @login_required(login_url='app:login')
 def getDemonstrator(request, id):
-    demonstrator = Demonstrator.objects.select_related().prefetch_related().all().get(pk=id )
+    demonstrator = get_object_or_404(Demonstrator.objects.select_related().prefetch_related().all(), pk=id)
     permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
     return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator, 'permissions': permissionList})
    
@@ -1606,20 +1606,20 @@ def QueryDemonstrator(request):
 @login_required(login_url='app:login')
 def home(request):
     result={}
-    result['allDemons'] = Demonstrator.objects.filter().count()
+    result['allDemons'] = Demonstrator.objects.filter().distinct().count()
     todayDate= datetime.date.today() 
-    result['allInDispatch'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate})).count()
-    result['master'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'requiredCertificate':'master'})).count()
-    result['ph.d'] = Dispatch.objects.filter(Q(**{'dispatchEndDate__gte': todayDate}) & Q(**{'requiredCertificate':'ph.d'})).count()
+    result['allInDispatch'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate})).distinct().count()
+    result['master'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate}) & Q(**{'dispatch__requiredCertificate':'master'})).distinct().count()
+    result['ph.d'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate}) & Q(**{'dispatch__requiredCertificate':'ph.d'})).distinct().count()
     result['others'] = result['allDemons'] - result['master'] - result['ph.d']
     for adjective in ADJECTIVE_CHOICES:
-        result[adjective[0]] = Demonstrator.objects.filter(currentAdjective= adjective[0]).count()
+        result[adjective[0]] = Demonstrator.objects.filter(currentAdjective= adjective[0]).distinct().count()
     result['phd'] = result['ph.d']
     result['returning_demonstrator'] = result['returning demonstrator']
     result['transfer_outside_the_university'] = result['transfer outside the university']
     result['end_services'] = result['end services']
-    print(result)
     return render(request, 'home/home.html', {'statistics': result}) 
+
 
 
 def Test(request):
@@ -1711,7 +1711,12 @@ def pullData(request):
              temp.lastPullDate=datetime.datetime.now
              temp.waitingMerge = True
              LastPull.save(self=temp)
-             return render(request, 'registration/result.html', {'result': 'done'})
+
+             response = FileResponse(open("uploads/synchronization.json", 'rb'))
+             response['Content-Disposition'] = 'attachment; filename=' + "synchronization.json"
+             response['Content-Type'] = 'application/octet-stream'
+             return response
+            #  return render(request, 'registration/result.html', {'result': 'done'})
            
 
 
@@ -1874,9 +1879,18 @@ def getForm(modelName):
 
 @login_required(login_url='app:login')
 def pushData(request):
-    # make it post request
-    if True:
+    if request.method == 'POST':
         if request.user.is_superuser:
+             form = UploadFileForm(request.POST, request.FILES)
+             if form.is_valid():
+                # If a custom filename is provided, use it. Otherwise, use the original filename.
+                custom_filename = form.cleaned_data.get('custom_filename') or "synchronization"
+                # Create a new UploadedFile object and save it to the database
+                uploaded=request.FILES['file']
+                uploaded._name="synchronization.json"
+                uploaded_file = UploadedFile(file=uploaded, filename=custom_filename)
+                uploaded_file.save()
+            
              with transaction.atomic():
                 savePoint= transaction.savepoint()
                 try:
@@ -1987,11 +2001,9 @@ def pushData(request):
                                 deletedObject.objectId = deleted.id
                                 deletedObject.save()
 
-                    print('finish')
                     temp = LastPull.objects.get(userId_id__is_superuser=1)
                     temp.waitingMerge = False
                     LastPull.save(self=temp)
-                    print('final')
                             
                     return render(request, 'registration/result.html', {'result': 'done'})
                 except Exception as e:
@@ -2001,7 +2013,8 @@ def pushData(request):
         else:
             return render(request, 'registration/result.html', {'result': 'done'})
     else:
-        return render(request, 'registration/result.html', {'result': 'done'})
+        form = UploadFileForm()
+        return render(request, 'home/upload.html', {'form': form})
 
 
 @login_required(login_url='app:login')
