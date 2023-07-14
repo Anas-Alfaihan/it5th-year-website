@@ -35,7 +35,6 @@
             text-align: center;
             vertical-align: middle;
             user-select: none;
-            border: 1px solid transparent;
             padding: 0.875rem 1.5rem;
             transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         }
@@ -105,7 +104,7 @@
                     </a>
                 </li>
                 <li class="nav-item" id="nav-2">
-                    <a class="nav-link" href="/admin">
+                    <a class="nav-link" href="/app/permissions">
                         <i class="fa-solid fa-server menu-icon"></i>
                         <span class="menu-title">صفحة المدير</span>
                     </a>
@@ -161,22 +160,23 @@
     {% for message in messages %}
     <script type="text/javascript" language="JavaScript">
         let grad = [
-            'linear-gradient(-120deg, #D62121, #C72C2C, #3a1111)',
-            'linear-gradient(to right, #00b09b, #96c93d)',
+            'linear-gradient(45deg, #ff0084, #ff8c00)',
+            'linear-gradient(-45deg, #00ff9c, #00d1ff)',
         ];
+
         let k = '{{message.tags}}';
 
         Toastify({
             text: '{{message}}',
             duration: 3000,
             close: true,
-            gravity: 'top', // `top` or `bottom`
-            position: 'left', // `left`, `center` or `right`
+            gravity: "top", // `top` or `bottom`
+            position: "left", // `left`, `center` or `right`
             stopOnFocus: true, // Prevents dismissing of toast on hover
             style: {
                 background: k === 'error' ? grad[0] : grad[1],
-                width: '300px',
-                border: '16px',
+                width: "300px",
+                border: "16px",
             },
         }).showToast();
     </script>

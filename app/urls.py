@@ -10,7 +10,7 @@ urlpatterns = [
     path('send/', views.Email, name='email'),
     path('sendEmails/', views.SendEmails, name='send'),
     path('register/', views.Register, name='register'),
-    path('test/', views.pullData, name='test'),
+    path('test/', views.pushData, name='test'),
     path('login/', views.Login, name='login'),
     path('logout/', views.Logout, name='logout'),
     path('insert/', views.DemonstratorInsert2, name='insert'),
@@ -42,6 +42,10 @@ urlpatterns = [
     path('durationInsert/<int:dispatchId>/<int:demonId>/', views.DurationChangeInsert, name='durationInsert'),
     path('getAllUsers/', views.GetAllUsers, name='getAllUsers'),
     path('gett/', views.do_something, name='gett'),
+    path('test/', views.Test, name='test'),
+    path('permissions/', views.permissions_list, name='permissions_list'),
+    path('permissions/<int:pk>/', views.permissions_detail, name='permissions_detail'),
+    path('permissions/<int:pk>/', views.permissions_detail, name='permissions_delete'),
 
 
 ]

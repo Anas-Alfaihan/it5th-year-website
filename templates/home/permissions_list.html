@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block style %}
+
+<style>
+    .sect {
+        margin: 50px;
+        height: 100vh;
+        padding: 50px 40px;
+    }
+
+    a {
+        color: black
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div class="sec sect">
+
+    <h1 class="mb-5">السماحيات</h1>
+    <form method="GET">
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1"><i
+                    class="fa-sharp fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" name="search" class="form-control" {% if query %} value="{{query}}" {% endif %}
+                placeholder="ابحث عن اسم الاختصاص">
+
+
+            <button type="submit" class="btn btn-outline-secondary">بحث</button>
+
+        </div>
+    </form>
+    <div class="list-group list-group-flush rounded">
+        {% for permissions in permissions %}
+        <li class="list-group-item mb-1 d-flex justify-content-between align-items-start">
+            <div>
+                <a href="{% url 'app:permissions_detail' permissions.pk %}">{{permissions.permissionsCollege }}</a>
+            </div>
+            <a href="{% url 'app:permissions_delete' permissions.pk %}">
+                <span class="badge bg-danger rounded-pill"><i class="fa-solid   fa-trash"></i></span>
+            </a>
+        </li>
+        {% empty %}
+        <p>لا يوجد سماحيات</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

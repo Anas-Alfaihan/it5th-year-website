@@ -2,7 +2,7 @@ import datetime
 # import pythoncom
 import time
 # import win32com.client
-from django.shortcuts import render, redirect,get_object_or_404
+from django.shortcuts import render, redirect,get_object_or_404,get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -26,7 +26,8 @@ from .constantVariables import ADJECTIVE_CHOICES
 from rest_framework.serializers import Serializer
 
 
-
+import smtplib
+import ssl
 import os.path
 from email.message import EmailMessage
 
@@ -50,9 +51,13 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
 @login_required(login_url='app:login')
 def UploadFile(request):
+    print('lmmm22')
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
+            if os.path.exists("uploads/synchronization.json"):
+                os.remove("uploads/synchronization.json")
+                print('lmmm')
             # If a custom filename is provided, use it. Otherwise, use the original filename.
             custom_filename = form.cleaned_data.get('custom_filename') or "synchronization"
             # Create a new UploadedFile object and save it to the database
@@ -74,7 +79,6 @@ def DownloadFile(request):
     return response
 
 
-@login_required(login_url='app:login')
 def RemoveOldToken():
     N = 6
     
@@ -95,7 +99,6 @@ def RemoveOldToken():
                     os.remove(file_location)
 
 
-@login_required(login_url='app:login')
 def SendEmailHotmail(email,subject,message):
     ol=win32com.client.Dispatch("outlook.application",pythoncom.CoInitialize())
     olmailitem=0x0 
@@ -107,7 +110,23 @@ def SendEmailHotmail(email,subject,message):
     newmail.Send()
 
 
-@login_required(login_url='app:login')
+def SendEmailAlbaath(email,subject,message):
+    smtp_server = "albaath-univ.edu.sy"
+    port = 465  # For starttls
+    sender_email = "test1234@albaath-univ.edu.sy"
+    receiver_email = email
+    password = '9Xpas66@'
+    msg = f"Subject: {subject}\n\n{message}"
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, msg)
+        
+    print("Email sent successfully!")
+
+
+
 def SendEmailGmail(email,subject,message):
     RemoveOldToken()
     creds = None
@@ -177,7 +196,6 @@ def SendEmailGmail(email,subject,message):
         print(f'An error occurred: {error}')
 
 
-@login_required(login_url='app:login')
 def SendEmails(request):
     if request.POST['emails'] == 'normal':
         try:
@@ -216,6 +234,8 @@ def SendEmails(request):
                     SendEmailGmail(x,request.POST['subject'],request.POST['msg'])
                 elif request.POST['server'] == 'hotmail':
                     SendEmailHotmail(x,request.POST['subject'],request.POST['msg'])
+                elif request.POST['server'] == 'albaath':
+                    SendEmailAlbaath(x,request.POST['subject'],request.POST['msg'])
 
             emails_str=emails_str[:-2]
 
@@ -262,7 +282,6 @@ def SendEmails(request):
         return render(request, 'home/success.html', {"emails": emails})
 
 
-@login_required(login_url='app:login')
 def Email(request):
     # permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
     permissions=list(Permissions.objects.all().values('permissionsCollege'))
@@ -276,6 +295,7 @@ def Register(request):
 
     if request.method == 'POST':
         if request.user.is_superuser:
+
             user = User.objects.create_user(
                 username=request.POST['username'],
                 first_name=request.POST['firstName'],
@@ -328,7 +348,6 @@ def Logout(request):
     return redirect('app:home')
 
 
-@login_required(login_url='app:login')
 def CalculateDispatchEndDate(dispatch):
     dateItem= datetime.datetime.strptime(dispatch[0]['commencementDate'], '%Y-%m-%d').date()
     endDate= dateItem
@@ -361,7 +380,6 @@ def CalculateDispatchEndDate(dispatch):
     return endDate
 
 
-@login_required(login_url='app:login')
 def generalInsert(request, mainField, baseDic, model, addModel, savePoint):
     id = None
     for i in range(len(request.POST.getlist(mainField))):
@@ -375,7 +393,6 @@ def generalInsert(request, mainField, baseDic, model, addModel, savePoint):
         if form.is_valid():
             id = form.save()
         else:
-            transaction.savepoint_rollback(savePoint)
             print(form.errors)
             return form.errors
     return id
@@ -388,39 +405,37 @@ def DemonstratorInsert2(request):
         if request.POST['college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
+                try:
+                    demonId = generalInsert(request, 'name', {}, Demonstrator, AddDemonstrator, savePoint)
+                    if type(demonId) == ErrorDict: 
+                        raise Exception('error')
 
-                demonId = generalInsert(request, 'name', {}, Demonstrator, AddDemonstrator, savePoint)
-                if type(demonId) == ErrorDict: 
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة المعيد")
-                    return redirect('app:insert')
+                    id = generalInsert(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, savePoint)
+                    if type(id) == ErrorDict: 
+                        raise Exception('error')
 
-                id = generalInsert(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, savePoint)
-                if type(id) == ErrorDict: 
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة المعيد")
-                    return redirect('app:insert')
+                    id = generalInsert(request, 'universityDegreeUniversity', {'universityDegree': demonId}, UniversityDegree, AddUniversityDegree, savePoint)
+                    if type(id) == ErrorDict: 
+                        raise Exception('error')
 
-                id = generalInsert(request, 'universityDegreeUniversity', {'universityDegree': demonId}, UniversityDegree, AddUniversityDegree, savePoint)
-                if type(id) == ErrorDict: 
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة المعيد")
-                    return redirect('app:insert')
+                    id = generalInsert(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, savePoint)
+                    if type(id) == ErrorDict: 
+                        raise Exception('error')
 
-                id = generalInsert(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, savePoint)
-                if type(id) == ErrorDict: 
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة المعيد")
-                    return redirect('app:insert')
-
-                id = generalInsert(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, savePoint)
-                if type(id) == ErrorDict: 
+                    id = generalInsert(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, savePoint)
+                    if type(id) == ErrorDict: 
+                        raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة المعيد")
                     return redirect('app:insert')
                 
-
             messages.add_message(request, messages.SUCCESS,"تم تسجيل المعيد")
             return redirect('app:insert')
         else :
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
             return redirect('app:insert')
-
     else:
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         return render(request, 'home/insert.html', {'permissions': permissionList})
@@ -434,12 +449,16 @@ def GraduateStudiesDegreeInsert(request, demonId):
         if college[0]['college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                id = generalInsert(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, savePoint)
-                if type(id) == ErrorDict: 
+                try:
+                    id = generalInsert(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, savePoint)
+                    if type(id) == ErrorDict: 
+                        raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة الشهادة")
                     return redirect('app:demonstrator', id= demonId)
-
+            
             messages.add_message(request, messages.SUCCESS,"تمت إضافة الشهادة")
             return redirect('app:demonstrator', id= demonId)
         else :
@@ -458,9 +477,13 @@ def CertificateExcellenceYearInsert(request, demonId):
         if college[0]['college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                id = generalInsert(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, savePoint)
-                if type(id) == ErrorDict: 
+                try:
+                    id = generalInsert(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, savePoint)
+                    if type(id) == ErrorDict: 
+                        raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة الشهادة")
                     return redirect('app:demonstrator', id= demonId)
 
@@ -482,23 +505,26 @@ def AdjectiveChangeInsert(request, demonId):
         if college[0]['college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                id = generalInsert(request, 'adjectiveChangeDecisionNumber', {'studentId': demonId}, AdjectiveChange, AddAdjectiveChange, savePoint)
-                if type(id) == ErrorDict: 
+                try:
+                    id = generalInsert(request, 'adjectiveChangeDecisionNumber', {'studentId': demonId}, AdjectiveChange, AddAdjectiveChange, savePoint)
+                    if type(id) == ErrorDict: 
+                        raise Exception('error')
+                    
+                    demonstrator = Demonstrator.objects.get(pk=demonId)
+                    demonstrator.currentAdjective = request.POST['adjectiveChangeAdjective']
+                    Demonstrator.full_clean(self=demonstrator)
+                    Demonstrator.save(self=demonstrator)
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير الصفة")
                     return redirect('app:home')
-
-                demonstrator = Demonstrator.objects.get(pk=demonId)
-                demonstrator.currentAdjective = request.POST['adjectiveChangeAdjective']
-                Demonstrator.full_clean(self=demonstrator)
-                Demonstrator.save(self=demonstrator)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير الصفة")
             return redirect('app:home')
         else: 
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
             return redirect('app:home')
-
     else:
         return render(request, 'registration/dispathInsert.html')
 
@@ -510,16 +536,18 @@ def DispatchInsert(request, demonId):
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
-
                 savePoint = transaction.savepoint()
+                try:
+                    dispatchId = generalInsert(request, 'dispatchDecisionNumber', {'studentId': demonId }, Dispatch, AddDispatch, savePoint)
+                    if type(dispatchId) == ErrorDict: 
+                        raise Exception('error')
 
-                dispatchId = generalInsert(request, 'dispatchDecisionNumber', {'studentId': demonId }, Dispatch, AddDispatch, savePoint)
-                if type(dispatchId) == ErrorDict: 
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة الإيفاد")
-                    return redirect('app:demonstrator', id= demonId)
-
-                id = generalInsert(request, 'regularizationDecisionNumber', {'regularizationDecisionId': dispatchId}, Regularization, AddRegularization, savePoint)
-                if type(id) == ErrorDict: 
+                    id = generalInsert(request, 'regularizationDecisionNumber', {'regularizationDecisionId': dispatchId}, Regularization, AddRegularization, savePoint)
+                    if type(id) == ErrorDict: 
+                        raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة الإيفاد")
                     return redirect('app:demonstrator', id= demonId)
 
@@ -542,15 +570,25 @@ def getDispatch(request, dispatchId):
 
 @login_required(login_url='app:login')
 def ReportInsert(request, dispatchId, demonId):
-    
     if request.method == 'POST':
         college= list(Dispatch.objects.filter(pk=dispatchId).values('studentId__college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['studentId__college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-                reportId = generalInsert(request, 'report', {'dispatchDecisionId': dispatchId}, Report, AddReport, savePoint)
-                if type(reportId) == ErrorDict: 
+                try:
+                    reportId = generalInsert(request, 'report', {'dispatchDecisionId': dispatchId}, Report, AddReport, savePoint)
+                    if type(reportId) == ErrorDict: 
+                        raise Exception('error')
+                
+                    dispatchs= Dispatch.objects.filter(pk=dispatchId)
+                    for dispatch in dispatchs:
+                        dispatch.lastReportDate = request.POST['reportDate']
+                        Dispatch.full_clean(self=dispatch)
+                        Dispatch.save(self=dispatch)
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التقرير")
                     return redirect('app:demonstrator', id= demonId)
 
@@ -570,35 +608,26 @@ def ExtensionInsert(request, dispatchId,demonId):
         if college[0]['studentId__college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                extensionId = generalInsert(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, savePoint)
-                if type(extensionId) == ErrorDict: 
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
-                    return redirect('app:demonstrator', id= demonId)
-                
                 try:
+                    extensionId = generalInsert(request, 'extensionDecisionNumber', {'dispatchDecisionId': dispatchId}, Extension, AddExtension, savePoint)
+                    if type(extensionId) == ErrorDict: 
+                        raise Exception('error')
+                    
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
-                except:
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
+                except Exception as e:
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
                     return redirect('app:demonstrator', id= demonId)
 
-                informationForEmail={ 'name': college[0]['studentId__name'],
-                                    'fatherName': college[0]['studentId__fatherName'],
-                                    'extensionDecisionNumber': request.POST['extensionDecisionNumber'],
-                                    'extensionDecisionDate': request.POST['extensionDecisionDate'],
-                                    'extensionDecisionType': request.POST['extensionDecisionType'],
-                                    'extensionDurationYear': request.POST['extensionDurationYear'],
-                                    'extensionDurationMonth': request.POST['extensionDurationMonth'],
-                                    'extensionDurationDay': request.POST['extensionDurationDay'],
-                                    }
             messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد ")
             return redirect('app:demonstrator', id= demonId)
         else:
@@ -616,23 +645,23 @@ def FreezeInsert(request, dispatchId,demonId):
         if college[0]['studentId__college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                freezeId = generalInsert(request, 'freezeDecisionNumber', {'dispatchDecisionId': dispatchId}, Freeze, AddFreeze, savePoint)
-                if type(freezeId) == ErrorDict: 
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التجميد")
-                    return redirect('app:demonstrator', id= demonId)
-                
                 try:
+                    freezeId = generalInsert(request, 'freezeDecisionNumber', {'dispatchDecisionId': dispatchId}, Freeze, AddFreeze, savePoint)
+                    if type(freezeId) == ErrorDict: 
+                        raise Exception('error')
+
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
-                except:
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
+                except Exception as e:
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التجميد")
                     return redirect('app:demonstrator', id= demonId)
 
@@ -653,23 +682,23 @@ def DurationChangeInsert(request, dispatchId, demonId):
         if college[0]['studentId__college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                id = generalInsert(request, 'durationChangeDurationYear', {'dispatchDecisionId': dispatchId}, DurationChange, AddDurationChange, savePoint)
-                if type(id) == ErrorDict: 
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير المدة")
-                    return redirect('app:demonstrator', id= demonId)
-                
                 try:
+                    id = generalInsert(request, 'durationChangeDurationYear', {'dispatchDecisionId': dispatchId}, DurationChange, AddDurationChange, savePoint)
+                    if type(id) == ErrorDict: 
+                        raise Exception('error')
+                
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
-                except:
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
+                except Exception as e:
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير المدة")
                     return redirect('app:demonstrator', id= demonId)
 
@@ -691,9 +720,13 @@ def AlimonyChangeInsert(request, dispatchId):
         if college[0]['studentId__college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                id = generalInsert(request, 'newAlimony', {'dispatchDecisionId': dispatchId}, AlimonyChange, AddAlimonyChange, savePoint)
-                if type(id) == ErrorDict: 
+                try:
+                    id = generalInsert(request, 'newAlimony', {'dispatchDecisionId': dispatchId}, AlimonyChange, AddAlimonyChange, savePoint)
+                    if type(id) == ErrorDict: 
+                        raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير النفقة")
                     return redirect('app:home')
 
@@ -715,9 +748,13 @@ def UniversityChangeInsert(request, dispatchId):
         if college[0]['studentId__college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                id = generalInsert(request, 'newUniversity', {'dispatchDecisionId': dispatchId}, UniversityChange, AddUniversityChange, savePoint)
-                if type(id) == ErrorDict: 
+                try:
+                    id = generalInsert(request, 'newUniversity', {'dispatchDecisionId': dispatchId}, UniversityChange, AddUniversityChange, savePoint)
+                    if type(id) == ErrorDict: 
+                        raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير الجامعة")
                     return redirect('app:home')
 
@@ -739,9 +776,13 @@ def SpecializationChangeInsert(request, dispatchId):
         if college[0]['studentId__college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                id = generalInsert(request, 'newSpecialization', {'dispatchDecisionId': dispatchId}, SpecializationChange, AddSpecializationChange, savePoint)
-                if type(id) == ErrorDict: 
+                try:
+                    id = generalInsert(request, 'newSpecialization', {'dispatchDecisionId': dispatchId}, SpecializationChange, AddSpecializationChange, savePoint)
+                    if type(id) == ErrorDict: 
+                        raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير الاختصاص")
                     return redirect('app:home')
 
@@ -772,7 +813,6 @@ def getDemonstrator(request, id):
 def GetAllEmails(request):
     if request.method == 'POST':
         all = Demonstrator.objects.filter().values('email', 'mobile', 'name')
-        print(all)
         return render(request, 'registration/result.html', {'result': 'done'})
 
 
@@ -780,18 +820,12 @@ def GetAllEmails(request):
 def GetLateEmails(request):
     if request.method == 'POST':
         todayDate = datetime.date.today() 
-        lateDate = datetime.date.today() + relativedelta(months=-3)
-        reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
-        dis =[]
-        for report in list(reports):
-            dis.append(report['dispatchDecisionId_id'])
-        dispatchLate= Dispatch.objects.filter( Q(**{'id__in': dis}) & Q(**{'dispatchEndDate__gte' : todayDate})).values('studentId_id')
-        res =[]
+        lateDate = datetime.date.today() + relativedelta(days=-1)
+        dispatchLate= Dispatch.objects.filter(Q(**{'dispatchEndDate__gte' : todayDate}) & ( Q(**{'lastReportDate__lte':lateDate}) | ( Q(**{'lastReportDate':None}) & Q(**{'commencementDate__lte':lateDate}) ) ) ).values('studentId_id')
+        res= []
         for dispatch in list(dispatchLate):
             res.append(dispatch['studentId_id'])
-        
         late = Demonstrator.objects.filter(pk__in=res ).values('email', 'mobile', 'name')
-        print(late)
         return render(request, 'registration/result.html', {'result': 'done'})
 
 
@@ -799,30 +833,24 @@ def GetLateEmails(request):
 def GetCollegeEmails(request):
     if request.method == 'POST':
         college = Demonstrator.objects.filter(college=request.POST['college']).values('email', 'mobile', 'name')
-        print(college)
         return render(request, 'registration/result.html', {'result': 'done'})
 
 
-@login_required(login_url='app:login')
 def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint):
-    try:
-        id = None
-        if mainField in request.POST:
-            dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken']}
-            dic.update(baseDic)
-            for field in model._meta.local_fields:
-                if field.name in request.POST:
-                    dic[field.name] = request.POST[field.name]
-            form = addModel(dic, instance=obj)
-            if form.is_valid():
-                id = form.save()
-            else:
-                transaction.savepoint_rollback(savePoint)
-                print(form.errors)
-                return form.errors
-        return id
-    except:
-        print('error')
+    id = None
+    if mainField in request.POST:
+        dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken']}
+        dic.update(baseDic)
+        for field in model._meta.local_fields:
+            if field.name in request.POST:
+                dic[field.name] = request.POST[field.name]
+        form = addModel(dic, instance=obj)
+        if form.is_valid():
+            id = form.save()
+        else:
+            print(form.errors)
+            return form.errors
+    return id
 
 
 @login_required(login_url='app:login')
@@ -833,11 +861,16 @@ def UpdateDemonstrator(request, id):
         if college[0]['college'] in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                demonstrators = Demonstrator.objects.filter(pk=id)
-                for demonstrator in demonstrators:
-                    demonId= generalUpdate(request, 'name', {}, Demonstrator, AddDemonstrator, demonstrator, savePoint)
-                    if type(demonId) == ErrorDict: return JsonResponse({"status": "bad"})
+                try:
+                    demonstrators = Demonstrator.objects.filter(pk=id)
+                    for demonstrator in demonstrators:
+                        demonId= generalUpdate(request, 'name', {}, Demonstrator, AddDemonstrator, demonstrator, savePoint)
+                        if type(demonId) == ErrorDict:
+                            raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
@@ -852,11 +885,16 @@ def UpdateUniversityDegree(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                universityDegrees= UniversityDegree.objects.filter(pk=id)
-                for universityDegree in universityDegrees:
-                    resId = generalUpdate(request, 'universityDegreeUniversity', {'universityDegree': demonId}, UniversityDegree, AddUniversityDegree, universityDegree, savePoint)
-                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+                try:
+                    universityDegrees= UniversityDegree.objects.filter(pk=id)
+                    for universityDegree in universityDegrees:
+                        resId = generalUpdate(request, 'universityDegreeUniversity', {'universityDegree': demonId}, UniversityDegree, AddUniversityDegree, universityDegree, savePoint)
+                        if type(resId) == ErrorDict:
+                            raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
@@ -871,11 +909,16 @@ def UpdateNomination(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                nominations= Nomination.objects.filter(pk=id)
-                for nomination in nominations:
-                    resId = generalUpdate(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, nomination, savePoint)
-                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+                try:
+                    nominations= Nomination.objects.filter(pk=id)
+                    for nomination in nominations:
+                        resId = generalUpdate(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, nomination, savePoint)
+                        if type(resId) == ErrorDict:
+                            raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
@@ -890,21 +933,22 @@ def UpdateAdjectiveChange(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                adjectiveChange= AdjectiveChange.objects.filter(pk=id)
-                for model in adjectiveChange:
-                    resId = generalUpdate(request, 'adjectiveChangeDecisionNumber', {'studentId': demonId}, AdjectiveChange, AddAdjectiveChange, model, savePoint)
-                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
-
                 try:
+                    adjectiveChange= AdjectiveChange.objects.filter(pk=id)
+                    for model in adjectiveChange:
+                        resId = generalUpdate(request, 'adjectiveChangeDecisionNumber', {'studentId': demonId}, AdjectiveChange, AddAdjectiveChange, model, savePoint)
+                        if type(resId) == ErrorDict:
+                            raise Exception('error')
+
                     if 'adjectiveChangeAdjective' in request.POST:
                         demonstrators= Demonstrator.objects.filter(pk=demonId)
                         for demonstrator in demonstrators:
                             demonstrator.currentAdjective = demonstrator['adjectiveChange'][len(demonstrator['adjectiveChange'])-1]
                             Demonstrator.full_clean(self=demonstrator)
                             Demonstrator.save(self=demonstrator)
-                except:
+                except Exception as e:
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
 
@@ -921,11 +965,16 @@ def UpdateCertificateOfExcellence(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                certificateOfExcellence= CertificateOfExcellence.objects.filter(pk=id)
-                for model in certificateOfExcellence:
-                    resId = generalUpdate(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, model, savePoint)
-                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+                try:
+                    certificateOfExcellence= CertificateOfExcellence.objects.filter(pk=id)
+                    for model in certificateOfExcellence:
+                        resId = generalUpdate(request, 'certificateOfExcellenceYear', {'studentId': demonId}, CertificateOfExcellence, AddCertificateOfExcellence, model, savePoint)
+                        if type(resId) == ErrorDict:
+                            raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
@@ -940,11 +989,16 @@ def UpdateGraduateStudies(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                graduateStudies= GraduateStudies.objects.filter(pk=id)
-                for model in graduateStudies:
-                    resId = generalUpdate(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, model, savePoint)
-                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+                try:
+                    graduateStudies= GraduateStudies.objects.filter(pk=id)
+                    for model in graduateStudies:
+                        resId = generalUpdate(request, 'graduateStudiesDegree', {'studentId': demonId}, GraduateStudies, AddGraduateStudies, model, savePoint)
+                        if type(resId) == ErrorDict:
+                            raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
@@ -959,26 +1013,28 @@ def UpdateDispatch(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                dispatchs= Dispatch.objects.filter(pk=id)
-                for dispatch in dispatchs:
-                    dispatchId = generalUpdate(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, dispatch, savePoint)
-                    if type(dispatchId) == ErrorDict: return JsonResponse({"status": "bad"})
-
                 try:
+                    dispatchs= Dispatch.objects.filter(pk=id)
+                    for dispatch in dispatchs:
+                        dispatchId = generalUpdate(request, 'dispatchDecisionNumber', {'studentId': demonId}, Dispatch, AddDispatch, dispatch, savePoint)
+                        if type(dispatchId) == ErrorDict:
+                            raise Exception('error')
+
+                    endDate = ""
                     dispatchObject = Dispatch.objects.filter(pk=id)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
-                except:
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
+                except Exception as e:
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
                 
-
             return JsonResponse({"status": "good" , 'endDate': endDate})
         else :
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
@@ -992,11 +1048,16 @@ def UpdateReport(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                reports= Report.objects.filter(pk=id)
-                for report in reports:
-                    resId = generalUpdate(request, 'regularizationDecisionNumber', {'dispatchDecisionId': report.dispatchDecisionId}, Report, AddReport, report, savePoint)
-                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+                try:
+                    reports= Report.objects.filter(pk=id)
+                    for report in reports:
+                        resId = generalUpdate(request, 'regularizationDecisionNumber', {'dispatchDecisionId': report.dispatchDecisionId}, Report, AddReport, report, savePoint)
+                        if type(resId) == ErrorDict:
+                            raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
@@ -1011,11 +1072,16 @@ def UpdateRegularization(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                regularizations= Regularization.objects.filter(pk=id)
-                for regularization in regularizations:
-                    resId = generalUpdate(request, 'regularizationDecisionNumber', {'regularizationDecisionId': regularization.regularizationDecisionId}, Regularization, AddRegularization, regularization, savePoint)
-                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+                try:
+                    regularizations= Regularization.objects.filter(pk=id)
+                    for regularization in regularizations:
+                        resId = generalUpdate(request, 'regularizationDecisionNumber', {'regularizationDecisionId': regularization.regularizationDecisionId}, Regularization, AddRegularization, regularization, savePoint)
+                        if type(resId) == ErrorDict:
+                            raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
@@ -1030,24 +1096,27 @@ def UpdateExtension(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                extensions= Extension.objects.filter(pk=id)
-                dispatchId = -1
-                for extension in extensions:
-                    dispatchId= extension.dispatchDecisionId
-                    extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': extension.dispatchDecisionId}, Extension, AddExtension, extension, savePoint)
-                    if type(extensionId) == ErrorDict: return JsonResponse({"status": "bad"})
-
                 try:
+                    extensions= Extension.objects.filter(pk=id)
+                    dispatchId = -1
+                    for extension in extensions:
+                        dispatchId= extension.dispatchDecisionId.id
+                        extensionId = generalUpdate(request, 'extensionDecisionNumber', {'dispatchDecisionId': extension.dispatchDecisionId}, Extension, AddExtension, extension, savePoint)
+                        if type(extensionId) == ErrorDict:
+                            raise Exception('error')
+
+                    endDate = ""
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
-                except:
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
+                except Exception as e:
+                    print(str(e))
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
@@ -1064,24 +1133,27 @@ def UpdateFreeze(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                freezes= Freeze.objects.filter(pk=id)
-                dispatchId=-1
-                for freeze in freezes:
-                    dispatchId= freeze.dispatchDecisionId
-                    freezeId = generalUpdate(request, 'freezeDecisionNumber', {'dispatchDecisionId': freeze.dispatchDecisionId}, Freeze, AddFreeze, freeze, savePoint)
-                    if type(freezeId) == ErrorDict: return JsonResponse({"status": "bad"})
-
                 try:
+                    freezes= Freeze.objects.filter(pk=id)
+                    dispatchId=-1
+                    for freeze in freezes:
+                        dispatchId= freeze.dispatchDecisionId.id
+                        freezeId = generalUpdate(request, 'freezeDecisionNumber', {'dispatchDecisionId': freeze.dispatchDecisionId}, Freeze, AddFreeze, freeze, savePoint)
+                        if type(freezeId) == ErrorDict:
+                            raise Exception('error')
+
+                    endDate = ""
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
-                except:
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
+                except Exception as e:
+                    print(str(e))
                     transaction.savepoint_rollback(savePoint)
                     return JsonResponse({"status": "bad"})
 
@@ -1098,25 +1170,28 @@ def UpdateDurationChange(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                durationChange= DurationChange.objects.filter(pk=id)
-                dispatchId=-1
-                for model in durationChange:
-                    dispatchId=model.dispatchDecisionId
-                    resId = generalUpdate(request, 'durationChangeDurationYear', {'dispatchDecisionId': model.dispatchDecisionId}, DurationChange, AddDurationChange, model, savePoint)
-                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
-
                 try:
+                    durationChange= DurationChange.objects.filter(pk=id)
+                    dispatchId=-1
+                    for model in durationChange:
+                        dispatchId=model.dispatchDecisionId
+                        resId = generalUpdate(request, 'durationChangeDurationYear', {'dispatchDecisionId': model.dispatchDecisionId}, DurationChange, AddDurationChange, model, savePoint)
+                        if type(resId) == ErrorDict:
+                            raise Exception('error')
+
+                    endDate = ""
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
-                except:
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
+                except Exception as e:
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1132,11 +1207,16 @@ def UpdateAlimonyChange(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                alimonyChange= AlimonyChange.objects.filter(pk=id)
-                for model in alimonyChange:
-                    resId = generalUpdate(request, 'newAlimony', {'dispatchDecisionId': model.dispatchDecisionId}, AlimonyChange, AddAlimonyChange, model, savePoint)
-                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+                try:
+                    alimonyChange= AlimonyChange.objects.filter(pk=id)
+                    for model in alimonyChange:
+                        resId = generalUpdate(request, 'newAlimony', {'dispatchDecisionId': model.dispatchDecisionId}, AlimonyChange, AddAlimonyChange, model, savePoint)
+                        if type(resId) == ErrorDict:
+                            raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
@@ -1151,11 +1231,16 @@ def UpdateUniversityChange(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                universityChange= UniversityChange.objects.filter(pk=id)
-                for model in universityChange:
-                    resId = generalUpdate(request, 'newUniversity', {'dispatchDecisionId': model.dispatchDecisionId}, UniversityChange, AddUniversityChange, model, savePoint)
-                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+                try:
+                    universityChange= UniversityChange.objects.filter(pk=id)
+                    for model in universityChange:
+                        resId = generalUpdate(request, 'newUniversity', {'dispatchDecisionId': model.dispatchDecisionId}, UniversityChange, AddUniversityChange, model, savePoint)
+                        if type(resId) == ErrorDict:
+                            raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
@@ -1170,18 +1255,21 @@ def UpdateSpecializationChange(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
-                specializationChange= SpecializationChange.objects.filter(pk=id)
-                for model in specializationChange:
-                    resId = generalUpdate(request, 'newSpecialization', {'dispatchDecisionId': model.dispatchDecisionId}, SpecializationChange, AddSpecializationChange, model, savePoint)
-                    if type(resId) == ErrorDict: return JsonResponse({"status": "bad"})
+                try:
+                    specializationChange= SpecializationChange.objects.filter(pk=id)
+                    for model in specializationChange:
+                        resId = generalUpdate(request, 'newSpecialization', {'dispatchDecisionId': model.dispatchDecisionId}, SpecializationChange, AddSpecializationChange, model, savePoint)
+                        if type(resId) == ErrorDict:
+                            raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
         else :
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
  
-
-@login_required(login_url='app:login')
 def generalDelete(modelName, objectId):
     deletedObject= DeletedObjects()
     deletedObject.modelName= modelName
@@ -1200,10 +1288,11 @@ def DeleteDemonstrator(request, id):
                 savePoint = transaction.savepoint()
                 try:
                     demonstrators = Demonstrator.objects.filter(pk=id).delete()
-                    generalDelete('Demonstrator', id) 
-                except:
+                    generalDelete('Demonstrator', id)
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
-
 
             return JsonResponse({"status": "good"})
         else :
@@ -1221,7 +1310,9 @@ def DeleteUniversityDegree(request, id, demonId):
                 try:
                     universityDegrees= UniversityDegree.objects.filter(pk=id).delete()
                     generalDelete('UniversityDegree', id)  
-                except:
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1240,7 +1331,9 @@ def DeleteNomination(request, id, demonId):
                 try:
                     nominations= Nomination.objects.filter(pk=id).delete()
                     generalDelete('Nomination', id)
-                except:
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
 
@@ -1260,19 +1353,16 @@ def DeleteAdjectiveChange(request, id, demonId):
                 try:
                     adjectiveChange= AdjectiveChange.objects.filter(pk=id).delete()
                     generalDelete('AdjectiveChange', id)
-                except:
-                    return JsonResponse({"status": "bad"})
-
-
-                try:
+                
                     if 'adjectiveChangeAdjective' in request.POST:
                         demonstrators= Demonstrator.objects.filter(pk=demonId)
                         for demonstrator in demonstrators:
                             demonstrator.currentAdjective = demonstrator['adjectiveChange'][len(demonstrator['adjectiveChange'])-1]
                             Demonstrator.full_clean(self=demonstrator)
                             Demonstrator.save(self=demonstrator)
-                except:
+                except Exception as e:
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
 
@@ -1292,7 +1382,9 @@ def DeleteCertificateOfExcellence(request, id, demonId):
                 try:
                     certificateOfExcellence= CertificateOfExcellence.objects.filter(pk=id).delete()
                     generalDelete('CertificateOfExcellence', id)
-                except:
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
 
@@ -1312,7 +1404,9 @@ def DeleteGraduateStudies(request, id, demonId):
                 try:
                     graduateStudies= GraduateStudies.objects.filter(pk=id).delete()
                     generalDelete('GraduateStudies', id)
-                except:
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
 
@@ -1329,12 +1423,12 @@ def DeleteDispatch(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-                
                 try:
                     dispatchs= Dispatch.objects.filter(pk=id).delete()
                     generalDelete('Dispatch', id)
-                except:
+                except Exception as e:
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
                 
 
@@ -1354,7 +1448,9 @@ def DeleteReport(request, id, demonId):
                 try:
                     reports= Report.objects.filter(pk=id).delete()
                     generalDelete('Report', id)
-                except:
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1373,7 +1469,9 @@ def DeleteRegularization(request, id, demonId):
                 try:
                     regularizations= Regularization.objects.filter(pk=id).delete()
                     generalDelete('Regularization', id)
-                except:
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1389,26 +1487,27 @@ def DeleteExtension(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
                 try:
                     extensions2= Extension.objects.filter(pk=id)
                     dispatchId = -1
                     for extension in extensions2:
-                        dispatchId= extension.dispatchDecisionId
-
+                        dispatchId= extension.dispatchDecisionId.id
                     extensions= Extension.objects.filter(pk=id).delete()
                     generalDelete('Extension', id)
 
+                    endDate = ""
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
-                except:
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
+                except Exception as e:
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good", 'endDate': endDate})
@@ -1424,26 +1523,28 @@ def DeleteFreeze(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
                 try:
                     freezes2= Freeze.objects.filter(pk=id)
                     dispatchId=-1
                     for freeze in freezes2:
-                        dispatchId= freeze.dispatchDecisionId
+                        dispatchId= freeze.dispatchDecisionId.id
 
                     freezes= Freeze.objects.filter(pk=id).delete()
                     generalDelete('Freeze', id)
 
+                    endDate = ""
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
-                except:
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
+                except Exception as e:
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good", 'endDate': endDate})
@@ -1459,26 +1560,28 @@ def DeleteDurationChange(request, id, demonId):
         if college[0]['college']  in permissionList or request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
-
                 try:
                     durationChange2= DurationChange.objects.filter(pk=id)
                     dispatchId=-1
                     for model in durationChange2:
-                        dispatchId=model.dispatchDecisionId
+                        dispatchId=model.dispatchDecisionId.id
 
                     durationChange= DurationChange.objects.filter(pk=id).delete()
                     generalDelete('DurationChange', id)
 
+                    endDate = ""
                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                     dispatch = loads(dumps(dispatchSerialized.data))
-                    endDate = CalculateDispatchEndDate(dispatch)
-                    for dispatchItem in dispatchObject:
-                        dispatchItem.dispatchEndDate = endDate
-                        Dispatch.full_clean(self=dispatchItem)
-                        Dispatch.save(self=dispatchItem)
-                except:
+                    if dispatch[0]['commencementDate']:
+                        endDate = CalculateDispatchEndDate(dispatch)
+                        for dispatchItem in dispatchObject:
+                            dispatchItem.dispatchEndDate = endDate
+                            Dispatch.full_clean(self=dispatchItem)
+                            Dispatch.save(self=dispatchItem)
+                except Exception as e:
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1497,7 +1600,9 @@ def DeleteAlimonyChange(request, id, demonId):
                 try:
                     alimonyChange= AlimonyChange.objects.filter(pk=id).delete()
                     generalDelete('AlimonyChange', id)
-                except:
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1516,7 +1621,9 @@ def DeleteUniversityChange(request, id, demonId):
                 try:
                     universityChange= UniversityChange.objects.filter(pk=id).delete()
                     generalDelete('UniversityChange', id)
-                except:
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1535,7 +1642,9 @@ def DeleteSpecializationChange(request, id, demonId):
                 try:
                     specializationChange= SpecializationChange.objects.filter(pk=id).delete()
                     generalDelete('SpecializationChange', id)
-                except:
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return JsonResponse({"status": "bad"})
 
             return JsonResponse({"status": "good"})
@@ -1545,13 +1654,11 @@ def DeleteSpecializationChange(request, id, demonId):
 
 @login_required(login_url='app:login')
 def QueryDemonstrator(request):
-    if request.method == 'POST':
-        print(request.POST['cols'])
-        
+    if request.method == 'POST':        
         
         def makeQuery(query, op):
             obj = Q()
-            for item in query: 
+            for item in query:
                 q = list(item.keys())[0]
                 if type(item[q]) is list:
                     if op == 'or':
@@ -1571,35 +1678,18 @@ def QueryDemonstrator(request):
                         obj = obj | Q(**{q: item[q]})
                     else: 
                         obj = obj & Q(**{q: item[q]})
-                       
             return obj
+        
         query = loads(request.POST['query'])
-        print('q', query)
         op = list(query.keys())[0]
         obj = makeQuery(query[op], op)
-
-        # result = list(Demonstrator.objects.select_related().prefetch_related().filter(obj))
-        result2= Demonstrator.objects.filter(obj)
-        da = SerializerDemonstrator(result2, many=True)
-        print(da.data)
+        result= Demonstrator.objects.filter(obj)
+        da = SerializerDemonstrator(result, many=True)
         finalResult={}
         if len(da.data):
             finalResult= loads(dumps(da.data))
-            print(dumps(da.data[0]))
-        
-        # data= ser.serialize('json', result, fields=("id",*request.POST['cols'].split(',')))
-        # print(data)
-
-                        
-
-        # result = Demonstrator.objects.select_related().prefetch_related().filter(obj).values("id",*request.POST['cols'].split(','))
-        # print('res', result)
-        print(finalResult)
         dat = JsonResponse({"data": finalResult})
-        # print('dat', dat.content)
         stringgg = dat.content.decode('utf-8')
-        # print('str', stringgg)
-        print( request.POST['cols'].split(','))
         return render(request, "registration/result.html", {"result":stringgg, 'fields': request.POST['cols']})
 
 
@@ -1623,19 +1713,8 @@ def home(request):
 
 
 def Test(request):
-    # date= request.user.lastPull.lastPullDate
-    # data=[]
-    # for model in apps.get_models():
-    #     if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull']:
-    #         tempData =list( model.objects.filter(lastModifiedDate__gte=date) )
-    #         data.append( {'modelName': model.__name__, 'data':tempData})
-    # todayDate = datetime.date.today() 
-    # reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':todayDate})).values('dispatchDecisionId_id')
-    # print(reports)
     user = User.objects.get(pk=1)
     LastPull.objects.create(userId= user)
-    # for model in apps.get_models():
-    #     print(model.__name__)
     return render(request, 'registration/result.html', {'result': 'done'})
 
 
@@ -1645,7 +1724,6 @@ def goToHome(request):
 
 
 def getSerializer(modelName):
-    
     if modelName == 'Permissions':
         return SerializerPermissions
     elif modelName == 'Demonstrator':
@@ -1696,15 +1774,11 @@ def pullData(request):
                             updated =serializerClass(model.objects.filter(Q(lastModifiedDate__gte=lastPullDate) & ~Q(createdDate__gte=lastPullDate) ), many= True).data
                             deleted = SerializerDeletedObjects( DeletedObjects.objects.filter(modelName=model.__name__, createdDate__gte=lastPullDate), many= True).data
                             data.update( {model.__name__: {'updated':updated, 'added':added, 'deleted': deleted} })
-                    # for delete all deleted archive
-                    # deleteAll = DeletedObjects.objects.filter().delete()
-                    print('data is: ',data)
                     with open('uploads/synchronization.json', 'w') as file:
                         dump(data, file, indent=None)
-                        
                 except Exception as e:
-                    print(str(e))
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return render(request, 'registration/result.html', {'result': 'done'}) 
             #  temp = LastPull.objects.filter(pk=1).update(lastPullDate=datetime.datetime.now)
              temp = LastPull.objects.get(userId_id__is_superuser=1)
@@ -1911,7 +1985,6 @@ def pushData(request):
                     for model in apps.get_models():
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
-                            # add
                             for added in data[model.__name__]['added']:
                                 if 'id' in added:
                                     isExist = model.objects.filter(pk=added['id'])
@@ -1922,17 +1995,18 @@ def pushData(request):
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = 1
                                     if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                        dispatchId = added.dispatchDecisionId
+                                        dispatchId = added.dispatchDecisionId.id
                                     else:
                                         dispatchId = added.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
-                                    endDate = CalculateDispatchEndDate(dispatch)
-                                    for dispatchItem in dispatchObject:
-                                        dispatchItem.dispatchEndDate = endDate
-                                        Dispatch.full_clean(self=dispatchItem)
-                                        Dispatch.save(self=dispatchItem)
+                                    if dispatch[0]['commencementDate']:
+                                        endDate = CalculateDispatchEndDate(dispatch)
+                                        for dispatchItem in dispatchObject:
+                                            dispatchItem.dispatchEndDate = endDate
+                                            Dispatch.full_clean(self=dispatchItem)
+                                            Dispatch.save(self=dispatchItem)
                                 if model.__name__ == 'AdjectiveChange':
                                     demonId= added.studentId
                                     demonstrator = Demonstrator.objects.get(pk=demonId)
@@ -1943,7 +2017,6 @@ def pushData(request):
                     for model in apps.get_models():
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
-                            # update
                             for updated in data[model.__name__]['updated']:
                                 objs= model.objects.filter(pk=updated['id'])
                                 for obj in objs:
@@ -1952,28 +2025,29 @@ def pushData(request):
                                     if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                         dispatchId = 1
                                         if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                            dispatchId = updated.dispatchDecisionId
+                                            dispatchId = updated.dispatchDecisionId.id
                                         else:
                                             dispatchId = updated.id
                                         dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                         dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                         dispatch = loads(dumps(dispatchSerialized.data))
-                                        endDate = CalculateDispatchEndDate(dispatch)
-                                        for dispatchItem in dispatchObject:
-                                            dispatchItem.dispatchEndDate = endDate
-                                            Dispatch.full_clean(self=dispatchItem)
-                                            Dispatch.save(self=dispatchItem)
+                                        if dispatch[0]['commencementDate']:
+                                            endDate = CalculateDispatchEndDate(dispatch)
+                                            for dispatchItem in dispatchObject:
+                                                dispatchItem.dispatchEndDate = endDate
+                                                Dispatch.full_clean(self=dispatchItem)
+                                                Dispatch.save(self=dispatchItem)
                                     if model.__name__ == 'AdjectiveChange':
                                         demonId= updated.studentId
                                         demonstrator = Demonstrator.objects.get(pk=demonId)
                                         demonstrator.currentAdjective = updated.adjectiveChangeAdjective
                                         Demonstrator.full_clean(self=demonstrator)
                                         Demonstrator.save(self=demonstrator)
-                 
+
+                                   
                     for model in apps.get_models():
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
-                            # delete
                             for deleted in data[model.__name__]['deleted']:
                                 if idMap[model.__name__]:
                                     if idMap[model.__name__][deleted.id]:
@@ -1983,15 +2057,16 @@ def pushData(request):
                                     continue
                                 deletedObj= model.objects.filter(pk=deleted.id).delete()
                                 if model.__name__ in [ 'Freeze', 'Extension', 'DurationChange']:
-                                    dispatchId = deletedObj.dispatchDecisionId
+                                    dispatchId = deletedObj.dispatchDecisionId.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
-                                    endDate = CalculateDispatchEndDate(dispatch)
-                                    for dispatchItem in dispatchObject:
-                                        dispatchItem.dispatchEndDate = endDate
-                                        Dispatch.full_clean(self=dispatchItem)
-                                        Dispatch.save(self=dispatchItem)
+                                    if dispatch[0]['commencementDate']:
+                                        endDate = CalculateDispatchEndDate(dispatch)
+                                        for dispatchItem in dispatchObject:
+                                            dispatchItem.dispatchEndDate = endDate
+                                            Dispatch.full_clean(self=dispatchItem)
+                                            Dispatch.save(self=dispatchItem)
                                 if model.__name__ == 'AdjectiveChange':
                                     demonId= deletedObj.studentId
                                     demonstrators= Demonstrator.objects.filter(pk=demonId)
@@ -2008,10 +2083,11 @@ def pushData(request):
                     temp.waitingMerge = False
                     LastPull.save(self=temp)
                             
+
                     return render(request, 'registration/result.html', {'result': 'done'})
                 except Exception as e:
-                    print('error happend', str(e))
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return render(request, 'registration/result.html', {'result': 'done'}) 
         else:
             return render(request, 'registration/result.html', {'result': 'done'})
@@ -2023,7 +2099,6 @@ def pushData(request):
 @login_required(login_url='app:login')
 def GetAllUsers(request):
     users = User.objects.select_related().prefetch_related().all()
-    print(users)
     return render(request, 'home/demonstrator.html', {'users': users})
 
 
@@ -2036,4 +2111,29 @@ def gett(request):
     data2 = ser.serialize('json', Demonstrator.objects.select_related().prefetch_related().all())
     
     return JsonResponse(data2, safe=False)
+
+
+def permissions_list(request):
+    query = request.GET.get('search')
+    if query:
+        permissions = Permissions.objects.filter(permissionsCollege__icontains=query)
+    else:
+        permissions = Permissions.objects.all()
+    context = {'permissions': permissions, 'query': query}
+    
+    return render(request, 'home/permissions_list.html', context)
+
+def permissions_detail(request, pk):
+    permissions = get_object_or_404(Permissions, pk=pk)
+    if request.method == 'POST':
+        users = request.POST.getlist('userId')
+        permissions.userId.set(users)
+        permissions.save()
+    try:
+        users = permissions.userId.all()
+    except User.DoesNotExist:
+        raise Http404("User does not exist")
+    all_users = User.objects.all()
+    context = {'permissions': permissions, 'users': users, 'all_users': all_users}
+    return render(request, 'home/permissions_detail.html', context)
 

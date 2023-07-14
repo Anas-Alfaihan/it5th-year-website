@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block style %}
+
+<style>
+    .mbt-ol {
+        width: 300px;
+        margin: 10px;
+        counter-reset: my-counter;
+        padding-right: 0;
+    }
+
+    .mbt-ol li {
+
+        border-bottom: 1px dotted #ccc;
+        padding: 5px;
+        counter-increment: my-counter;
+        list-style: none;
+        margin-right: 15px
+    }
+
+    .ut {
+        margin-right: 10px;
+    }
+
+    .mbt-ol li:before {
+        content: counter(my-counter) ". ";
+        font-weight: bold;
+    }
+
+    .sect {
+        margin: 50px;
+        height: 100vh;
+        padding: 50px 40px;
+    }
+</style>
+
+<link rel="stylesheet" href="{% static 'css/multi-select.min.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+<div class="sec sect">
+
+    <h1 class="mb-4">السماحية: {{ permissions.permissionsCollege }}</h1>
+    <p class="fs-5 mb-3 ut">الموظفون الذين لديهم الصلاحية </p>
+    <ol class="mbt-ol mb-4">
+        {% for user in users %}
+        <li>{{ user.username }}</li>
+
+        {% endfor %}
+    </ol>
+
+    <h3 class="mb-4 fs-3">اختر الموظفين:</h3>
+    <div class="row">
+        <div class="col-6">
+
+            <form method="post">
+                {% csrf_token %}
+                <div class=" mb-3 autocomplete">
+                    <select id="floatingP" name="userId" placeholder="nothing" class="form-select" multiple required />
+
+                    <label for="floatingP">السماحية </label>
+                    </select>
+                </div>
+
+                <br>
+                <button type="submit" class="btn btn-outline-primary">حفظ</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="{% static 'js/multi-select.js'%}"></script>
+
+<script>
+    $(document).ready(function () {
+        let op
+        let select = document.getElementById("floatingP");
+        "{% for user in all_users %}"
+        op = document.createElement("option")
+        op.value = "{{user.pk}}"
+        op.text = "{{user}}"
+        "{% if user in users %}"
+        op.selected = true
+        "{% endif %}"
+        select.add(op)
+        "{% endfor %}"
+
+
+
+
+
+
+
+        new MultiSelectTag('floatingP')
+
+    });
+</script>
+{% endblock %}
+
+
+
+{% block styles %}
+<style>
+    h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    p {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    select {
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    button {
+        font-size: 1.2rem;
+        padding: 0.5rem 1rem;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
