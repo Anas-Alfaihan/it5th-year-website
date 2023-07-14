@@ -854,6 +854,7 @@ def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint):
 @login_required(login_url='app:login')
 def UpdateDemonstrator(request, id):
     if request.method == 'POST':
+        get_object_or_404(Demonstrator, pk=id)
         college= list(Demonstrator.objects.filter(pk=id).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college'] in permissionList or request.user.is_superuser:
@@ -878,6 +879,7 @@ def UpdateDemonstrator(request, id):
 @login_required(login_url='app:login')
 def UpdateUniversityDegree(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(UniversityDegree, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -982,6 +984,7 @@ def UpdateCertificateOfExcellence(request, id, demonId):
 @login_required(login_url='app:login')
 def UpdateGraduateStudies(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(GraduateStudies, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1006,6 +1009,7 @@ def UpdateGraduateStudies(request, id, demonId):
 @login_required(login_url='app:login')
 def UpdateDispatch(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Dispatch, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1089,6 +1093,7 @@ def UpdateRegularization(request, id, demonId):
 @login_required(login_url='app:login')
 def UpdateExtension(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Extension, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1126,6 +1131,7 @@ def UpdateExtension(request, id, demonId):
 @login_required(login_url='app:login')
 def UpdateFreeze(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Freeze, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1278,6 +1284,7 @@ def generalDelete(modelName, objectId):
 @login_required(login_url='app:login')
 def DeleteDemonstrator(request, id):
     if request.method == 'POST':
+        get_object_or_404(Demonstrator, pk=id)
         college= list(Demonstrator.objects.filter(pk=id).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college'] in permissionList or request.user.is_superuser:
@@ -1299,6 +1306,7 @@ def DeleteDemonstrator(request, id):
 @login_required(login_url='app:login')
 def DeleteUniversityDegree(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(UniversityDegree, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1415,6 +1423,7 @@ def DeleteGraduateStudies(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteDispatch(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Dispatch, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1479,6 +1488,7 @@ def DeleteRegularization(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteExtension(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Extension, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1515,6 +1525,7 @@ def DeleteExtension(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteFreeze(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Freeze, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
