@@ -8,6 +8,10 @@
         height: 100vh;
         padding: 50px 40px;
     }
+
+    a {
+        color: black
+    }
 </style>
 
 {% endblock %}
@@ -30,8 +34,14 @@
     </form>
     <div class="list-group list-group-flush rounded">
         {% for permissions in permissions %}
-        <a class="list-group-item mb-1"
-            href="{% url 'app:permissions_detail' permissions.pk %}">{{permissions.permissionsCollege }}</a>
+        <li class="list-group-item mb-1 d-flex justify-content-between align-items-start">
+            <div>
+                <a href="{% url 'app:permissions_detail' permissions.pk %}">{{permissions.permissionsCollege }}</a>
+            </div>
+            <a href="{% url 'app:permissions_delete' permissions.pk %}">
+                <span class="badge bg-danger rounded-pill"><i class="fa-solid   fa-trash"></i></span>
+            </a>
+        </li>
         {% empty %}
         <p>لا يوجد سماحيات</p>
         {% endfor %}
