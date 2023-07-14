@@ -47,6 +47,7 @@ urlpatterns = [
     path('permissions/<int:pk>/', views.permissions_detail, name='permissions_detail'),
     path('permissions/<int:pk>/', views.DeletePermission, name='permissions_delete'),
     path('permissions/update/<int:pk>/', views.UpdatePermission, name='permissions_update'),
+    path('permissions/insert/', views.PermissionInsert, name='permissions_insert'),
 
 
 ]

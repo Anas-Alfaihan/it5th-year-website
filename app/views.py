@@ -1711,11 +1711,11 @@ def home(request):
 def Test(request):
     print('fsdf')
     user = User.objects.create_user(
-                username='request.POST',
-                first_name='request.POST',
-                last_name='request.POST',
-                password='request.POST',
-                email='asdf@asdf.com'
+                username='requaest.POST',
+                first_name='reaquest.POST',
+                last_name='reaquest.POST',
+                password='reqauest.POST',
+                email='asdaf@asdf.com'
             )
     for perm in ['asdf']:
         permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
@@ -2123,7 +2123,9 @@ def UpdatePermission(request, pk):
                 savePoint = transaction.savepoint()
                 try:
                     permissions = get_object_or_404(Permissions, pk=pk)
-                    permissions.permissionsCollege.set(request.POST['permissionsCollege'])
+                    demons = UniversityDegree.objects.filter(universityDegreeCollege=permissions.permissionsCollege)
+                    demons.update(universityDegreeCollege=request.POST['permissionsCollege'])
+                    permissions.permissionsCollege=(request.POST['permissionsCollege'])
                     permissions.save()
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
