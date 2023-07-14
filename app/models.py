@@ -20,7 +20,7 @@ class LastPull(models.Model):
 
 
 class Permissions(models.Model):
-    userId= models.ManyToManyField(User, related_name='permissions')
+    userId= models.ManyToManyField(User, related_name='permissions', blank=True)
     permissionsCollege = models.CharField(max_length=100)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
