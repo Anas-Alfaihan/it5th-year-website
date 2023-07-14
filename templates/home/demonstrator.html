@@ -374,8 +374,8 @@
                     name="universityDegreeYear">{{demonstrator.universityDegree.universityDegreeYear}}</span>
                 </p>
                 <p class="ct">
-                  <span class="editable unv-{{demonstrator.universityDegree.pk}}"
-                    name="universityDegreeAverage">{{demonstrator.universityDegree.universityDegreeAverage}}</span>
+                  <span class="editable unv-{{demonstrator.universityDegree.pk}}" name="universityDegreeAverage"
+                    oninput="formatEditableNumber(this)">{{demonstrator.universityDegree.universityDegreeAverage|floatformat:"2u"}}</span>
                 </p>
               </div>
             </div>
@@ -443,7 +443,9 @@
                     </div>
                     <div class="col-6">
                       <p class="ct"><span>المعدل:</span><span class="grad-{{grad.id}} editable"
-                          name="graduateStudiesAverage">{{grad.graduateStudiesAverage}}</span></p>
+                          name="graduateStudiesAverage"
+                          oninput="formatEditableNumber(this)">{{grad.graduateStudiesAverage|floatformat:"2u"}}</span>
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1363,6 +1365,26 @@
 <script src="{% static 'js/editUnv.js' %}"></script>
 <script src="{% static 'js/editGrad.js' %}"></script>
 <script src="{% static 'js/accord.js' %}"></script>
+
+<script>
+  function formatEditableNumber(editableP) {
+    // Get the current text content of the editable <p> tag
+    let text = editableP.textContent;
+
+    // Remove all non-numeric characters from the text (except for the decimal point)
+    let newValue = text.replace(/[^0-9.]/g, '');
+
+    // Limit the decimal part to 2 digits
+    let parts = newValue.split('.');
+    if (parts.length > 1) {
+      parts[1] = parts[1].slice(0, 2);
+      newValue = parts.join('.');
+    }
+
+    // Update the text content of the <p> tag with the formatted value
+    editableP.textContent = newValue;
+  }
+</script>
 
 
 <script>

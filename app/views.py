@@ -2121,7 +2121,7 @@ def DeletePermission(request, pk):
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
                     messages.add_message(request, messages.ERROR,"حدث خطأ ما")
-                return redirect('app:permissions_list')
+                    return redirect('app:permissions_list')
 
             messages.add_message(request, messages.SUCCESS,"تم الحذف")
             return redirect('app:permissions_list')
@@ -2144,8 +2144,11 @@ def UpdatePermission(request, pk):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    return JsonResponse({"status": "bad"})
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return redirect('app:permissions_detail', pk=pk)
 
-            return JsonResponse({"status": "good"})
+            messages.add_message(request, messages.SUCCESS,"تم التعديل")
+            return redirect('app:permissions_detail',pk=pk)
         else :
-            return JsonResponse({"status": 'you are not allowed to edit the colleges'})
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية حذف السماحية")
+            return redirect('app:permissions_detail',pk=pk)
