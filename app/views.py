@@ -2110,7 +2110,7 @@ def PermissionInsert(request):
 
 
 def DeletePermission(request, pk):
-    if request.method == 'POST':
+    if request.method == 'GET':
         if request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
@@ -2120,11 +2120,14 @@ def DeletePermission(request, pk):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    return JsonResponse({"status": "bad"})
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                return redirect('app:permissions_list')
 
-            return JsonResponse({"status": "good"})
+            messages.add_message(request, messages.SUCCESS,"تم الحذف")
+            return redirect('app:permissions_list')
         else :
-            return JsonResponse({"status": 'you are not allowed to edit the colleges'})
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية حذف السماحية")
+            return redirect('app:permissions_list')
 
 
 def UpdatePermission(request, pk):
