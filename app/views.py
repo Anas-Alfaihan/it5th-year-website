@@ -292,7 +292,6 @@ def Email(request):
 
 @login_required(login_url='app:login')
 def Register(request):
-
     if request.method == 'POST':
         if request.user.is_superuser:
             user = User.objects.create_user(
@@ -2152,3 +2151,117 @@ def UpdatePermission(request, pk):
         else :
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية حذف السماحية")
             return redirect('app:permissions_detail',pk=pk)
+
+
+def GetAllUsers(request, id):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    data2 = ser.serialize('json', User.objects.filter().all())
+                    return render(request, 'home/home.html', {'result': data2})
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return render(request, 'home/home.html')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية الوصول إلى معلومات الموظفين")
+            return redirect('app:home')
+
+
+def GetUser(request, id):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    user = get_object_or_404(User.objects.select_related().prefetch_related().all(), pk=id)
+                    return render(request, 'home/home.html', {'result': user})
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return render(request, 'home/home.html')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية الوصول إلى معلومات الموظفين")
+            return redirect('app:home')
+
+
+def UpdateUser(request, id):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    user = get_object_or_404(User, id=id)
+                    user.first_name = request.POST['first_name']
+                    user.last_name = request.POST['last_name']
+                    user.email = request.POST['email']
+                    user.username = request.POST['username']
+                    user.save()
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return render(request, 'home/home.html')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
+            return redirect('app:home')
+
+
+def UpdateUserPassword(request, id):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    user = get_object_or_404(User, id=id)
+                    user.set_password(request.POST['newPassword'])
+                    user.save()
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return render(request, 'home/home.html')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
+            return redirect('app:home')
+
+
+def MakeUserAdmin(request, id):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    user = get_object_or_404(User, id=id)
+                    user.is_superuser = True
+                    user.save()
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return render(request, 'home/home.html')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
+            return redirect('app:home')
+
+
+def DeleteUser(request, id):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    user = get_object_or_404(User, id=id)
+                    user.delete()
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return render(request, 'home/home.html')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
+            return redirect('app:home')

@@ -48,6 +48,12 @@ urlpatterns = [
     path('permissions/delete/<int:pk>/', views.DeletePermission, name='permissions_delete'),
     path('permissions/update/<int:pk>/', views.UpdatePermission, name='permissions_update'),
     path('permissions/insert/', views.PermissionInsert, name='permissions_insert'),
+    path('users/', views.GetAllUsers, name='permissions_insert'),
+    path('users/<int:id>', views.GetUser, name='permissions_insert'),
+    path('users/update/<int:id>', views.UpdateUser, name='permissions_insert'),
+    path('users/delete/<int:id>', views.DeleteUser, name='permissions_insert'),
+    path('users/changePassword/<int:id>', views.UpdateUserPassword, name='permissions_insert'),
+    path('users/makeUserAdmin/<int:id>', views.MakeUserAdmin, name='permissions_insert'),
 
 
 ]
