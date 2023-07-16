@@ -2153,19 +2153,19 @@ def UpdatePermission(request, pk):
             return redirect('app:permissions_detail',pk=pk)
 
 
-def GetAllUsers(request, id):
-    if request.method == 'POST':
+def GetAllUsers(request):
+    if request.method == 'GET':
         if request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
                 try:
-                    data2 = ser.serialize('json', User.objects.filter().all())
-                    return render(request, 'home/home.html', {'result': data2})
+                    
+                    return render(request, 'home/users.html', {'result': User.objects.filter().all()})
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
                     messages.add_message(request, messages.ERROR,"حدث خطأ ما")
-                    return render(request, 'home/home.html')
+                    return redirect('app:home')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الوصول إلى معلومات الموظفين")
             return redirect('app:home')
@@ -2205,10 +2205,12 @@ def UpdateUser(request, id):
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
                     messages.add_message(request, messages.ERROR,"حدث خطأ ما")
-                    return render(request, 'home/home.html')
+                    return redirect('app:user_list')
+            messages.add_message(request, messages.SUCCESS,"تم التعديل بنجاح")
+            return redirect('app:user_list')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
-            return redirect('app:home')
+            return redirect('app:user_list')
 
 
 def UpdateUserPassword(request, id):
@@ -2224,14 +2226,16 @@ def UpdateUserPassword(request, id):
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
                     messages.add_message(request, messages.ERROR,"حدث خطأ ما")
-                    return render(request, 'home/home.html')
+                    return redirect('app:user_list')
+            messages.add_message(request, messages.SUCCESS,"تم تعديل كلمة المرور")
+            return redirect('app:user_list')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
-            return redirect('app:home')
+            return redirect('app:user_list')
 
 
 def MakeUserAdmin(request, id):
-    if request.method == 'POST':
+    if request.method == 'GET':
         if request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
@@ -2239,18 +2243,20 @@ def MakeUserAdmin(request, id):
                     user = get_object_or_404(User, id=id)
                     user.is_superuser = True
                     user.save()
+                    
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
                     messages.add_message(request, messages.ERROR,"حدث خطأ ما")
-                    return render(request, 'home/home.html')
+                    return redirect('app:user_list')
+            return redirect('app:user_list')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
-            return redirect('app:home')
+            return redirect('app:user_list')
 
 
 def DeleteUser(request, id):
-    if request.method == 'POST':
+    if request.method == 'GET':
         if request.user.is_superuser:
             with transaction.atomic():
                 savePoint = transaction.savepoint()
@@ -2261,7 +2267,8 @@ def DeleteUser(request, id):
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
                     messages.add_message(request, messages.ERROR,"حدث خطأ ما")
-                    return render(request, 'home/home.html')
+                    return redirect('app:user_list')
+            return redirect('app:user_list')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
-            return redirect('app:home')
+            return redirect('app:user_list')
