@@ -1798,7 +1798,7 @@ def pullData(request):
                     print(str(e))
                     return render(request, 'registration/result.html', {'result': 'done'}) 
                 
-             temp = LastPull.objects.get(userId_id__is_superuser=1)
+             temp = LastPull.objects.get(userId_id__id=request.user.id)
              temp.lastPullDate=datetime.datetime.now
              LastPull.save(self=temp)
 
