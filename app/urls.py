@@ -10,7 +10,7 @@ urlpatterns = [
     path('send/', views.Email, name='email'),
     path('sendEmails/', views.SendEmails, name='send'),
     path('register/', views.Register, name='register'),
-    path('test/', views.pushData, name='test'),
+    path('test/', views.Test, name='test'),
     path('login/', views.Login, name='login'),
     path('logout/', views.Logout, name='logout'),
     path('insert/', views.DemonstratorInsert2, name='insert'),
@@ -45,7 +45,15 @@ urlpatterns = [
     path('test/', views.Test, name='test'),
     path('permissions/', views.permissions_list, name='permissions_list'),
     path('permissions/<int:pk>/', views.permissions_detail, name='permissions_detail'),
-    path('permissions/<int:pk>/', views.permissions_detail, name='permissions_delete'),
+    path('permissions/delete/<int:pk>/', views.DeletePermission, name='permissions_delete'),
+    path('permissions/update/<int:pk>/', views.UpdatePermission, name='permissions_update'),
+    path('permissions/insert/', views.PermissionInsert, name='permissions_insert'),
+    path('users/', views.GetAllUsers, name='user_list'),
+    path('users/<int:id>', views.GetUser, name='permissions_insert'),
+    path('users/update/<int:id>', views.UpdateUser, name='permissions_insert'),
+    path('users/delete/<int:id>', views.DeleteUser, name='permissions_insert'),
+    path('users/changePassword/<int:id>', views.UpdateUserPassword, name='permissions_insert'),
+    path('users/makeUserAdmin/<int:id>', views.MakeUserAdmin, name='permissions_insert'),
 
 
 ]

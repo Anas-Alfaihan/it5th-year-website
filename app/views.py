@@ -292,10 +292,8 @@ def Email(request):
 
 @login_required(login_url='app:login')
 def Register(request):
-
     if request.method == 'POST':
         if request.user.is_superuser:
-
             user = User.objects.create_user(
                 username=request.POST['username'],
                 first_name=request.POST['firstName'],
@@ -428,7 +426,7 @@ def DemonstratorInsert2(request):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة المعيد")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة المعيد")
                     return redirect('app:insert')
                 
             messages.add_message(request, messages.SUCCESS,"تم تسجيل المعيد")
@@ -484,7 +482,7 @@ def CertificateExcellenceYearInsert(request, demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة الشهادة")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة الشهادة")
                     return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تمت إضافة الشهادة")
@@ -517,7 +515,7 @@ def AdjectiveChangeInsert(request, demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير الصفة")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة تغيير الصفة")
                     return redirect('app:home')
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير الصفة")
@@ -548,7 +546,7 @@ def DispatchInsert(request, demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة الإيفاد")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة الإيفاد")
                     return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة الإيفاد")
@@ -589,7 +587,7 @@ def ReportInsert(request, dispatchId, demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التقرير")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة التقرير")
                     return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة التقرير ")
@@ -625,7 +623,7 @@ def ExtensionInsert(request, dispatchId,demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التمديد")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة التمديد")
                     return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد ")
@@ -662,7 +660,7 @@ def FreezeInsert(request, dispatchId,demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة التجميد")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة التجميد")
                     return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة التجميد ")
@@ -699,7 +697,7 @@ def DurationChangeInsert(request, dispatchId, demonId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير المدة")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة تغيير المدة")
                     return redirect('app:demonstrator', id= demonId)
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير المدة ")
@@ -727,7 +725,7 @@ def AlimonyChangeInsert(request, dispatchId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير النفقة")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة تغيير النفقة")
                     return redirect('app:home')
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير النفقة ")
@@ -755,7 +753,7 @@ def UniversityChangeInsert(request, dispatchId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير الجامعة")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة تغيير الجامعة")
                     return redirect('app:home')
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير الجامعة ")
@@ -783,7 +781,7 @@ def SpecializationChangeInsert(request, dispatchId):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم يتم إضافة تغيير الاختصاص")
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة تغيير الاختصاص")
                     return redirect('app:home')
 
             messages.add_message(request, messages.SUCCESS,"تم إضافة تغيير الاختصاص ")
@@ -804,6 +802,7 @@ def getAllDemonstrators(request):
 
 @login_required(login_url='app:login')
 def getDemonstrator(request, id):
+    demonstrator = get_object_or_404(Demonstrator.objects.select_related().prefetch_related().all(), pk=id)
     demonstrator = get_object_or_404(Demonstrator.objects.select_related().prefetch_related().all(), pk=id)
     permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
     return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator, 'permissions': permissionList})
@@ -856,6 +855,7 @@ def generalUpdate(request, mainField, baseDic, model, addModel, obj, savePoint):
 @login_required(login_url='app:login')
 def UpdateDemonstrator(request, id):
     if request.method == 'POST':
+        get_object_or_404(Demonstrator, pk=id)
         college= list(Demonstrator.objects.filter(pk=id).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college'] in permissionList or request.user.is_superuser:
@@ -880,6 +880,7 @@ def UpdateDemonstrator(request, id):
 @login_required(login_url='app:login')
 def UpdateUniversityDegree(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(UniversityDegree, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -984,6 +985,7 @@ def UpdateCertificateOfExcellence(request, id, demonId):
 @login_required(login_url='app:login')
 def UpdateGraduateStudies(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(GraduateStudies, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1008,6 +1010,7 @@ def UpdateGraduateStudies(request, id, demonId):
 @login_required(login_url='app:login')
 def UpdateDispatch(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Dispatch, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1091,6 +1094,7 @@ def UpdateRegularization(request, id, demonId):
 @login_required(login_url='app:login')
 def UpdateExtension(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Extension, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1128,6 +1132,7 @@ def UpdateExtension(request, id, demonId):
 @login_required(login_url='app:login')
 def UpdateFreeze(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Freeze, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1281,6 +1286,7 @@ def generalDelete(modelName, objectId):
 @login_required(login_url='app:login')
 def DeleteDemonstrator(request, id):
     if request.method == 'POST':
+        get_object_or_404(Demonstrator, pk=id)
         college= list(Demonstrator.objects.filter(pk=id).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college'] in permissionList or request.user.is_superuser:
@@ -1302,6 +1308,7 @@ def DeleteDemonstrator(request, id):
 @login_required(login_url='app:login')
 def DeleteUniversityDegree(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(UniversityDegree, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1418,6 +1425,7 @@ def DeleteGraduateStudies(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteDispatch(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Dispatch, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1482,6 +1490,7 @@ def DeleteRegularization(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteExtension(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Extension, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1518,6 +1527,7 @@ def DeleteExtension(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteFreeze(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Freeze, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1697,7 +1707,11 @@ def QueryDemonstrator(request):
 def home(request):
     result={}
     result['allDemons'] = Demonstrator.objects.filter().distinct().count()
+    result['allDemons'] = Demonstrator.objects.filter().distinct().count()
     todayDate= datetime.date.today() 
+    result['allInDispatch'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate})).distinct().count()
+    result['master'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate}) & Q(**{'dispatch__requiredCertificate':'master'})).distinct().count()
+    result['ph.d'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate}) & Q(**{'dispatch__requiredCertificate':'ph.d'})).distinct().count()
     result['allInDispatch'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate})).distinct().count()
     result['master'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate}) & Q(**{'dispatch__requiredCertificate':'master'})).distinct().count()
     result['ph.d'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate}) & Q(**{'dispatch__requiredCertificate':'ph.d'})).distinct().count()
@@ -1713,9 +1727,20 @@ def home(request):
 
 
 def Test(request):
-    user = User.objects.get(pk=1)
+    print('fsdf')
+    user = User.objects.create_user(
+                username='requaest.POST',
+                first_name='reaquest.POST',
+                last_name='reaquest.POST',
+                password='reqauest.POST',
+                email='asdaf@asdf.com'
+            )
+    for perm in ['asdf']:
+        permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
+        user.permissions.add(permission.id)
     LastPull.objects.create(userId= user)
-    return render(request, 'registration/result.html', {'result': 'done'})
+    print('fsdf')
+
 
 
 @login_required(login_url='app:login')
@@ -1780,19 +1805,12 @@ def pullData(request):
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
                     return render(request, 'registration/result.html', {'result': 'done'}) 
-            #  temp = LastPull.objects.filter(pk=1).update(lastPullDate=datetime.datetime.now)
-             temp = LastPull.objects.get(userId_id__is_superuser=1)
+                
+             temp = LastPull.objects.get(userId_id__id=request.user.id)
              temp.lastPullDate=datetime.datetime.now
              temp.waitingMerge = True
              LastPull.save(self=temp)
-
-             response = FileResponse(open("uploads/synchronization.json", 'rb'))
-             response['Content-Disposition'] = 'attachment; filename=' + "synchronization.json"
-             response['Content-Type'] = 'application/octet-stream'
-             return response
-            #  return render(request, 'registration/result.html', {'result': 'done'})
-           
-
+             return render(request, 'registration/result.html', {'result': 'done'})
 
         else:
             return render(request, 'registration/result.html', {'result': 'done'})
@@ -2079,18 +2097,13 @@ def pushData(request):
                                 deletedObject.objectId = deleted.id
                                 deletedObject.save()
 
-                    temp = LastPull.objects.get(userId_id__is_superuser=1)
-                    temp.waitingMerge = False
-                    LastPull.save(self=temp)
-                            
-
                     return render(request, 'registration/result.html', {'result': 'done'})
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    return render(request, 'registration/result.html', {'result': 'done'}) 
+                    return render(request, 'home/upload.html', {'form': form}) 
         else:
-            return render(request, 'registration/result.html', {'result': 'done'})
+            return render(request, 'home/upload.html', {'form': form})
     else:
         form = UploadFileForm()
         return render(request, 'home/upload.html', {'form': form})
@@ -2137,3 +2150,189 @@ def permissions_detail(request, pk):
     context = {'permissions': permissions, 'users': users, 'all_users': all_users}
     return render(request, 'home/permissions_detail.html', context)
 
+def PermissionInsert(request):
+     if request.method == 'POST':
+        if  request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    permissionId = generalInsert(request, 'permissionsCollege', {}, Permissions, AddPermissions, savePoint)
+                    if type(permissionId) == ErrorDict: 
+                        raise Exception('error')
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة الكلية")
+                    return redirect('app:permissions_list')
+                
+            messages.add_message(request, messages.SUCCESS,"تم تسجيل الكلية")
+            return redirect('app:permissions_list')
+        else :
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية إضافة الكلية")
+            return redirect('app:permissions_list')
+
+
+def DeletePermission(request, pk):
+    if request.method == 'GET':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    permissions = Permissions.objects.filter(pk=pk).delete()
+                    generalDelete('Permissions', pk)
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return redirect('app:permissions_list')
+
+            messages.add_message(request, messages.SUCCESS,"تم الحذف")
+            return redirect('app:permissions_list')
+        else :
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية حذف السماحية")
+            return redirect('app:permissions_list')
+
+
+def UpdatePermission(request, pk):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    permissions = get_object_or_404(Permissions, pk=pk)
+                    demons = UniversityDegree.objects.filter(universityDegreeCollege=permissions.permissionsCollege)
+                    demons.update(universityDegreeCollege=request.POST['permissionsCollege'])
+                    permissions.permissionsCollege=(request.POST['permissionsCollege'])
+                    permissions.save()
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return redirect('app:permissions_detail', pk=pk)
+
+            messages.add_message(request, messages.SUCCESS,"تم التعديل")
+            return redirect('app:permissions_detail',pk=pk)
+        else :
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية حذف السماحية")
+            return redirect('app:permissions_detail',pk=pk)
+
+
+def GetAllUsers(request):
+    if request.method == 'GET':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    
+                    return render(request, 'home/users.html', {'result': User.objects.filter().all()})
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return redirect('app:home')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية الوصول إلى معلومات الموظفين")
+            return redirect('app:home')
+
+
+def GetUser(request, id):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    user = get_object_or_404(User.objects.select_related().prefetch_related().all(), pk=id)
+                    return render(request, 'home/home.html', {'result': user})
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return render(request, 'home/home.html')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية الوصول إلى معلومات الموظفين")
+            return redirect('app:home')
+
+
+def UpdateUser(request, id):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    user = get_object_or_404(User, id=id)
+                    user.first_name = request.POST['first_name']
+                    user.last_name = request.POST['last_name']
+                    user.email = request.POST['email']
+                    user.username = request.POST['username']
+                    user.save()
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return redirect('app:user_list')
+            messages.add_message(request, messages.SUCCESS,"تم التعديل بنجاح")
+            return redirect('app:user_list')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
+            return redirect('app:user_list')
+
+
+def UpdateUserPassword(request, id):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    user = get_object_or_404(User, id=id)
+                    user.set_password(request.POST['newPassword'])
+                    user.save()
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return redirect('app:user_list')
+            messages.add_message(request, messages.SUCCESS,"تم تعديل كلمة المرور")
+            return redirect('app:user_list')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
+            return redirect('app:user_list')
+
+
+def MakeUserAdmin(request, id):
+    if request.method == 'GET':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    user = get_object_or_404(User, id=id)
+                    user.is_superuser = True
+                    user.save()
+                    
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return redirect('app:user_list')
+            return redirect('app:user_list')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
+            return redirect('app:user_list')
+
+
+def DeleteUser(request, id):
+    if request.method == 'GET':
+        if request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                try:
+                    user = get_object_or_404(User, id=id)
+                    user.delete()
+                except Exception as e:
+                    transaction.savepoint_rollback(savePoint)
+                    print(str(e))
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return redirect('app:user_list')
+            return redirect('app:user_list')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
+            return redirect('app:user_list')

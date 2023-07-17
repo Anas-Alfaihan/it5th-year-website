@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 
+{% block head_title %}
+{{permissions.permissionsCollege}}
+{% endblock %}
+
 {% load static %}
 
 {% block style %}
@@ -45,7 +49,46 @@
 
 <div class="sec sect">
 
-    <h1 class="mb-4">السماحية: {{ permissions.permissionsCollege }}</h1>
+    <div class="row">
+        <div class="col-6">
+            <h1 class="mb-4">الصلاحية: {{ permissions.permissionsCollege }}</h1>
+        </div>
+        <div class="col-6 d-flex justify-content-end">
+            <div>
+
+                <button class="btn btn btn-outline-success" data-bs-toggle="modal"
+                    data-bs-target="#exampleModal">تعديل</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">تعديل السماحية</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'app:permissions_update' permissions.id %}" id="form" method="POST">
+                        {% csrf_token %}
+                        <div class="form-floating">
+                            <input type="text" class="form-control" value="{{ permissions.permissionsCollege }}"
+                                name="permissionsCollege" placeholder="asdf" id="t">
+                            <label for="t">السماحية</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إغلاق</button>
+                    <button type="submit" form="form" class="btn btn-outline-success">تعديل</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
     <p class="fs-5 mb-3 ut">الموظفون الذين لديهم الصلاحية </p>
     <ol class="mbt-ol mb-4">
         {% for user in users %}
