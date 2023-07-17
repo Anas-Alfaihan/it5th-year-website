@@ -1727,19 +1727,7 @@ def home(request):
 
 
 def Test(request):
-    print('fsdf')
-    user = User.objects.create_user(
-                username='requaest.POST',
-                first_name='reaquest.POST',
-                last_name='reaquest.POST',
-                password='reqauest.POST',
-                email='asdaf@asdf.com'
-            )
-    for perm in ['asdf']:
-        permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
-        user.permissions.add(permission.id)
-    LastPull.objects.create(userId= user)
-    print('fsdf')
+    LastPull.objects.create(userId= request.user, lastPullDate=datetime.datetime.now)
 
 
 
@@ -1799,18 +1787,29 @@ def pullData(request):
                             updated =serializerClass(model.objects.filter(Q(lastModifiedDate__gte=lastPullDate) & ~Q(createdDate__gte=lastPullDate) ), many= True).data
                             deleted = SerializerDeletedObjects( DeletedObjects.objects.filter(modelName=model.__name__, createdDate__gte=lastPullDate), many= True).data
                             data.update( {model.__name__: {'updated':updated, 'added':added, 'deleted': deleted} })
+                    # for delete all deleted archive
+                    # deleteAll = DeletedObjects.objects.filter().delete()
+                    print('data is: ',data)
                     with open('uploads/synchronization.json', 'w') as file:
                         dump(data, file, indent=None)
+                        
                 except Exception as e:
-                    transaction.savepoint_rollback(savePoint)
                     print(str(e))
+                    transaction.savepoint_rollback(savePoint)
                     return render(request, 'registration/result.html', {'result': 'done'}) 
-                
-             temp = LastPull.objects.get(userId_id__id=request.user.id)
+            #  temp = LastPull.objects.filter(pk=1).update(lastPullDate=datetime.datetime.now)
+             temp = LastPull.objects.get(userId_id__is_superuser=1)
              temp.lastPullDate=datetime.datetime.now
              temp.waitingMerge = True
              LastPull.save(self=temp)
-             return render(request, 'registration/result.html', {'result': 'done'})
+
+             response = FileResponse(open("uploads/synchronization.json", 'rb'))
+             response['Content-Disposition'] = 'attachment; filename=' + "synchronization.json"
+             response['Content-Type'] = 'application/octet-stream'
+             return response
+            #  return render(request, 'registration/result.html', {'result': 'done'})
+           
+
 
         else:
             return render(request, 'registration/result.html', {'result': 'done'})
@@ -1845,6 +1844,7 @@ def generalPushAdd(request ,added, addModel, modelName, idMap, savePoint):
         
     else:
         transaction.savepoint_rollback(savePoint)
+        print(form.errors)
         return form.errors
     return id
 
@@ -1852,8 +1852,6 @@ def generalPushAdd(request ,added, addModel, modelName, idMap, savePoint):
 
 def generalPushAddHub(request, added, addModel, modelName, idMap, savePoint):
     #Demonstrator
-    print(modelName)
-
     if modelName in ['Dispatch', 'GraduateStudies', 'CertificateOfExcellence', 'AdjectiveChange']:
         #studentId
         if 'Demonstrator' in idMap:
@@ -1977,7 +1975,6 @@ def pushData(request):
              if form.is_valid():
                  if os.path.exists("uploads/synchronization.json"):
                      os.remove("uploads/synchronization.json")
-                     print('lmmm')
                  # If a custom filename is provided, use it. Otherwise, use the original filename.
                  custom_filename = form.cleaned_data.get('custom_filename') or "synchronization"
                  # Create a new UploadedFile object and save it to the database
@@ -2003,6 +2000,7 @@ def pushData(request):
                     for model in apps.get_models():
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
+                            # add
                             for added in data[model.__name__]['added']:
                                 if 'id' in added:
                                     isExist = model.objects.filter(pk=added['id'])
@@ -2013,18 +2011,17 @@ def pushData(request):
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = 1
                                     if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                        dispatchId = added.dispatchDecisionId.id
+                                        dispatchId = added.dispatchDecisionId
                                     else:
                                         dispatchId = added.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
-                                    if dispatch[0]['commencementDate']:
-                                        endDate = CalculateDispatchEndDate(dispatch)
-                                        for dispatchItem in dispatchObject:
-                                            dispatchItem.dispatchEndDate = endDate
-                                            Dispatch.full_clean(self=dispatchItem)
-                                            Dispatch.save(self=dispatchItem)
+                                    endDate = CalculateDispatchEndDate(dispatch)
+                                    for dispatchItem in dispatchObject:
+                                        dispatchItem.dispatchEndDate = endDate
+                                        Dispatch.full_clean(self=dispatchItem)
+                                        Dispatch.save(self=dispatchItem)
                                 if model.__name__ == 'AdjectiveChange':
                                     demonId= added.studentId
                                     demonstrator = Demonstrator.objects.get(pk=demonId)
@@ -2035,6 +2032,7 @@ def pushData(request):
                     for model in apps.get_models():
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
+                            # update
                             for updated in data[model.__name__]['updated']:
                                 objs= model.objects.filter(pk=updated['id'])
                                 for obj in objs:
@@ -2043,29 +2041,28 @@ def pushData(request):
                                     if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                         dispatchId = 1
                                         if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                            dispatchId = updated.dispatchDecisionId.id
+                                            dispatchId = updated.dispatchDecisionId
                                         else:
                                             dispatchId = updated.id
                                         dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                         dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                         dispatch = loads(dumps(dispatchSerialized.data))
-                                        if dispatch[0]['commencementDate']:
-                                            endDate = CalculateDispatchEndDate(dispatch)
-                                            for dispatchItem in dispatchObject:
-                                                dispatchItem.dispatchEndDate = endDate
-                                                Dispatch.full_clean(self=dispatchItem)
-                                                Dispatch.save(self=dispatchItem)
+                                        endDate = CalculateDispatchEndDate(dispatch)
+                                        for dispatchItem in dispatchObject:
+                                            dispatchItem.dispatchEndDate = endDate
+                                            Dispatch.full_clean(self=dispatchItem)
+                                            Dispatch.save(self=dispatchItem)
                                     if model.__name__ == 'AdjectiveChange':
                                         demonId= updated.studentId
                                         demonstrator = Demonstrator.objects.get(pk=demonId)
                                         demonstrator.currentAdjective = updated.adjectiveChangeAdjective
                                         Demonstrator.full_clean(self=demonstrator)
                                         Demonstrator.save(self=demonstrator)
-
-                                   
+                 
                     for model in apps.get_models():
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
+                            # delete
                             for deleted in data[model.__name__]['deleted']:
                                 if idMap[model.__name__]:
                                     if idMap[model.__name__][deleted.id]:
@@ -2075,16 +2072,15 @@ def pushData(request):
                                     continue
                                 deletedObj= model.objects.filter(pk=deleted.id).delete()
                                 if model.__name__ in [ 'Freeze', 'Extension', 'DurationChange']:
-                                    dispatchId = deletedObj.dispatchDecisionId.id
+                                    dispatchId = deletedObj.dispatchDecisionId
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
-                                    if dispatch[0]['commencementDate']:
-                                        endDate = CalculateDispatchEndDate(dispatch)
-                                        for dispatchItem in dispatchObject:
-                                            dispatchItem.dispatchEndDate = endDate
-                                            Dispatch.full_clean(self=dispatchItem)
-                                            Dispatch.save(self=dispatchItem)
+                                    endDate = CalculateDispatchEndDate(dispatch)
+                                    for dispatchItem in dispatchObject:
+                                        dispatchItem.dispatchEndDate = endDate
+                                        Dispatch.full_clean(self=dispatchItem)
+                                        Dispatch.save(self=dispatchItem)
                                 if model.__name__ == 'AdjectiveChange':
                                     demonId= deletedObj.studentId
                                     demonstrators= Demonstrator.objects.filter(pk=demonId)
@@ -2097,13 +2093,17 @@ def pushData(request):
                                 deletedObject.objectId = deleted.id
                                 deletedObject.save()
 
+                    temp = LastPull.objects.get(userId_id__is_superuser=1)
+                    temp.waitingMerge = False
+                    LastPull.save(self=temp)
+                            
                     return render(request, 'registration/result.html', {'result': 'done'})
                 except Exception as e:
+                    print('error happend', str(e))
                     transaction.savepoint_rollback(savePoint)
-                    print(str(e))
-                    return render(request, 'home/upload.html', {'form': form}) 
+                    return render(request, 'registration/result.html', {'result': 'done'}) 
         else:
-            return render(request, 'home/upload.html', {'form': form})
+            return render(request, 'registration/result.html', {'result': 'done'})
     else:
         form = UploadFileForm()
         return render(request, 'home/upload.html', {'form': form})
