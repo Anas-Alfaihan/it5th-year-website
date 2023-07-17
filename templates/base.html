@@ -98,15 +98,15 @@
                 </li>
                 {% if user.is_authenticated %} {% if user.is_superuser %}
                 <li class="nav-item" id="nav-2">
-                    <a class="nav-link" href="{% url 'app:register' %}">
+                    <a class="nav-link" href="{% url 'app:user_list' %}">
                         <i class="fa-solid fa-user-tie menu-icon"></i>
-                        <span class="menu-title">تسجيل موظف</span>
+                        <span class="menu-title">لائحة الموظفين</span>
                     </a>
                 </li>
                 <li class="nav-item" id="nav-2">
                     <a class="nav-link" href="/app/permissions">
                         <i class="fa-solid fa-server menu-icon"></i>
-                        <span class="menu-title">صفحة المدير</span>
+                        <span class="menu-title">لائحة السماحيات</span>
                     </a>
                 </li>
                 {% endif %}
