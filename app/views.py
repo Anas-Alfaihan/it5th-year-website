@@ -1719,19 +1719,7 @@ def home(request):
 
 
 def Test(request):
-    print('fsdf')
-    user = User.objects.create_user(
-                username='requaest.POST',
-                first_name='reaquest.POST',
-                last_name='reaquest.POST',
-                password='reqauest.POST',
-                email='asdaf@asdf.com'
-            )
-    for perm in ['asdf']:
-        permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
-        user.permissions.add(permission.id)
-    LastPull.objects.create(userId= user)
-    print('fsdf')
+    LastPull.objects.create(userId= request.user, lastPullDate=datetime.datetime.now)
 
 
 
@@ -1815,27 +1803,65 @@ def pullData(request):
         return render(request, 'registration/result.html', {'result': 'done'})
 
 
-@login_required(login_url='app:login')
 def generalPushAdd(request ,added, addModel, modelName, idMap, savePoint):
     id = None
-    oldId = added['id']
-    del added['id']
+    haveId = 'id' in added
+    oldId= None
+    if haveId:
+        oldId = added['id']
+        del added['id']
     dic = {'csrfmiddlewaretoken': get_token(request)}
     dic.update(added)
     dic.update({'isOffline': False})
     form = addModel(dic)
     if form.is_valid():
         id = form.save()
-        if not idMap[modelName]:
-            idMap[modelName] = {}
-        idMap[modelName].update({oldId: id})
+        if haveId:
+            if not modelName in idMap:
+                idMap[modelName] = {}
+            idMap[modelName].update({oldId: id})
+        
     else:
         transaction.savepoint_rollback(savePoint)
         return form.errors
-    return id
+    return id 
 
 
-@login_required(login_url='app:login')
+def generalPushAddHub(request, added, addModel, modelName, idMap, savePoint):
+    #Demonstrator
+    print(modelName)
+
+    if modelName in ['Dispatch', 'GraduateStudies', 'CertificateOfExcellence', 'AdjectiveChange']:
+        #studentId
+        if 'Demonstrator' in idMap:
+            if added['studentId'] in idMap['Demonstrator']:
+                added['studentId'] = idMap['Demonstrator'][added['studentId']]
+    elif modelName == 'Nomination':
+        #nominationDecision
+        if 'Demonstrator' in idMap:
+            if added['nominationDecision'] in idMap['Demonstrator']:
+                added['nominationDecision'] = idMap['Demonstrator'][added['nominationDecision']]
+    elif modelName == 'UniversityDegree':
+        #universityDegree
+        if 'Demonstrator' in idMap:
+            if added['universityDegree'] in idMap['Demonstrator']:
+                added['universityDegree'] = idMap['Demonstrator'][added['universityDegree']]
+
+    #Dispatch
+    elif modelName in ['Report', 'Extension', 'Freeze', 'DurationChange', 'AlimonyChange', 'UniversityChange', 'SpecializationChange']:
+        #dispatchDecisionId
+        if 'Dispatch' in idMap:
+            if added['dispatchDecisionId'] in idMap['Dispatch']:
+                added['dispatchDecisionId'] = idMap['Dispatch'][added['dispatchDecisionId']]
+    elif modelName == 'Regularization':
+        #regularizationDecisionId
+        if 'Dispatch' in idMap:
+            if added['regularizationDecisionId'] in idMap['Dispatch']:
+                added['regularizationDecisionId'] = idMap['Dispatch'][added['regularizationDecisionId']]
+
+    return generalPushAdd(request, added , addModel, modelName, idMap, savePoint)
+
+
 def generalPushUpdate(request ,added, obj, addModel, savePoint):
     id = None
     dic = {'csrfmiddlewaretoken': get_token(request)}
@@ -1947,7 +1973,9 @@ def pushData(request):
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
                             for added in data[model.__name__]['added']:
-                                id = generalPushAdd(request, added , addModel, model.__name__, idMap, savePoint)
+                                print(1)
+                                id = generalPushAddHub(request, added , addModel, model.__name__, idMap, savePoint)
+                                print(2)
                                 if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = 1
@@ -2037,6 +2065,7 @@ def pushData(request):
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
+                    print('error')
                     return render(request, 'home/upload.html', {'form': form}) 
         else:
             return render(request, 'home/upload.html', {'form': form})
