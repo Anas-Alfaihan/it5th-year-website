@@ -68,12 +68,14 @@
                     class="mr-2"></a>
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+            {% if user.is_superuser %}
             <ul class="navbar-nav mr-lg-2">
-                <li class="nav-item nav-search d-none d-lg-block btn btn-primary dt"><a href="/app/upload">تصدير</a>
+                <li class="nav-item nav-search d-none d-lg-block btn btn-primary dt"><a href="/app/upload">رفع</a>
                 </li>
-                <li class="nav-item nav-search d-none d-lg-block btn btn-primary dt"><a href="/app/download">إحضار</a>
+                <li class="nav-item nav-search d-none d-lg-block btn btn-primary dt"><a href="/app/download">تنزيل</a>
                 </li>
             </ul>
+            {% endif %}
 
             <ul class="navbar-nav navbar-nav-right">
 
@@ -103,7 +105,7 @@
                         <span class="menu-title">لائحة الموظفين</span>
                     </a>
                 </li>
-                <li class="nav-item" id="nav-2">
+                <li class="nav-item" id="nav-7">
                     <a class="nav-link" href="/app/permissions">
                         <i class="fa-solid fa-server menu-icon"></i>
                         <span class="menu-title">لائحة السماحيات</span>

@@ -11,33 +11,40 @@
         //Active class can be hard coded directly in html file also as required
 
         function addActiveClass() {
-            $('.active').removeClass('.active');
-            console.log(window.location.pathname.slice('/'));
-            switch (window.location.pathname) {
-                case '/app/':
-                    $('#nav-1').addClass('active');
-                    break;
-                case '/app/register/':
-                    $('#nav-2').addClass('active');
-                    break;
-                case '/app/insert/':
-                    $('#nav-3').addClass('active');
-                    break;
-                case '/app/allDemonstrators/':
-                    $('#nav-4').addClass('active');
-                    break;
-
-                case '/app/gett/':
-                    $('#nav-5').addClass('active');
-                    break;
-                case '/app/query/':
-                    $('#nav-5').addClass('active');
-                    break;
-                case '/app/send/':
-                    $('#nav-6').addClass('active');
-                    break;
-                default:
-                    $('#nav-4').addClass('active');
+            $('.active').removeClass('active');
+            let inp = window.location.pathname;
+            console.log(inp.slice('/'));
+            if (/^\/app\/users\/.*$/.test(inp)) {
+                $('#nav-2').addClass('active');
+            } else if (/^\/app\/permissions\/.*$/.test(inp)) {
+                $('#nav-7').addClass('active');
+            } else if (/^\/app\/demonstrator\/.*$/.test(inp)) {
+                $('#nav-4').addClass('active');
+            } else {
+                switch (inp) {
+                    case '/app/':
+                        $('#nav-1').addClass('active');
+                        break;
+                    case '/app/register/':
+                        $('#nav-2').addClass('active');
+                        break;
+                    case '/app/insert/':
+                        $('#nav-3').addClass('active');
+                        break;
+                    case '/app/allDemonstrators/':
+                        $('#nav-4').addClass('active');
+                        break;
+                    case '/app/gett/':
+                    case '/app/query/':
+                    case '/app/sendEmails/':
+                        $('#nav-5').addClass('active');
+                        break;
+                    case '/app/send/':
+                        $('#nav-6').addClass('active');
+                        break;
+                    default:
+                        $('#nav-1').addClass('active');
+                }
             }
         }
         addActiveClass();

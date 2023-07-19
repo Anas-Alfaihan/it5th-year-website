@@ -2092,28 +2092,37 @@ def gett(request):
 
 
 def permissions_list(request):
-    query = request.GET.get('search')
-    if query:
-        permissions = Permissions.objects.filter(permissionsCollege__icontains=query)
+    if request.user.is_superuser:
+        query = request.GET.get('search')
+        if query:
+            permissions = Permissions.objects.filter(permissionsCollege__icontains=query)
+        else:
+            permissions = Permissions.objects.all()
+        context = {'permissions': permissions, 'query': query}
+
+        return render(request, 'home/permissions_list.html', context)
     else:
-        permissions = Permissions.objects.all()
-    context = {'permissions': permissions, 'query': query}
-    
-    return render(request, 'home/permissions_list.html', context)
+        messages.add_message(request, messages.ERROR,"لا تملك صلاحية  ")
+        return redirect('app:home')
+
 
 def permissions_detail(request, pk):
-    permissions = get_object_or_404(Permissions, pk=pk)
-    if request.method == 'POST':
-        users = request.POST.getlist('userId')
-        permissions.userId.set(users)
-        permissions.save()
-    try:
-        users = permissions.userId.all()
-    except User.DoesNotExist:
-        raise Http404("User does not exist")
-    all_users = User.objects.all()
-    context = {'permissions': permissions, 'users': users, 'all_users': all_users}
-    return render(request, 'home/permissions_detail.html', context)
+    if request.user.is_superuser:
+        permissions = get_object_or_404(Permissions, pk=pk)
+        if request.method == 'POST':
+            users = request.POST.getlist('userId')
+            permissions.userId.set(users)
+            permissions.save()
+        try:
+            users = permissions.userId.all()
+        except User.DoesNotExist:
+            raise Http404("User does not exist")
+        all_users = User.objects.all()
+        context = {'permissions': permissions, 'users': users, 'all_users': all_users}
+        return render(request, 'home/permissions_detail.html', context)
+    else :
+        messages.add_message(request, messages.ERROR,"لا تملك صلاحية  ")
+        return redirect('app:home')
 
 def PermissionInsert(request):
      if request.method == 'POST':

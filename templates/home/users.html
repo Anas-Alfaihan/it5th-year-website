@@ -3,6 +3,7 @@
 
 {% block content %}
 {% load static %}
+<h2 class="tit">لائحة الموظفين</h2>
 <div class="sec">
     <div class="row justify-content-center">
 
@@ -29,7 +30,7 @@
                     <tr>
 
                         <th scope="row">{{ forloop.counter }}</th>
-                        <td> <a href="{{user.get_absolute_url}}">{{ user.username }}</a> </td>
+                        <td style="color: #166EFD"> {{ user.username }} </td>
 
                         <td>{{ user.first_name }}</td>
                         <td>{{ user.last_name }}</td>
