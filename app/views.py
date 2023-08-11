@@ -306,6 +306,8 @@ def Register(request):
                 permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
                 user.permissions.add(permission.id)
             LastPull.objects.create(userId= user)
+            UserSynchronization.objects.create(userId= user)
+
             messages.add_message(request, messages.SUCCESS,"أهلاً و سهلاً")
             return redirect('app:home')
         else:
@@ -1725,6 +1727,7 @@ def home(request):
 
 def Test(request):
     LastPull.objects.create(userId= request.user, lastPullDate=datetime.datetime.now)
+    UserSynchronization.objects.create(userId= request.user)
 
 
 
@@ -1766,6 +1769,8 @@ def getSerializer(modelName):
         return SerializerUniversityChange
     elif modelName == 'SpecializationChange':
         return SerializerSpecializationChange
+    elif modelName == 'UserSynchronization':
+        return SerializerUserSynchronization
 
 
 @login_required(login_url='app:login')
@@ -1778,7 +1783,18 @@ def pullData(request):
                     lastPullDate= request.user.lastPull.lastPullDate
                     data={}
                     for model in apps.get_models():
-                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
+                        if model.__name__ == 'UserSynchronization':
+                            print('hello')
+                            serializerClass = getSerializer(model.__name__)
+                            added = serializerClass(model.objects.filter(createdDate__gte=lastPullDate), many= True).data
+                            updated =serializerClass(model.objects.filter(Q(lastModifiedDate__gte=lastPullDate) & ~Q(createdDate__gte=lastPullDate) ), many= True).data
+                            deleted = SerializerDeletedObjects( DeletedObjects.objects.filter(modelName=model.__name__, createdDate__gte=lastPullDate), many= True).data
+                            added2 = SerializerUser(User.objects.filter(userSynchronization__createdDate__gte=lastPullDate), many= True).data
+                            updated2 =SerializerUser(User.objects.filter(Q(userSynchronization__lastModifiedDate__gte=lastPullDate) & ~Q(userSynchronization__createdDate__gte=lastPullDate) ), many= True).data
+                            deleted2 = SerializerUser( DeletedObjects.objects.filter(modelName='User', createdDate__gte=lastPullDate), many= True).data
+                            data.update( {'User': {'updated':updated2, 'added':added2, 'deleted': deleted2} })
+                            data.update( {model.__name__: {'updated':updated, 'added':added, 'deleted': deleted} })
+                        elif not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             serializerClass = getSerializer(model.__name__)
                             added = serializerClass(model.objects.filter(createdDate__gte=lastPullDate), many= True).data
                             updated =serializerClass(model.objects.filter(Q(lastModifiedDate__gte=lastPullDate) & ~Q(createdDate__gte=lastPullDate) ), many= True).data
