@@ -56,12 +56,27 @@
       </select>
 
     </div>
+    {% csrf_token %}
     <button type="submit" name="emails" value="normal" style="background-color:#4b49ac"
       class="btn text-white  ">ارسال</button>
-    {% csrf_token %}
+
+    <button type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample"
+      style="background-color:#4b49ac" class="btn text-white  ">أسماء المتأخرين</button>
+
     <button id="notification" name="emails" value="late" style="background-color:#4b49ac" class="btn text-white  ">ارسال
       انذار للمتأخرين</button>
   </form>
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offcanvasExampleLabel">Offcanvas</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      {% for lat in late %}
+      <p>{{lat}}</p>
+      {% endfor %}
+    </div>
+  </div>
 </div>
 
 <script src="{% static 'js/multi-select.js'%}"></script>
