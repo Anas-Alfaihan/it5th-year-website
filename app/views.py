@@ -48,7 +48,7 @@ from django.http import FileResponse
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
-
+Late_Emails=[]
 @login_required(login_url='app:login')
 def UploadFile(request):
     print('lmmm22')
@@ -287,6 +287,7 @@ def Email(request):
     permissions=list(Permissions.objects.all().values('permissionsCollege'))
     d = JsonResponse({"data": permissions})
     strr = d.content.decode("utf-8")
+    GetLateEmails(request)
     return render(request, 'home/send_email.html',{"select": strr})
 
 
@@ -813,17 +814,21 @@ def GetAllEmails(request):
         return render(request, 'registration/result.html', {'result': 'done'})
 
 
-@login_required(login_url='app:login')
 def GetLateEmails(request):
-    if request.method == 'POST':
+    if request.method == 'GET':
         todayDate = datetime.date.today() 
-        lateDate = datetime.date.today() + relativedelta(days=-1)
-        dispatchLate= Dispatch.objects.filter(Q(**{'dispatchEndDate__gte' : todayDate}) & ( Q(**{'lastReportDate__lte':lateDate}) | ( Q(**{'lastReportDate':None}) & Q(**{'commencementDate__lte':lateDate}) ) ) ).values('studentId_id')
-        res= []
+        lateDate = datetime.date.today() + relativedelta(seconds=-5)
+        reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':lateDate})).values('dispatchDecisionId_id')
+        dis =[]
+        for report in list(reports):
+            dis.append(report['dispatchDecisionId_id'])
+        dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis})).values('studentId_id')
+        res =[]
         for dispatch in list(dispatchLate):
             res.append(dispatch['studentId_id'])
-        late = Demonstrator.objects.filter(pk__in=res ).values('email', 'mobile', 'name')
-        return render(request, 'registration/result.html', {'result': 'done'})
+        
+        Late_Emails = list(Demonstrator.objects.filter(pk__in=res).values('email','mobile', 'name'))
+        return render(request, 'home/send_email.html',{"late":Late_Emails})
 
 
 @login_required(login_url='app:login')
