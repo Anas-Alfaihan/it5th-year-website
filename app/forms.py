@@ -7,6 +7,12 @@ from django import forms
 class UploadFileForm(forms.Form):
     file = forms.FileField()
     
+    
+class AddUserSynchronization(ModelForm):
+    class Meta:
+        model= UserSynchronization
+        exclude=[]
+
 
 class AddPermissions(ModelForm):
     class Meta:

@@ -13,6 +13,13 @@ class UploadedFile(models.Model):
         return self.filename
 
 
+class UserSynchronization(models.Model):
+    userId= models.OneToOneField(User, on_delete=models.CASCADE, related_name= 'userSynchronization')
+    createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
+    lastModifiedDate = models.DateTimeField(auto_now=True)
+    isOffline = models.BooleanField(null=True, blank=True, default=False)
+
+
 class LastPull(models.Model):
     userId= models.OneToOneField(User,on_delete=models.CASCADE, related_name='lastPull')
     lastPullDate= models.DateTimeField(auto_now=True)
