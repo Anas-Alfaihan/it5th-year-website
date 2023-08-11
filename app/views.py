@@ -287,8 +287,9 @@ def Email(request):
     permissions=list(Permissions.objects.all().values('permissionsCollege'))
     d = JsonResponse({"data": permissions})
     strr = d.content.decode("utf-8")
-    GetLateEmails(request)
-    return render(request, 'home/send_email.html',{"select": strr})
+
+    late=GetLateEmails(request)
+    return render(request, 'home/send_email.html',{"select": strr,"late":late})
 
 
 @login_required(login_url='app:login')
@@ -830,7 +831,7 @@ def GetLateEmails(request):
             res.append(dispatch['studentId_id'])
         
         Late_Emails = list(Demonstrator.objects.filter(pk__in=res).values('email','mobile', 'name'))
-        return render(request, 'home/send_email.html',{"late":Late_Emails})
+        return Late_Emails
 
 
 @login_required(login_url='app:login')
