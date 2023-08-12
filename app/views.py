@@ -438,8 +438,11 @@ def DemonstratorInsert2(request):
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
             return redirect('app:insert')
     else:
-        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
-        return render(request, 'home/insert.html', {'permissions': permissionList})
+        permissions=list(Permissions.objects.all().values('permissionsCollege'))
+        d = JsonResponse({"data": permissions})
+        strr = d.content.decode("utf-8")
+        print(strr)
+        return render(request, 'home/insert.html', {'select': strr})
 
 
 @login_required(login_url='app:login')
