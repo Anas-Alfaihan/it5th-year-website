@@ -287,8 +287,9 @@ def Email(request):
     permissions=list(Permissions.objects.all().values('permissionsCollege'))
     d = JsonResponse({"data": permissions})
     strr = d.content.decode("utf-8")
-    GetLateEmails(request)
-    return render(request, 'home/send_email.html',{"select": strr})
+
+    late=GetLateEmails(request)
+    return render(request, 'home/send_email.html',{"select": strr,"late":late})
 
 
 @login_required(login_url='app:login')
@@ -442,8 +443,11 @@ def DemonstratorInsert2(request):
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
             return redirect('app:insert')
     else:
-        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
-        return render(request, 'home/insert.html', {'permissions': permissionList})
+        permissions=list(Permissions.objects.all().values('permissionsCollege'))
+        d = JsonResponse({"data": permissions})
+        strr = d.content.decode("utf-8")
+        print(strr)
+        return render(request, 'home/insert.html', {'select': strr})
 
 
 @login_required(login_url='app:login')
@@ -835,7 +839,7 @@ def GetLateEmails(request):
             res.append(dispatch['studentId_id'])
         
         Late_Emails = list(Demonstrator.objects.filter(pk__in=res).values('email','mobile', 'name'))
-        return render(request, 'home/send_email.html',{"late":Late_Emails})
+        return Late_Emails
 
 
 @login_required(login_url='app:login')
@@ -2433,3 +2437,6 @@ def DeleteUser(request, id):
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
             return redirect('app:user_list')
+
+def About(request):
+    return render(request,"home/about-us.html")

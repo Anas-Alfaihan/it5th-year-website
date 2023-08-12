@@ -18,8 +18,8 @@ $(document).ready(function () {
     $('#highC').click(function () {
         $(
             '#above-highc'
-        ).before(`<div class="row" id="c${cd}"> <div class="row col-12 align-items-center justify-content-between"><h4 class="col-10 my-3 lead">شهادة رقم ${cd}</h4><button onclick="$('#c${cd}').remove()" type="button" class="btn btn-outline-danger col-1 btn-sm p-0 nothing" >x</button></div>
-<div class="col-12"><label class="form-label">الشهادة</label>
+        ).before(`<div class="row" id="c${cd}"> <div class="row col-12 align-items-center justify-content-between"><h4 class="col-10 my-3 lead">شهادة تفوق </h4><button onclick="$('#c${cd}').remove()" type="button" class="btn btn-outline-danger col-1 btn-sm p-2 nothing" >x</button></div>
+<div class="col-12 mb-2"><label class="form-label">الشهادة</label>
   <select
                     class="form-select"
                     
@@ -32,7 +32,7 @@ $(document).ready(function () {
                     <option value="3">الثالث</option>
                 </select>
 
-    
+    </div>
 <div class="col-12">
     <label class="form-label">سنة الشهادة</label>
     <select
@@ -59,9 +59,9 @@ $(document).ready(function () {
         $('#above-highd').before(`
         
         <div class = "row" id="h${hd}">
-            <div class="row col-12 align-items-center justify-content-between"><h4 class="lead my-3 col-10">شهادة رقم ${hd}</h4><button onclick="$('#h${hd}').remove()" type="button" class="btn btn-outline-danger col-1 btn-sm p-0 nothing" >x</button></div>
+            <div class="row col-12 align-items-center justify-content-between"><h4 class="lead my-3 col-10">شهادة دراسات عليا </h4><button onclick="$('#h${hd}').remove()" type="button" class="btn btn-outline-danger col-1 btn-sm p-2 nothing" >x</button></div>
             
-        <div class="col-12">
+        <div class="col-12 mb-3">
     <label class="form-label">الشهادة</label>
     <select
                     class="form-select"
@@ -76,7 +76,7 @@ $(document).ready(function () {
                 </select>
     
 </div>
-<div class="col-6">
+<div class="col-6 mb-3">
     <label class="form-label">الجامعة</label>
     <input
         type="text"
@@ -86,7 +86,7 @@ $(document).ready(function () {
         required
     />
 </div>
-<div class="col-6">
+<div class="col-6 mb-3">
     <label class="form-label">الكلية</label>
     <input
         type="text"
@@ -96,7 +96,7 @@ $(document).ready(function () {
         required
     />
 </div>
-<div class="col-6">
+<div class="col-6 mb-3">
     <label class="form-label">القسم</label>
     <input
         type="text"
@@ -106,7 +106,7 @@ $(document).ready(function () {
         required
     />
 </div>
-<div class="col-6">
+<div class="col-6 mb-3">
     <label class="form-label">الاختصاص</label>
     <input
         type="text"
@@ -116,7 +116,7 @@ $(document).ready(function () {
         required
     />
 </div>
-<div class="col-6">
+<div class="col-6 mb-3">
     <label class="form-label">سنة الشهادة</label>
     <input
         type="text"
@@ -128,7 +128,7 @@ $(document).ready(function () {
     />
     <div class="invalid-feedback">أدخل بتنسيق 2018-2019</div>
 </div>
-<div class="col-6">
+<div class="col-6 mb-3">
     <label class="form-label">المعدل</label>
     <input
         type="number"

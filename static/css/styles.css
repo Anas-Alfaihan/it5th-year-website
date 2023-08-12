@@ -9,6 +9,8 @@
     border: none;
     text-decoration: none !important;
     box-sizing: border-box;
+}
+ul {
     list-style: none;
 }
 

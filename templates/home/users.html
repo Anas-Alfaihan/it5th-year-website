@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block head_title %}All Products{% endblock %}
+{% block head_title %}قائمة الموظفين{% endblock %}
 
 {% block content %}
 {% load static %}
@@ -152,8 +152,8 @@
                         <div class="invalid-feedback">كلمة المرور غير متطابقة</div>
                     </div>
                     <div class="mb-3">
-                        <label for="ad{{ user.id }}" class="form-label">تأكيد كلمة سر الأدمن</label>
-                        <input type="password" class="form-control" id="ad{{ user.id }}" name="admin_password">
+                        <label for="addEventListener{{ user.id }}" class="form-label">تأكيد كلمة سر الأدمن</label>
+                        <input type="password" class="form-control" id="add{{ user.id }}" name="admin_password">
                     </div>
                 </form>
             </div>
@@ -173,7 +173,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel{{ user.id }}">تعديل المستخدم</h5>
+                <h5 class="modal-title" id="deleteModalLabel{{ user.id }}">حذف المستخدم</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -181,14 +181,14 @@
                     {% csrf_token %}
 
                     <div class="mb-3">
-                        <label for="ad{{ user.id }}" class="form-label">تأكيد كلمة سر الأدمن</label>
-                        <input type="password" class="form-control" id="ad{{ user.id }}" name="admin_password">
+                        <label for="adb{{ user.id }}" class="form-label">تأكيد كلمة سر الأدمن</label>
+                        <input type="password" class="form-control" id="adb{{ user.id }}" name="admin_password">
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-                <button type="submit" class="btn btn-primary" form="delete{{user.id}}">حفظ</button>
+                <button type="submit" class="btn btn-primary" form="delete{{user.id}}">حذف</button>
             </div>
         </div>
     </div>
@@ -208,8 +208,8 @@
                     {% csrf_token %}
 
                     <div class="mb-3">
-                        <label for="ad{{ user.id }}" class="form-label">تأكيد كلمة سر الأدمن</label>
-                        <input type="password" class="form-control" id="ad{{ user.id }}" name="admin_password">
+                        <label for="adc{{ user.id }}" class="form-label">تأكيد كلمة سر الأدمن</label>
+                        <input type="password" class="form-control" id="adc{{ user.id }}" name="admin_password">
                     </div>
                 </form>
             </div>

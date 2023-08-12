@@ -54,6 +54,7 @@ urlpatterns = [
     path('users/delete/<int:id>', views.DeleteUser, name='permissions_insert'),
     path('users/changePassword/<int:id>', views.UpdateUserPassword, name='permissions_insert'),
     path('users/makeUserAdmin/<int:id>', views.MakeUserAdmin, name='permissions_insert'),
+    path('about-us', views.About, name='about_us'),
 
 
 ]
