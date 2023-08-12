@@ -295,24 +295,29 @@ def Email(request):
 def Register(request):
     if request.method == 'POST':
         if request.user.is_superuser:
-            user = User.objects.create_user(
-                username=request.POST['username'],
-                first_name=request.POST['firstName'],
-                last_name=request.POST['lastName'],
-                password=request.POST['password'],
-                email=request.POST['email']
-            )
-            for perm in request.POST.getlist('permissions'):
-                permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
-                user.permissions.add(permission.id)
-            LastPull.objects.create(userId= user)
-            UserSynchronization.objects.create(userId= user)
+            checkPassword = authenticate(request, username=request.user.username, password=request.POST['admin_password'])
+            if checkPassword is not None:
+                user = User.objects.create_user(
+                    username=request.POST['username'],
+                    first_name=request.POST['firstName'],
+                    last_name=request.POST['lastName'],
+                    password=request.POST['password'],
+                    email=request.POST['email']
+                )
+                for perm in request.POST.getlist('permissions'):
+                    permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
+                    user.permissions.add(permission.id)
+                LastPull.objects.create(userId= user, lastPullDate=datetime.datetime.now)
+                UserSynchronization.objects.create(userId= user)
 
-            messages.add_message(request, messages.SUCCESS,"أهلاً و سهلاً")
-            return redirect('app:home')
+                messages.add_message(request, messages.SUCCESS,"تمت إضافة الموظف")
+                return redirect('app:register')
+            else:
+                messages.add_message(request, messages.ERROR,"كلمة مرور المدير غير صحيحة")
+                return redirect('app:register')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية تسجيل موظفين")
-            return redirect('app:home')
+            return redirect('app:register')
 
     if request.user.is_superuser:
         # permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
@@ -1780,18 +1785,24 @@ def pullData(request):
              with transaction.atomic():
                 savePoint= transaction.savepoint()
                 try:
-                    lastPullDate= request.user.lastPull.lastPullDate
+                    if 'lastPull' in request.POST and request.POST['lastPull'] == 1:
+                        lastPullDate= request.user.lastPull.lastPullDate
+                    elif 'dte' in request.POST:
+                        lastPullDate= request.POST['dte']
+                    else:
+                        lastPullDate= request.user.lastPull.lastPullDate
+
+                        
                     data={}
                     for model in apps.get_models():
                         if model.__name__ == 'UserSynchronization':
-                            print('hello')
                             serializerClass = getSerializer(model.__name__)
                             added = serializerClass(model.objects.filter(createdDate__gte=lastPullDate), many= True).data
                             updated =serializerClass(model.objects.filter(Q(lastModifiedDate__gte=lastPullDate) & ~Q(createdDate__gte=lastPullDate) ), many= True).data
                             deleted = SerializerDeletedObjects( DeletedObjects.objects.filter(modelName=model.__name__, createdDate__gte=lastPullDate), many= True).data
                             added2 = SerializerUser(User.objects.filter(userSynchronization__createdDate__gte=lastPullDate), many= True).data
                             updated2 =SerializerUser(User.objects.filter(Q(userSynchronization__lastModifiedDate__gte=lastPullDate) & ~Q(userSynchronization__createdDate__gte=lastPullDate) ), many= True).data
-                            deleted2 = SerializerUser( DeletedObjects.objects.filter(modelName='User', createdDate__gte=lastPullDate), many= True).data
+                            deleted2 = SerializerDeletedObjects( DeletedObjects.objects.filter(modelName='User', createdDate__gte=lastPullDate), many= True).data
                             data.update( {'User': {'updated':updated2, 'added':added2, 'deleted': deleted2} })
                             data.update( {model.__name__: {'updated':updated, 'added':added, 'deleted': deleted} })
                         elif not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
@@ -1833,7 +1844,8 @@ def generalPushAdd(request ,added, addModel, modelName, idMap, savePoint):
         del added['id']
     dic = {'csrfmiddlewaretoken': get_token(request)}
     dic.update(added)
-    dic.update({'isOffline': False})
+    if modelName != 'User':
+        dic.update({'isOffline': False})
     form = addModel(dic)
     if form.is_valid():
         id = form.save()
@@ -1850,8 +1862,6 @@ def generalPushAdd(request ,added, addModel, modelName, idMap, savePoint):
 
 def generalPushAddHub(request, added, addModel, modelName, idMap, savePoint):
     #Demonstrator
-    print(modelName)
-
     if modelName in ['Dispatch', 'GraduateStudies', 'CertificateOfExcellence', 'AdjectiveChange']:
         #studentId
         if 'Demonstrator' in idMap:
@@ -1880,14 +1890,31 @@ def generalPushAddHub(request, added, addModel, modelName, idMap, savePoint):
             if added['regularizationDecisionId'] in idMap['Dispatch']:
                 added['regularizationDecisionId'] = idMap['Dispatch'][added['regularizationDecisionId']]
 
+    #User
+    elif modelName in ['UserSynchronization', 'Permissions']:
+        if 'User' in idMap:
+            if modelName == 'UserSynchronization':
+                if added['userId'] in idMap['User']:
+                    added['userId'] = idMap['User'][added['userId']]
+            else:
+                userIdList=[]
+                for userIdItem in added['userId']:
+                    if userIdItem in idMap['User']:
+                        userIdList.append(idMap['User'][userIdItem])
+                    else:
+                        userIdList.append(userIdItem)
+                added['userId'] = userIdList
+        
+    
     return generalPushAdd(request, added , addModel, modelName, idMap, savePoint)
 
 
-def generalPushUpdate(request ,added, obj, addModel, savePoint):
+def generalPushUpdate(request, modelName, added, obj, addModel, savePoint):
     id = None
     dic = {'csrfmiddlewaretoken': get_token(request)}
     dic.update(added)
-    dic.update({'isOffline': False})
+    if modelName != 'User':
+        dic.update({'isOffline': False})
     form = addModel(dic, instance=obj)
     if form.is_valid():
         id = form.save()
@@ -1926,8 +1953,15 @@ def generalUpdateHub(request, added, obj, addModel, modelName, idMap, savePoint)
         if idMap[modelName]:
             if idMap[modelName][added['regularizationDecisionId']]:
                 added['regularizationDecisionId'] = idMap[modelName][added['regularizationDecisionId']]
+    
+    #User
+    elif modelName in ['UserSynchronization', 'Permissions']:
+        #userId
+        if modelName in idMap:
+            if added['userId'] in idMap[modelName]:
+                added['userId'] = idMap[modelName][added['userId']]
 
-    return generalPushUpdate(request, added, obj, addModel, savePoint)
+    return generalPushUpdate(request, modelName, added, obj, addModel, savePoint)
 
 
 def getForm(modelName):
@@ -1964,6 +1998,10 @@ def getForm(modelName):
         return AddUniversityChange
     elif modelName == 'SpecializationChange':
         return AddSpecializationChange
+    elif modelName == 'User':
+        return AddUser
+    elif modelName == 'UserSynchronization':
+        return AddUserSynchronization
 
 
 @login_required(login_url='app:login')
@@ -1974,7 +2012,6 @@ def pushData(request):
              if form.is_valid():
                  if os.path.exists("uploads/synchronization.json"):
                      os.remove("uploads/synchronization.json")
-                     print('lmmm')
                  # If a custom filename is provided, use it. Otherwise, use the original filename.
                  custom_filename = form.cleaned_data.get('custom_filename') or "synchronization"
                  # Create a new UploadedFile object and save it to the database
@@ -1982,28 +2019,31 @@ def pushData(request):
                  uploaded._name="synchronization.json"
                  uploaded_file = UploadedFile(file=uploaded, filename=custom_filename)
                  uploaded_file.save()
+
              with transaction.atomic():
                 savePoint= transaction.savepoint()
                 try:
                     data = None
                     idMap = {}
+                    usersIds = []
                     with open('uploads/synchronization.json', 'r') as f:
                         data = load(f)
 
+                    #add
                     for model in apps.get_models():
-                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
+                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
                             for added in data[model.__name__]['added']:
-                                print(1)
+                                if model.__name__ == 'User':
+                                    usersIds.append(added['id'])
                                 id = generalPushAddHub(request, added , addModel, model.__name__, idMap, savePoint)
-                                print(2)
                                 if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = 1
                                     if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                        dispatchId = added.dispatchDecisionId.id
+                                        dispatchId = added.dispatchDecisionId['id']
                                     else:
-                                        dispatchId = added.id
+                                        dispatchId = added['id']
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
@@ -2019,9 +2059,11 @@ def pushData(request):
                                     demonstrator.currentAdjective = added.adjectiveChangeAdjective
                                     Demonstrator.full_clean(self=demonstrator)
                                     Demonstrator.save(self=demonstrator)
-      
+                               
+
+                    #update
                     for model in apps.get_models():
-                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
+                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
                             for updated in data[model.__name__]['updated']:
                                 objs= model.objects.filter(pk=updated['id'])
@@ -2031,9 +2073,9 @@ def pushData(request):
                                     if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                         dispatchId = 1
                                         if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                            dispatchId = updated.dispatchDecisionId.id
+                                            dispatchId = updated.dispatchDecisionId['id']
                                         else:
-                                            dispatchId = updated.id
+                                            dispatchId = updated['id']
                                         dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                         dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                         dispatch = loads(dumps(dispatchSerialized.data))
@@ -2049,17 +2091,18 @@ def pushData(request):
                                         demonstrator.currentAdjective = updated.adjectiveChangeAdjective
                                         Demonstrator.full_clean(self=demonstrator)
                                         Demonstrator.save(self=demonstrator)
-                                   
+
+                    #delete             
                     for model in apps.get_models():
-                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'User', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
+                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
                             for deleted in data[model.__name__]['deleted']:
-                                if idMap[model.__name__]:
-                                    if idMap[model.__name__][deleted.id]:
-                                        deleted.id = idMap[model.__name__][deleted.id]
-                                deletedObj= model.objects.filter(pk=deleted.id).delete()
+                                if model.__name__ in idMap and idMap[model.__name__]:
+                                    if deleted['objectId'] in idMap[model.__name__] and idMap[model.__name__][deleted['objectId']]:
+                                        deleted['objectId'] = idMap[model.__name__][deleted['objectId']]
+                                deletedObj= model.objects.filter(pk=deleted['objectId']).delete()
                                 if model.__name__ in [ 'Freeze', 'Extension', 'DurationChange']:
-                                    dispatchId = deletedObj.dispatchDecisionId.id
+                                    dispatchId = deletedObj.dispatchDecisionId['id']
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
@@ -2078,18 +2121,34 @@ def pushData(request):
                                         Demonstrator.save(self=demonstrator)
                                 deletedObject= DeletedObjects()
                                 deletedObject.modelName= model.__name__
-                                deletedObject.objectId = deleted.id
+                                deletedObject.objectId = deleted['objectId']
                                 deletedObject.isOffline = False
                                 deletedObject.save()
 
-                    return render(request, 'home/upload.html', {'form': form})
+                    #add LastPull for added users
+                    for userIdItem in usersIds:
+                        print(userIdItem)
+                        haveLastPull = User.objects.filter(pk=userIdItem)
+                        print(haveLastPull)
+                        if 'lastPull' in haveLastPull:
+                            continue
+                        userId = userIdItem
+                    
+                        if idMap['User']:
+                            if idMap['User'][userId]:
+                                userId = idMap['User'][userId]
+                        LastPull.objects.create(userId= userId, lastPullDate=datetime.datetime.now)
+                    
+                    messages.add_message(request, messages.SUCCESS,"تم تحديث المعلومات بنجاح")
+                    return redirect('app:upload_file')
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
-                    print('error')
-                    return render(request, 'home/upload.html', {'form': form}) 
+                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                    return redirect('app:upload_file')
         else:
-            return render(request, 'home/upload.html', {'form': form})
+            messages.add_message(request, messages.WARNING,"ليست لديك صلاحية الدخول إلى هذه الصفحة")
+            return redirect('app:home')
     else:
         form = UploadFileForm()
         return render(request, 'home/upload.html', {'form': form})
@@ -2112,6 +2171,7 @@ def gett(request):
     return JsonResponse(data2, safe=False)
 
 
+@login_required(login_url='app:login')
 def permissions_list(request):
     if request.user.is_superuser:
         query = request.GET.get('search')
@@ -2127,6 +2187,7 @@ def permissions_list(request):
         return redirect('app:home')
 
 
+@login_required(login_url='app:login')
 def permissions_detail(request, pk):
     if request.user.is_superuser:
         permissions = get_object_or_404(Permissions, pk=pk)
@@ -2145,6 +2206,8 @@ def permissions_detail(request, pk):
         messages.add_message(request, messages.ERROR,"لا تملك صلاحية  ")
         return redirect('app:home')
 
+
+@login_required(login_url='app:login')
 def PermissionInsert(request):
      if request.method == 'POST':
         if  request.user.is_superuser:
@@ -2167,6 +2230,7 @@ def PermissionInsert(request):
             return redirect('app:permissions_list')
 
 
+@login_required(login_url='app:login')
 def DeletePermission(request, pk):
     if request.method == 'GET':
         if request.user.is_superuser:
@@ -2188,6 +2252,7 @@ def DeletePermission(request, pk):
             return redirect('app:permissions_list')
 
 
+@login_required(login_url='app:login')
 def UpdatePermission(request, pk):
     if request.method == 'POST':
         if request.user.is_superuser:
@@ -2212,6 +2277,7 @@ def UpdatePermission(request, pk):
             return redirect('app:permissions_detail',pk=pk)
 
 
+@login_required(login_url='app:login')
 def GetAllUsers(request):
     if request.method == 'GET':
         if request.user.is_superuser:
@@ -2230,6 +2296,7 @@ def GetAllUsers(request):
             return redirect('app:home')
 
 
+@login_required(login_url='app:login')
 def GetUser(request, id):
     if request.method == 'POST':
         if request.user.is_superuser:
@@ -2248,86 +2315,121 @@ def GetUser(request, id):
             return redirect('app:home')
 
 
+@login_required(login_url='app:login')
 def UpdateUser(request, id):
     if request.method == 'POST':
         if request.user.is_superuser:
-            with transaction.atomic():
-                savePoint = transaction.savepoint()
-                try:
-                    user = get_object_or_404(User, id=id)
-                    user.first_name = request.POST['first_name']
-                    user.last_name = request.POST['last_name']
-                    user.email = request.POST['email']
-                    user.username = request.POST['username']
-                    user.save()
-                except Exception as e:
-                    transaction.savepoint_rollback(savePoint)
-                    print(str(e))
-                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
-                    return redirect('app:user_list')
-            messages.add_message(request, messages.SUCCESS,"تم التعديل بنجاح")
-            return redirect('app:user_list')
+            checkPassword = authenticate(request, username=request.user.username, password=request.POST['admin_password'])
+            if checkPassword is not None:
+                with transaction.atomic():
+                    savePoint = transaction.savepoint()
+                    try:
+                        user = get_object_or_404(User, id=id)
+                        user.first_name = request.POST['first_name']
+                        user.last_name = request.POST['last_name']
+                        user.email = request.POST['email']
+                        user.username = request.POST['username']
+                        user.save()
+                        userSynchronization = UserSynchronization.objects.get(userId_id__id=id)
+                        userSynchronization.isOffline=False
+                        userSynchronization.save()
+                    except Exception as e:
+                        transaction.savepoint_rollback(savePoint)
+                        print(str(e))
+                        messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                        return redirect('app:user_list')
+                messages.add_message(request, messages.SUCCESS,"تم التعديل بنجاح")
+                return redirect('app:user_list')
+            else:
+                messages.add_message(request, messages.ERROR,"كلمة مرور المدير غير صحيحة")
+                return redirect('app:user_list')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
             return redirect('app:user_list')
 
 
+@login_required(login_url='app:login')
 def UpdateUserPassword(request, id):
     if request.method == 'POST':
         if request.user.is_superuser:
-            with transaction.atomic():
-                savePoint = transaction.savepoint()
-                try:
-                    user = get_object_or_404(User, id=id)
-                    user.set_password(request.POST['newPassword'])
-                    user.save()
-                except Exception as e:
-                    transaction.savepoint_rollback(savePoint)
-                    print(str(e))
-                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
-                    return redirect('app:user_list')
-            messages.add_message(request, messages.SUCCESS,"تم تعديل كلمة المرور")
-            return redirect('app:user_list')
+            checkPassword = authenticate(request, username=request.user.username, password=request.POST['admin_password'])
+            if checkPassword is not None:
+                with transaction.atomic():
+                    savePoint = transaction.savepoint()
+                    try:
+                        user = get_object_or_404(User, id=id)
+                        user.set_password(request.POST['newPassword'])
+                        user.save()
+                        userSynchronization = UserSynchronization.objects.get(userId_id__id=id)
+                        userSynchronization.isOffline=False
+                        userSynchronization.save()
+                    except Exception as e:
+                        transaction.savepoint_rollback(savePoint)
+                        print(str(e))
+                        messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                        return redirect('app:user_list')
+                messages.add_message(request, messages.SUCCESS,"تم تعديل كلمة المرور")
+                return redirect('app:user_list')
+            else:
+                messages.add_message(request, messages.ERROR,"كلمة مرور المدير غير صحيحة")
+                return redirect('app:user_list')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
             return redirect('app:user_list')
 
 
+@login_required(login_url='app:login')
 def MakeUserAdmin(request, id):
-    if request.method == 'GET':
+    if request.method == 'POST':
         if request.user.is_superuser:
-            with transaction.atomic():
-                savePoint = transaction.savepoint()
-                try:
-                    user = get_object_or_404(User, id=id)
-                    user.is_superuser = True
-                    user.save()
-                    
-                except Exception as e:
-                    transaction.savepoint_rollback(savePoint)
-                    print(str(e))
-                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
-                    return redirect('app:user_list')
-            return redirect('app:user_list')
+            checkPassword = authenticate(request, username=request.user.username, password=request.POST['admin_password'])
+            if checkPassword is not None:
+                with transaction.atomic():
+                    savePoint = transaction.savepoint()
+                    try:
+                        user = get_object_or_404(User, id=id)
+                        user.is_superuser = True
+                        user.save()
+                        userSynchronization = UserSynchronization.objects.get(userId_id__id=id)
+                        userSynchronization.isOffline=False
+                        userSynchronization.save()
+                    except Exception as e:
+                        transaction.savepoint_rollback(savePoint)
+                        print(str(e))
+                        messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                        return redirect('app:user_list')
+                messages.add_message(request, messages.SUCCESS,"تمت ترقية المستخدم")
+                return redirect('app:user_list')
+            else:
+                messages.add_message(request, messages.ERROR,"كلمة مرور المدير غير صحيحة")
+                return redirect('app:user_list')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
             return redirect('app:user_list')
 
 
+@login_required(login_url='app:login')
 def DeleteUser(request, id):
-    if request.method == 'GET':
+    if request.method == 'POST':
         if request.user.is_superuser:
-            with transaction.atomic():
-                savePoint = transaction.savepoint()
-                try:
-                    user = get_object_or_404(User, id=id)
-                    user.delete()
-                except Exception as e:
-                    transaction.savepoint_rollback(savePoint)
-                    print(str(e))
-                    messages.add_message(request, messages.ERROR,"حدث خطأ ما")
-                    return redirect('app:user_list')
-            return redirect('app:user_list')
+            checkPassword = authenticate(request, username=request.user.username, password=request.POST['admin_password'])
+            if checkPassword is not None:
+                with transaction.atomic():
+                    savePoint = transaction.savepoint()
+                    try:
+                        user = get_object_or_404(User, id=id)
+                        user.delete()
+                        generalDelete('User', id)
+                    except Exception as e:
+                        transaction.savepoint_rollback(savePoint)
+                        print(str(e))
+                        messages.add_message(request, messages.ERROR,"حدث خطأ ما")
+                        return redirect('app:user_list')
+                messages.add_message(request, messages.ERROR,"تم حذف المستخدم")
+                return redirect('app:user_list')
+            else:
+                messages.add_message(request, messages.ERROR,"كلمة مرور المدير غير صحيحة")
+                return redirect('app:user_list')
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
             return redirect('app:user_list')

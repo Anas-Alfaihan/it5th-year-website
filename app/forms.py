@@ -8,6 +8,12 @@ class UploadFileForm(forms.Form):
     file = forms.FileField()
     
     
+class AddUser(ModelForm):
+    class Meta:
+        model= User
+        exclude=[]
+    
+    
 class AddUserSynchronization(ModelForm):
     class Meta:
         model= UserSynchronization
