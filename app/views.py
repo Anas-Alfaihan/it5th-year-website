@@ -2335,3 +2335,6 @@ def DeleteUser(request, id):
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
             return redirect('app:user_list')
+
+def About(request):
+    return render(request,"home/about-us.html")
