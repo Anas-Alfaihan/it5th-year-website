@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('download/', views.pullData, name='download'),
     path('upload/', views.pushData, name='upload_file'),
+    path('firstUpload/', views.firstPushData, name='first_upload_file'),
     path('send/', views.Email, name='email'),
     path('sendEmails/', views.SendEmails, name='send'),
     path('register/', views.Register, name='register'),
@@ -54,6 +55,6 @@ urlpatterns = [
     path('users/delete/<int:id>', views.DeleteUser, name='permissions_insert'),
     path('users/changePassword/<int:id>', views.UpdateUserPassword, name='permissions_insert'),
     path('users/makeUserAdmin/<int:id>', views.MakeUserAdmin, name='permissions_insert'),
-
+    path('about-us', views.About, name='about_us'),
 
 ]

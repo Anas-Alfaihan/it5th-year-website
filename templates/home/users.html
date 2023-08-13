@@ -1,8 +1,9 @@
 {% extends "base.html" %}
-{% block head_title %}All Products{% endblock %}
+{% block head_title %}قائمة الموظفين{% endblock %}
 
 {% block content %}
 {% load static %}
+<h2 class="tit">لائحة الموظفين</h2>
 <div class="sec">
     <div class="row justify-content-center">
 
@@ -29,7 +30,7 @@
                     <tr>
 
                         <th scope="row">{{ forloop.counter }}</th>
-                        <td> <a href="{{user.get_absolute_url}}">{{ user.username }}</a> </td>
+                        <td style="color: #166EFD"> {{ user.username }} </td>
 
                         <td>{{ user.first_name }}</td>
                         <td>{{ user.last_name }}</td>
@@ -57,10 +58,12 @@
                                     {% if user.is_superuser %}
 
                                     {% else %}
-                                    <li><a class="dropdown-item" href="/app/users/makeUserAdmin/{{user.id}}">جعل
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                            data-bs-target="#changeModalLabel{{ user.id }}">جعل
                                             المستخدم مدير نظام</a></li>
                                     {% endif %}
-                                    <li><a class="dropdown-item" href="/app/users/delete/{{user.id}}">حذف</a></li>
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                            data-bs-target="#deleteModalLabel{{ user.id }}">حذف</a></li>
                                 </ul>
                             </div>
                         </td>
@@ -108,6 +111,10 @@
                         <input type="email" class="form-control" id="email{{ user.id }}" name="email"
                             value="{{ user.email }}">
                     </div>
+                    <div class="mb-3">
+                        <label for="ad{{ user.id }}" class="form-label">تأكيد كلمة سر الأدمن</label>
+                        <input type="password" class="form-control" id="ad{{ user.id }}" name="admin_password">
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -144,12 +151,71 @@
                             name="confirm_password">
                         <div class="invalid-feedback">كلمة المرور غير متطابقة</div>
                     </div>
+                    <div class="mb-3">
+                        <label for="addEventListener{{ user.id }}" class="form-label">تأكيد كلمة سر الأدمن</label>
+                        <input type="password" class="form-control" id="add{{ user.id }}" name="admin_password">
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
                 <button type="submit" class="btn btn-primary" form="reset{{user.id}}"
                     onclick="validate(event,'{{user.id}}')">تغيير كلمة المرور</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+<!-- delete modal -->
+{% for user in result %}
+<div class="modal fade" id="deleteModalLabel{{ user.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ user.id }}"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel{{ user.id }}">حذف المستخدم</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/app/users/delete/{{user.id}}" id="delete{{user.id}}" method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="adb{{ user.id }}" class="form-label">تأكيد كلمة سر الأدمن</label>
+                        <input type="password" class="form-control" id="adb{{ user.id }}" name="admin_password">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <button type="submit" class="btn btn-primary" form="delete{{user.id}}">حذف</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% for user in result %}
+<div class="modal fade" id="changeModalLabel{{ user.id }}" tabindex="-1" aria-labelledby="changeModalLabel{{ user.id }}"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeModalLabel{{ user.id }}">تعديل المستخدم</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/app/users/makeUserAdmin/{{user.id}}" id="change{{user.id}}" method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="adc{{ user.id }}" class="form-label">تأكيد كلمة سر الأدمن</label>
+                        <input type="password" class="form-control" id="adc{{ user.id }}" name="admin_password">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <button type="submit" class="btn btn-primary" form="change{{user.id}}">حفظ</button>
             </div>
         </div>
     </div>

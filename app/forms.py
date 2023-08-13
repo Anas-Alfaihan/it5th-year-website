@@ -1,12 +1,23 @@
-
-
 from django.forms import ModelForm
 from .models import *
 from django import forms
+from django.contrib.auth.models import User
 
 class UploadFileForm(forms.Form):
     file = forms.FileField()
+ 
     
+class AddUser(ModelForm):
+    class Meta:
+        model= User
+        exclude=[]
+    
+    
+class AddUserSynchronization(ModelForm):
+    class Meta:
+        model= UserSynchronization
+        exclude=[]
+
 
 class AddPermissions(ModelForm):
     class Meta:

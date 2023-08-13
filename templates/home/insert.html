@@ -4,7 +4,13 @@
 {% load static %}
 <!-- something here for nothing  -->
 
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/multi-select.min.css' %}">
+
+{% endblock %}
+
 {% block content %}
+
 
 <h2 class="tit">تسجيل معيد</h2>
 
@@ -112,7 +118,6 @@
                     <option value="">اختر...</option>
                     <option value="delayed">مؤجل</option>
                     <option value="laid off">مسرح</option>
-                    <option value="no-service">ليس عليه خدمة</option>
                 </select>
                 <div class="invalid-feedback">يرجى اختيار الوضع العسكري.</div>
             </div>
@@ -129,7 +134,10 @@
             </div>
             <div class="col-md-6">
                 <label for="cc-name" class="form-label">الكلية</label>
-                <input type="text" class="form-control" name="universityDegreeCollege" maxlength="100" required />
+                <select name="universityDegreeCollege" class="form-select" id="floatingSelect"
+                    aria-label="Floating label select example">
+                    <option selected>افتح القائمة لتختار الكلية :</option>
+                </select>
 
                 <div class="invalid-feedback">الكلية مطلوبة</div>
             </div>
@@ -245,7 +253,37 @@
     </form>
 </div>
 
+
 <script src="{% static 'js/insert_page.js' %}"></script>
+<script src="{% static 'js/multi-select.js'%}"></script>
+
+<script>
+
+    $(document).ready(function () {
+        var selects = "{{select|escapejs}}";
+
+        selects = JSON.parse(selects)
+        let select = document.getElementById("floatingSelect");
+
+        console.log(typeof selects["data"])
+
+        selects["data"].forEach(o => {
+            let op = document.createElement("option")
+            op.value = o["permissionsCollege"]
+            op.text = o["permissionsCollege"]
+            select.add(op)
+        })
+
+        var last = document.createElement("option");
+        last.text = "كل الكليات";
+        last.value = "all";
+        select.add(last);
+
+        // new MultiSelectTag('floatingSelect')
+
+    });
+
+</script>
 
 {% endblock %}
 {% block files %}

@@ -2,6 +2,18 @@ from rest_framework import serializers
 from .models import *
 
 
+class SerializerUser(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+
+class SerializerUserSynchronization(serializers.ModelSerializer):
+    class Meta:
+        model = UserSynchronization
+        fields = '__all__'
+
+
 class SerializerDeletedObjects(serializers.ModelSerializer):
     class Meta:
         model = DeletedObjects
