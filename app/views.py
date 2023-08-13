@@ -1343,6 +1343,7 @@ def DeleteUniversityDegree(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteNomination(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Nomination, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1365,6 +1366,7 @@ def DeleteNomination(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteAdjectiveChange(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(AdjectiveChange, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1394,6 +1396,7 @@ def DeleteAdjectiveChange(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteCertificateOfExcellence(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(CertificateOfExcellence, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1416,6 +1419,7 @@ def DeleteCertificateOfExcellence(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteGraduateStudies(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(GraduateStudies, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1461,6 +1465,7 @@ def DeleteDispatch(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteReport(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Report, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1482,6 +1487,7 @@ def DeleteReport(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteRegularization(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(Regularization, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1578,6 +1584,7 @@ def DeleteFreeze(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteDurationChange(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(DurationChange, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1615,6 +1622,7 @@ def DeleteDurationChange(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteAlimonyChange(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(AlimonyChange, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1636,6 +1644,7 @@ def DeleteAlimonyChange(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteUniversityChange(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(UniversityChange, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1657,6 +1666,7 @@ def DeleteUniversityChange(request, id, demonId):
 @login_required(login_url='app:login')
 def DeleteSpecializationChange(request, id, demonId):
     if request.method == 'POST':
+        get_object_or_404(SpecializationChange, pk=id)
         college= list(Demonstrator.objects.filter(pk=demonId).values('college'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['college']  in permissionList or request.user.is_superuser:
@@ -1784,15 +1794,15 @@ def getSerializer(modelName):
 
 @login_required(login_url='app:login')
 def pullData(request):
-    if request.method=='GET':
+    if request.method=='POST':
         if request.user.is_superuser:
              with transaction.atomic():
                 savePoint= transaction.savepoint()
                 try:
-                    if 'lastPull' in request.POST and request.POST['lastPull'] == 1:
+                    if 'lastPull' in request.POST and request.POST['lastPull'] == '1':
                         lastPullDate= request.user.lastPull.lastPullDate
-                    elif 'dte' in request.POST:
-                        lastPullDate= request.POST['dte']
+                    elif 'pullDate' in request.POST:
+                        lastPullDate= datetime.datetime.strptime(request.POST['pullDate'], '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
                     else:
                         lastPullDate= request.user.lastPull.lastPullDate
 
@@ -1830,8 +1840,6 @@ def pullData(request):
              response['Content-Disposition'] = 'attachment; filename=' + "synchronization.json"
              response['Content-Type'] = 'application/octet-stream'
              return response
-
-             
 
         else:
             return render(request, 'registration/result.html', {'result': 'done'})
@@ -1919,6 +1927,7 @@ def generalPushUpdate(request, modelName, added, obj, addModel, savePoint):
     dic.update(added)
     if modelName != 'User':
         dic.update({'isOffline': False})
+        dic.update({'modifiedByOffline': False})
     form = addModel(dic, instance=obj)
     if form.is_valid():
         id = form.save()
@@ -2198,6 +2207,7 @@ def permissions_detail(request, pk):
         if request.method == 'POST':
             users = request.POST.getlist('userId')
             permissions.userId.set(users)
+            permissions.modifiedByOffline=False
             permissions.save()
         try:
             users = permissions.userId.all()
@@ -2238,6 +2248,7 @@ def PermissionInsert(request):
 def DeletePermission(request, pk):
     if request.method == 'GET':
         if request.user.is_superuser:
+            get_object_or_404(Permissions, pk=pk)
             with transaction.atomic():
                 savePoint = transaction.savepoint()
                 try:
@@ -2267,6 +2278,7 @@ def UpdatePermission(request, pk):
                     demons = UniversityDegree.objects.filter(universityDegreeCollege=permissions.permissionsCollege)
                     demons.update(universityDegreeCollege=request.POST['permissionsCollege'])
                     permissions.permissionsCollege=(request.POST['permissionsCollege'])
+                    permissions.modifiedByOffline=False
                     permissions.save()
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
@@ -2335,7 +2347,7 @@ def UpdateUser(request, id):
                         user.username = request.POST['username']
                         user.save()
                         userSynchronization = UserSynchronization.objects.get(userId_id__id=id)
-                        userSynchronization.isOffline=False
+                        userSynchronization.modifiedByOffline=False
                         userSynchronization.save()
                     except Exception as e:
                         transaction.savepoint_rollback(savePoint)
@@ -2365,7 +2377,7 @@ def UpdateUserPassword(request, id):
                         user.set_password(request.POST['newPassword'])
                         user.save()
                         userSynchronization = UserSynchronization.objects.get(userId_id__id=id)
-                        userSynchronization.isOffline=False
+                        userSynchronization.modifiedByOffline=False
                         userSynchronization.save()
                     except Exception as e:
                         transaction.savepoint_rollback(savePoint)
@@ -2395,7 +2407,7 @@ def MakeUserAdmin(request, id):
                         user.is_superuser = True
                         user.save()
                         userSynchronization = UserSynchronization.objects.get(userId_id__id=id)
-                        userSynchronization.isOffline=False
+                        userSynchronization.modifiedByOffline=False
                         userSynchronization.save()
                     except Exception as e:
                         transaction.savepoint_rollback(savePoint)
