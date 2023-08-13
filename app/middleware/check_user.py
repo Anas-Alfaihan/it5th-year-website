@@ -6,10 +6,7 @@ class CheckUser(object):
         self.get_response = get_response
 
     def __call__(self, request):
-        # if request.user.is_authenticated and request.user.lastPull.waitingMerge:
-        #     raise Exception('Your last pull request is waiting for a merge. Please try again later.')
-        users = list(User.objects.all())
-        if not users:
+        if User.objects.filter().count() == 0:
             user = User.objects.create_user(
                 username='admin',
                 first_name='admin',
@@ -18,9 +15,6 @@ class CheckUser(object):
                 is_superuser= True,
                 email=''
             )
-            for perm in request.POST.getlist('permissions'):
-                permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
-                user.permissions.add(permission.id)
             LastPull.objects.create(userId= user)
             UserSynchronization.objects.create(userId= user)
         response = self.get_response(request)
