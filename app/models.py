@@ -18,6 +18,7 @@ class UserSynchronization(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class LastPull(models.Model):
@@ -32,6 +33,7 @@ class Permissions(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class Demonstrator(models.Model):
@@ -66,6 +68,7 @@ class Demonstrator(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
     def __str__(self):
         return f'{self.name} {self.fatherName} son of {self.motherName  }'
@@ -87,6 +90,7 @@ class UniversityDegree(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class Nomination(models.Model):
@@ -99,6 +103,7 @@ class Nomination(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class AdjectiveChange(models.Model):
@@ -114,6 +119,7 @@ class AdjectiveChange(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class CertificateOfExcellence(models.Model):
@@ -126,6 +132,7 @@ class CertificateOfExcellence(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class GraduateStudies(models.Model):
@@ -148,6 +155,7 @@ class GraduateStudies(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class Dispatch(models.Model):
@@ -185,6 +193,7 @@ class Dispatch(models.Model):
     lastReportDate = models.DateField(null=True, blank=True, default=None)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
     @property
     def remainingTime(self):
@@ -201,6 +210,7 @@ class Report(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class Regularization(models.Model):
@@ -214,6 +224,7 @@ class Regularization(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class Extension(models.Model):
@@ -229,6 +240,7 @@ class Extension(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class Freeze(models.Model):
@@ -244,6 +256,7 @@ class Freeze(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class DurationChange(models.Model):
@@ -255,6 +268,7 @@ class DurationChange(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class AlimonyChange(models.Model):
@@ -265,6 +279,7 @@ class AlimonyChange(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class UniversityChange(models.Model):
@@ -274,6 +289,7 @@ class UniversityChange(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class SpecializationChange(models.Model):
@@ -283,6 +299,7 @@ class SpecializationChange(models.Model):
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
+    modifiedByOffline = models.BooleanField(null=True, blank=True, default=False)
 
 
 class DeletedObjects(models.Model):
