@@ -24,6 +24,8 @@ from . import serializers
 from ast import literal_eval
 from .constantVariables import ADJECTIVE_CHOICES
 from rest_framework.serializers import Serializer
+from httplib2.error import ServerNotFoundError
+
 
 
 import smtplib
@@ -191,10 +193,9 @@ def SendEmailGmail(email,subject,message):
         for label in labels:
             print(label['name'])
 
-    except HttpError as error:
+    except Exception as error:
         # TODO(developer) - Handle errors from gmail API.
-        print(f'An error occurred: {error}')
-
+        return error
 
 def SendEmails(request):
     if request.POST['emails'] == 'normal':
@@ -231,21 +232,27 @@ def SendEmails(request):
             for x in emails:
                 emails_str+=x+", "
                 if request.POST['server'] == 'gmail':
-                    SendEmailGmail(x,request.POST['subject'],request.POST['msg'])
+                    gm=SendEmailGmail(x,request.POST['subject'],request.POST['msg'])
+                    print("dndkfn",type(gm))
+                    if type(gm) == ServerNotFoundError:
+                        raise Exception("kndlfnd")
                 elif request.POST['server'] == 'hotmail':
                     SendEmailHotmail(x,request.POST['subject'],request.POST['msg'])
                 elif request.POST['server'] == 'albaath':
                     SendEmailAlbaath(x,request.POST['subject'],request.POST['msg'])
 
             emails_str=emails_str[:-2]
+            return render(request, 'home/success.html', {"emails": emails})
 
 
-        except HttpError as error:
+        except Exception as error:
             # TODO(developer) - Handle errors from gmail API.
-            print(f'An error occurred: {error}')
+            print(error)
+            messages.add_message(request, messages.ERROR,"تأكد من معلوماتك واتصالك بالانترنت")
+            return render(request, 'home/send_email.html')
 
 
-        return render(request, 'home/success.html', {"emails": emails})
+        
 
     elif request.POST['emails'] == 'late':
         emails=[]
@@ -637,8 +644,26 @@ def ExtensionInsert(request, dispatchId,demonId):
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة التمديد")
                     return redirect('app:demonstrator', id= demonId)
 
-            messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد ")
-            return redirect('app:demonstrator', id= demonId)
+            informationForEmail={ 'name': college[0]['studentId__name'],
+                            'fatherName': college[0]['studentId__fatherName'],
+                            'email': college[0]['studentId__email'],
+                            'extensionDecisionNumber': request.POST['extensionDecisionNumber'],
+                            'extensionDecisionDate': request.POST['extensionDecisionDate'],
+                            'extensionDecisionType': request.POST['extensionDecisionType'],
+                            'extensionDurationYear': request.POST['extensionDurationYear'],
+                            'extensionDurationMonth': request.POST['extensionDurationMonth'],
+                            'extensionDurationDay': request.POST['extensionDurationDay'],
+                            }
+            try:
+                status=SendEmailGmail(informationForEmail['email'],"هيلوز","بيباي")
+                if type(status) == ServerNotFoundError:
+                    raise Exception("error")
+                print(informationForEmail['email'])
+                messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد وتم إرسال الايميل للمعيد")
+                return redirect('app:demonstrator', id= demonId)
+            except Exception as error:
+                messages.add_message(request, messages.WARNING," تم إضافة التمديد ولكن لم يتم إرسال الايميل بسبب خطأ في الاتصال")
+                return redirect('app:demonstrator', id= demonId)
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
             return redirect('app:demonstrator', id= demonId)
