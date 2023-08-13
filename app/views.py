@@ -235,7 +235,7 @@ def SendEmails(request):
                     gm=SendEmailGmail(x,request.POST['subject'],request.POST['msg'])
                     print("dndkfn",type(gm))
                     if type(gm) == ServerNotFoundError:
-                        raise Exception("kndlfnd")
+                        raise Exception("error")
                 elif request.POST['server'] == 'hotmail':
                     SendEmailHotmail(x,request.POST['subject'],request.POST['msg'])
                 elif request.POST['server'] == 'albaath':
