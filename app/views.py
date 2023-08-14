@@ -2,7 +2,7 @@ import datetime
 # import pythoncom
 import time
 # import win32com.client
-from django.shortcuts import render, redirect,get_object_or_404,get_object_or_404
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -24,6 +24,8 @@ from . import serializers
 from ast import literal_eval
 from .constantVariables import ADJECTIVE_CHOICES
 from rest_framework.serializers import Serializer
+from httplib2.error import ServerNotFoundError
+
 
 
 import smtplib
@@ -48,7 +50,7 @@ from django.http import FileResponse
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
-
+Late_Emails=[]
 @login_required(login_url='app:login')
 def UploadFile(request):
     if request.method == 'POST':
@@ -124,7 +126,6 @@ def SendEmailAlbaath(email,subject,message):
     print("Email sent successfully!")
 
 
-
 def SendEmailGmail(email,subject,message):
     RemoveOldToken()
     creds = None
@@ -189,9 +190,9 @@ def SendEmailGmail(email,subject,message):
         for label in labels:
             print(label['name'])
 
-    except HttpError as error:
+    except Exception as error:
         # TODO(developer) - Handle errors from gmail API.
-        print(f'An error occurred: {error}')
+        return error
 
 
 def SendEmails(request):
@@ -229,21 +230,27 @@ def SendEmails(request):
             for x in emails:
                 emails_str+=x+", "
                 if request.POST['server'] == 'gmail':
-                    SendEmailGmail(x,request.POST['subject'],request.POST['msg'])
+                    gm=SendEmailGmail(x,request.POST['subject'],request.POST['msg'])
+                    print("dndkfn",type(gm))
+                    if type(gm) == ServerNotFoundError:
+                        raise Exception("error")
                 elif request.POST['server'] == 'hotmail':
                     SendEmailHotmail(x,request.POST['subject'],request.POST['msg'])
                 elif request.POST['server'] == 'albaath':
                     SendEmailAlbaath(x,request.POST['subject'],request.POST['msg'])
 
             emails_str=emails_str[:-2]
+            return render(request, 'home/success.html', {"emails": emails})
 
 
-        except HttpError as error:
+        except Exception as error:
             # TODO(developer) - Handle errors from gmail API.
-            print(f'An error occurred: {error}')
+            print(error)
+            messages.add_message(request, messages.ERROR,"تأكد من معلوماتك واتصالك بالانترنت")
+            return render(request, 'home/send_email.html')
 
 
-        return render(request, 'home/success.html', {"emails": emails})
+
 
     elif request.POST['emails'] == 'late':
         emails=[]
@@ -285,46 +292,10 @@ def Email(request):
     permissions=list(Permissions.objects.all().values('permissionsCollege'))
     d = JsonResponse({"data": permissions})
     strr = d.content.decode("utf-8")
-    return render(request, 'home/send_email.html',{"select": strr})
 
+    late=GetLateEmails(request)
+    return render(request, 'home/send_email.html',{"select": strr,"late":late})
 
-@login_required(login_url='app:login')
-def Register(request):
-    if request.method == 'POST':
-        if request.user.is_superuser:
-            checkPassword = authenticate(request, username=request.user.username, password=request.POST['admin_password'])
-            if checkPassword is not None:
-                user = User.objects.create_user(
-                username=request.POST['username'],
-                first_name=request.POST['firstName'],
-                last_name=request.POST['lastName'],
-                password=request.POST['password'],
-                email=request.POST['email']
-                )
-                for perm in request.POST.getlist('permissions'):
-                    permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
-                    user.permissions.add(permission.id)
-                LastPull.objects.create(userId= user, lastPullDate=datetime.datetime.now)
-                UserSynchronization.objects.create(userId= user, isOffline=True)
-
-                messages.add_message(request, messages.SUCCESS,"تمت إضافة الموظف")
-                return redirect('app:register')
-            else:
-                messages.add_message(request, messages.ERROR,"كلمة مرور المدير غير صحيحة")
-                return redirect('app:register')
-        else:
-            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تسجيل موظفين")
-            return redirect('app:register')
-
-    if request.user.is_superuser:
-        # permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
-        permissions=list(Permissions.objects.filter().values('permissionsCollege'))
-        d = JsonResponse({"data": permissions})
-        strr = d.content.decode("utf-8")
-        
-        return render(request, 'registration/register.html', {'colleges': strr })
-    else:
-        return render(request, 'registration/result.html', {'result': 'denied'})
 
 
 def Login(request):
@@ -440,8 +411,11 @@ def DemonstratorInsert2(request):
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
             return redirect('app:insert')
     else:
-        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
-        return render(request, 'home/insert.html', {'permissions': permissionList})
+        permissions=list(Permissions.objects.all().values('permissionsCollege'))
+        d = JsonResponse({"data": permissions})
+        strr = d.content.decode("utf-8")
+        print(strr)
+        return render(request, 'home/insert.html', {'select': strr})
 
 
 @login_required(login_url='app:login')
@@ -631,8 +605,28 @@ def ExtensionInsert(request, dispatchId,demonId):
                     messages.add_message(request, messages.ERROR,"عذرا حدث خطأ ما, لم تتم إضافة التمديد")
                     return redirect('app:demonstrator', id= demonId)
 
-            messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد ")
-            return redirect('app:demonstrator', id= demonId)
+            informationForEmail={ 'name': college[0]['studentId__name'],
+                            'fatherName': college[0]['studentId__fatherName'],
+                            'email': college[0]['studentId__email'],
+                            'extensionDecisionNumber': request.POST['extensionDecisionNumber'],
+                            'extensionDecisionDate': request.POST['extensionDecisionDate'],
+                            'extensionDecisionType': request.POST['extensionDecisionType'],
+                            'extensionDurationYear': request.POST['extensionDurationYear'],
+                            'extensionDurationMonth': request.POST['extensionDurationMonth'],
+                            'extensionDurationDay': request.POST['extensionDurationDay'],
+                            }
+            try:
+                status=SendEmailGmail(informationForEmail['email'],"هيلوز","بيباي")
+                if type(status) == ServerNotFoundError:
+                    raise Exception("error")
+                # print(informationForEmail['email'])
+                Extension.objects.filter(id=extensionId.id).update(emailSent=True)
+                messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد وتم إرسال الايميل للمعيد")
+                return redirect('app:demonstrator', id= demonId)
+            except Exception as error:
+                Extension.objects.filter(id=extensionId.id).update(emailSent=False)
+                messages.add_message(request, messages.WARNING," تم إضافة التمديد ولكن لم يتم إرسال الايميل بسبب خطأ في الاتصال")
+                return redirect('app:demonstrator', id= demonId)
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية الإضافة في هذه الكلية")
             return redirect('app:demonstrator', id= demonId)
@@ -808,7 +802,6 @@ def getAllDemonstrators(request):
 @login_required(login_url='app:login')
 def getDemonstrator(request, id):
     demonstrator = get_object_or_404(Demonstrator.objects.select_related().prefetch_related().all(), pk=id)
-    demonstrator = get_object_or_404(Demonstrator.objects.select_related().prefetch_related().all(), pk=id)
     permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
     return render(request, 'home/demonstrator.html', {'demonstrator': demonstrator, 'permissions': permissionList})
    
@@ -820,17 +813,21 @@ def GetAllEmails(request):
         return render(request, 'registration/result.html', {'result': 'done'})
 
 
-@login_required(login_url='app:login')
 def GetLateEmails(request):
-    if request.method == 'POST':
+    if request.method == 'GET':
         todayDate = datetime.date.today() 
-        lateDate = datetime.date.today() + relativedelta(days=-1)
-        dispatchLate= Dispatch.objects.filter(Q(**{'dispatchEndDate__gte' : todayDate}) & ( Q(**{'lastReportDate__lte':lateDate}) | ( Q(**{'lastReportDate':None}) & Q(**{'commencementDate__lte':lateDate}) ) ) ).values('studentId_id')
-        res= []
+        lateDate = datetime.date.today() + relativedelta(seconds=-5)
+        reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':lateDate})).values('dispatchDecisionId_id')
+        dis =[]
+        for report in list(reports):
+            dis.append(report['dispatchDecisionId_id'])
+        dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis})).values('studentId_id')
+        res =[]
         for dispatch in list(dispatchLate):
             res.append(dispatch['studentId_id'])
-        late = Demonstrator.objects.filter(pk__in=res ).values('email', 'mobile', 'name')
-        return render(request, 'registration/result.html', {'result': 'done'})
+        
+        Late_Emails = list(Demonstrator.objects.filter(pk__in=res).values('email','mobile', 'name'))
+        return Late_Emails
 
 
 @login_required(login_url='app:login')
@@ -1281,6 +1278,7 @@ def UpdateSpecializationChange(request, id, demonId):
         else :
             return JsonResponse({"status": 'you are not allowed to edit in this college'})
  
+
 def generalDelete(modelName, objectId):
     deletedObject= DeletedObjects()
     deletedObject.modelName= modelName
@@ -1738,11 +1736,7 @@ def QueryDemonstrator(request):
 def home(request):
     result={}
     result['allDemons'] = Demonstrator.objects.filter().distinct().count()
-    result['allDemons'] = Demonstrator.objects.filter().distinct().count()
     todayDate= datetime.date.today() 
-    result['allInDispatch'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate})).distinct().count()
-    result['master'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate}) & Q(**{'dispatch__requiredCertificate':'master'})).distinct().count()
-    result['ph.d'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate}) & Q(**{'dispatch__requiredCertificate':'ph.d'})).distinct().count()
     result['allInDispatch'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate})).distinct().count()
     result['master'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate}) & Q(**{'dispatch__requiredCertificate':'master'})).distinct().count()
     result['ph.d'] = Demonstrator.objects.filter(Q(**{'dispatch__dispatchEndDate__gte': todayDate}) & Q(**{'dispatch__requiredCertificate':'ph.d'})).distinct().count()
@@ -1758,6 +1752,7 @@ def home(request):
 
 def Test(request):
     LastPull.objects.create(userId= request.user, lastPullDate=datetime.datetime.now)
+    UserSynchronization.objects.create(userId= request.user)
 
 
 @login_required(login_url='app:login')
@@ -1832,10 +1827,9 @@ def pullData(request):
 
                     with open('uploads/synchronization.json', 'w') as file:
                         dump(data, file, indent=None)
-                        
                 except Exception as e:
-                    print(str(e))
                     transaction.savepoint_rollback(savePoint)
+                    print(str(e))
                     return render(request, 'registration/result.html', {'result': 'done'}) 
             #  temp = LastPull.objects.filter(pk=1).update(lastPullDate=datetime.datetime.now)
              temp = LastPull.objects.get(userId_id__id=request.user.id)
@@ -1882,9 +1876,8 @@ def generalPushAdd(request ,added, addModel, modelName, idMap, savePoint):
         
     else:
         transaction.savepoint_rollback(savePoint)
-        print(form.errors)
         return form.errors
-    return id
+    return id 
 
 
 def generalPushAddHub(request, added, addModel, modelName, idMap, savePoint):
@@ -1931,11 +1924,12 @@ def generalPushAddHub(request, added, addModel, modelName, idMap, savePoint):
                     else:
                         userIdList.append(userIdItem)
                 added['userId'] = userIdList
-    
+
+
     return generalPushAdd(request, added , addModel, modelName, idMap, savePoint)
 
 
-def generalPushUpdate(request, modelName,added, obj, addModel, savePoint):
+def generalPushUpdate(request, modelName, added, obj, addModel, savePoint):
     id = None
     dic = {'csrfmiddlewaretoken': get_token(request)}
     dic.update(added)
@@ -2052,13 +2046,13 @@ def pushData(request):
                 try:
                     data = None
                     idMap = {}
-                    usersIds=[]
+                    usersIds = []
                     with open('uploads/synchronization.json', 'r') as f:
                         data = load(f)
                     
                     #delete offline changes before merge
                     for model in apps.get_models():
-                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'ContentType', 'User', 'Session', 'LastPull', 'UploadedFile']:
+                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'ContentType', 'User', 'Session', 'LastPull', 'UploadedFile', 'DeletedObjects']:
                             delObjs= model.objects.filter(isOffline=True).delete()
                         if model.__name__ == 'User':
                             delObjs= model.objects.filter(userSynchronization__isOffline=True).delete()
@@ -2075,26 +2069,29 @@ def pushData(request):
                                         continue
                                 if model.__name__ == 'User':
                                     usersIds.append(added['id'])
+                                
                                 id = generalPushAddHub(request, added , addModel, model.__name__, idMap, savePoint)
-                                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                                if type(id) == ErrorDict:
+                                    raise Exception(id)
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = 1
                                     if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                        dispatchId = added.dispatchDecisionId
+                                        dispatchId = added['dispatchDecisionId'].id
                                     else:
-                                        dispatchId = added['id']
+                                        dispatchId = id.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
-                                    endDate = CalculateDispatchEndDate(dispatch)
-                                    for dispatchItem in dispatchObject:
-                                        dispatchItem.dispatchEndDate = endDate
-                                        Dispatch.full_clean(self=dispatchItem)
-                                        Dispatch.save(self=dispatchItem)
+                                    if dispatch[0]['commencementDate']:
+                                        endDate = CalculateDispatchEndDate(dispatch)
+                                        for dispatchItem in dispatchObject:
+                                            dispatchItem.dispatchEndDate = endDate
+                                            Dispatch.full_clean(self=dispatchItem)
+                                            Dispatch.save(self=dispatchItem)
                                 if model.__name__ == 'AdjectiveChange':
                                     demonId= added.studentId
                                     demonstrator = Demonstrator.objects.get(pk=demonId)
-                                    demonstrator.currentAdjective = added.adjectiveChangeAdjective
+                                    demonstrator.currentAdjective = added['adjectiveChangeAdjective']
                                     Demonstrator.full_clean(self=demonstrator)
                                     Demonstrator.save(self=demonstrator)
 
@@ -2105,27 +2102,31 @@ def pushData(request):
                             # update
                             for updated in data[model.__name__]['updated']:
                                 objs= model.objects.filter(pk=updated['id'])
+                                if objs.count()==0:
+                                    continue
                                 for obj in objs:
                                     id = generalUpdateHub(request, updated , obj, addModel, model.__name__, idMap, savePoint)
-                                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                                    if type(id) == ErrorDict:
+                                        raise Exception(id)
                                     if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                         dispatchId = 1
                                         if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                            dispatchId = updated.dispatchDecisionId
+                                            dispatchId = updated['dispatchDecisionId'].id
                                         else:
                                             dispatchId = updated['id']
                                         dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                         dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                         dispatch = loads(dumps(dispatchSerialized.data))
-                                        endDate = CalculateDispatchEndDate(dispatch)
-                                        for dispatchItem in dispatchObject:
-                                            dispatchItem.dispatchEndDate = endDate
-                                            Dispatch.full_clean(self=dispatchItem)
-                                            Dispatch.save(self=dispatchItem)
+                                        if dispatch[0]['commencementDate']:
+                                            endDate = CalculateDispatchEndDate(dispatch)
+                                            for dispatchItem in dispatchObject:
+                                                dispatchItem.dispatchEndDate = endDate
+                                                Dispatch.full_clean(self=dispatchItem)
+                                                Dispatch.save(self=dispatchItem)
                                     if model.__name__ == 'AdjectiveChange':
                                         demonId= updated.studentId
                                         demonstrator = Demonstrator.objects.get(pk=demonId)
-                                        demonstrator.currentAdjective = updated.adjectiveChangeAdjective
+                                        demonstrator.currentAdjective = updated['adjectiveChangeAdjective']
                                         Demonstrator.full_clean(self=demonstrator)
                                         Demonstrator.save(self=demonstrator)
                  
@@ -2140,19 +2141,20 @@ def pushData(request):
                                         deleted['objectId'] = idMap[model.__name__][deleted['objectId']]
                                 isExist = model.objects.filter(pk=deleted['objectId'])
                                 if isExist.count()==0:
-                                    delObj= DeletedObjects.objects.filter(objectId=deleted['objectId'], modelName=model.__name__).update(modifiedByOffline=False)
+                                    delObj= DeletedObjects.objects.filter(objectId=deleted['objectId'], modelName=model.__name__).update(isOffline=False)
                                     continue
                                 deletedObj= model.objects.filter(pk=deleted['objectId']).delete()
                                 if model.__name__ in [ 'Freeze', 'Extension', 'DurationChange']:
-                                    dispatchId = deletedObj.dispatchDecisionId
+                                    dispatchId = deletedObj.dispatchDecisionId.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
-                                    endDate = CalculateDispatchEndDate(dispatch)
-                                    for dispatchItem in dispatchObject:
-                                        dispatchItem.dispatchEndDate = endDate
-                                        Dispatch.full_clean(self=dispatchItem)
-                                        Dispatch.save(self=dispatchItem)
+                                    if dispatch[0]['commencementDate']:
+                                        endDate = CalculateDispatchEndDate(dispatch)
+                                        for dispatchItem in dispatchObject:
+                                            dispatchItem.dispatchEndDate = endDate
+                                            Dispatch.full_clean(self=dispatchItem)
+                                            Dispatch.save(self=dispatchItem)
                                 if model.__name__ == 'AdjectiveChange':
                                     demonId= deletedObj.studentId
                                     demonstrators= Demonstrator.objects.filter(pk=demonId)
@@ -2167,13 +2169,10 @@ def pushData(request):
 
                     #add LastPull for added users
                     for userIdItem in usersIds:
-                        print(userIdItem)
                         haveLastPull = User.objects.filter(pk=userIdItem)
-                        print(haveLastPull)
                         if 'lastPull' in haveLastPull:
                             continue
                         userId = userIdItem
-                    
                         if idMap['User']:
                             if idMap['User'][userId]:
                                 userId = idMap['User'][userId]
@@ -2197,6 +2196,7 @@ def pushData(request):
     else:
         form = UploadFileForm()
         return render(request, 'home/upload.html', {'form': form})
+
 
 def firstPushData(request):
     if request.method == 'POST':
@@ -2224,8 +2224,10 @@ def firstPushData(request):
                     
                     #delete offline changes before merge
                     for model in apps.get_models():
-                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'ContentType', 'User', 'Session', 'LastPull', 'UploadedFile']:
+                        if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'ContentType', 'User', 'Session', 'LastPull', 'UploadedFile', 'DeletedObjects']:
                             delObjs= model.objects.filter(isOffline=True).delete()
+                        if model.__name__ == 'User':
+                            delObjs= model.objects.filter(userSynchronization__isOffline=True).delete()
 
                     #add
                     for model in apps.get_models():
@@ -2239,26 +2241,29 @@ def firstPushData(request):
                                         continue
                                 if model.__name__ == 'User':
                                     usersIds.append(added['id'])
+                                
                                 id = generalPushAddHub(request, added , addModel, model.__name__, idMap, savePoint)
-                                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                                if type(id) == ErrorDict:
+                                    raise Exception(id)
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = 1
                                     if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                        dispatchId = added.dispatchDecisionId
+                                        dispatchId = added['dispatchDecisionId'].id
                                     else:
-                                        dispatchId = added['id']
+                                        dispatchId = id.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
-                                    endDate = CalculateDispatchEndDate(dispatch)
-                                    for dispatchItem in dispatchObject:
-                                        dispatchItem.dispatchEndDate = endDate
-                                        Dispatch.full_clean(self=dispatchItem)
-                                        Dispatch.save(self=dispatchItem)
+                                    if dispatch[0]['commencementDate']:
+                                        endDate = CalculateDispatchEndDate(dispatch)
+                                        for dispatchItem in dispatchObject:
+                                            dispatchItem.dispatchEndDate = endDate
+                                            Dispatch.full_clean(self=dispatchItem)
+                                            Dispatch.save(self=dispatchItem)
                                 if model.__name__ == 'AdjectiveChange':
                                     demonId= added.studentId
                                     demonstrator = Demonstrator.objects.get(pk=demonId)
-                                    demonstrator.currentAdjective = added.adjectiveChangeAdjective
+                                    demonstrator.currentAdjective = added['adjectiveChangeAdjective']
                                     Demonstrator.full_clean(self=demonstrator)
                                     Demonstrator.save(self=demonstrator)
 
@@ -2269,27 +2274,31 @@ def firstPushData(request):
                             # update
                             for updated in data[model.__name__]['updated']:
                                 objs= model.objects.filter(pk=updated['id'])
+                                if objs.count()==0:
+                                    continue
                                 for obj in objs:
                                     id = generalUpdateHub(request, updated , obj, addModel, model.__name__, idMap, savePoint)
-                                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                                    if type(id) == ErrorDict:
+                                        raise Exception(id)
                                     if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                         dispatchId = 1
                                         if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                            dispatchId = updated.dispatchDecisionId
+                                            dispatchId = updated['dispatchDecisionId'].id
                                         else:
                                             dispatchId = updated['id']
                                         dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                         dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                         dispatch = loads(dumps(dispatchSerialized.data))
-                                        endDate = CalculateDispatchEndDate(dispatch)
-                                        for dispatchItem in dispatchObject:
-                                            dispatchItem.dispatchEndDate = endDate
-                                            Dispatch.full_clean(self=dispatchItem)
-                                            Dispatch.save(self=dispatchItem)
+                                        if dispatch[0]['commencementDate']:
+                                            endDate = CalculateDispatchEndDate(dispatch)
+                                            for dispatchItem in dispatchObject:
+                                                dispatchItem.dispatchEndDate = endDate
+                                                Dispatch.full_clean(self=dispatchItem)
+                                                Dispatch.save(self=dispatchItem)
                                     if model.__name__ == 'AdjectiveChange':
                                         demonId= updated.studentId
                                         demonstrator = Demonstrator.objects.get(pk=demonId)
-                                        demonstrator.currentAdjective = updated.adjectiveChangeAdjective
+                                        demonstrator.currentAdjective = updated['adjectiveChangeAdjective']
                                         Demonstrator.full_clean(self=demonstrator)
                                         Demonstrator.save(self=demonstrator)
                  
@@ -2304,18 +2313,20 @@ def firstPushData(request):
                                         deleted['objectId'] = idMap[model.__name__][deleted['objectId']]
                                 isExist = model.objects.filter(pk=deleted['objectId'])
                                 if isExist.count()==0:
+                                    delObj= DeletedObjects.objects.filter(objectId=deleted['objectId'], modelName=model.__name__).update(isOffline=False)
                                     continue
                                 deletedObj= model.objects.filter(pk=deleted['objectId']).delete()
                                 if model.__name__ in [ 'Freeze', 'Extension', 'DurationChange']:
-                                    dispatchId = deletedObj.dispatchDecisionId
+                                    dispatchId = deletedObj.dispatchDecisionId.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
-                                    endDate = CalculateDispatchEndDate(dispatch)
-                                    for dispatchItem in dispatchObject:
-                                        dispatchItem.dispatchEndDate = endDate
-                                        Dispatch.full_clean(self=dispatchItem)
-                                        Dispatch.save(self=dispatchItem)
+                                    if dispatch[0]['commencementDate']:
+                                        endDate = CalculateDispatchEndDate(dispatch)
+                                        for dispatchItem in dispatchObject:
+                                            dispatchItem.dispatchEndDate = endDate
+                                            Dispatch.full_clean(self=dispatchItem)
+                                            Dispatch.save(self=dispatchItem)
                                 if model.__name__ == 'AdjectiveChange':
                                     demonId= deletedObj.studentId
                                     demonstrators= Demonstrator.objects.filter(pk=demonId)
@@ -2327,29 +2338,25 @@ def firstPushData(request):
                                 deletedObject.modelName= model.__name__
                                 deletedObject.objectId = deleted['objectId']
                                 deletedObject.save()
-                            
+
                     #add LastPull for added users
                     for userIdItem in usersIds:
-                        print(userIdItem)
                         haveLastPull = User.objects.filter(pk=userIdItem)
-                        print(haveLastPull)
                         if 'lastPull' in haveLastPull:
                             continue
                         userId = userIdItem
-                    
                         if idMap['User']:
                             if idMap['User'][userId]:
                                 userId = idMap['User'][userId]
                         LastPull.objects.create(userId= userId, lastPullDate=datetime.datetime.now)
-
-
-                    messages.add_message(request, messages.SUCCESS,"تمت تهيئة معلومات القاعدة")
-                    return redirect('app:home') 
+                            
+                    messages.add_message(request, messages.SUCCESS,"تم تحديث المعلومات بنجاح")
+                    return redirect('app:upload_file')
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
                     messages.add_message(request, messages.ERROR,"حدث خطأ ما")
-                    return redirect('app:first_upload_file') 
+                    return redirect('app:upload_file') 
         
         else:
             messages.add_message(request, messages.WARNING,"لا يمكنك الدخول إلى هذه الصفحة إلا عندما تكون القاعدة فارغة")
@@ -2378,31 +2385,39 @@ def gett(request):
 
 @login_required(login_url='app:login')
 def permissions_list(request):
-    query = request.GET.get('search')
-    if query:
-        permissions = Permissions.objects.filter(permissionsCollege__icontains=query)
+    if request.user.is_superuser:
+        query = request.GET.get('search')
+        if query:
+            permissions = Permissions.objects.filter(permissionsCollege__icontains=query)
+        else:
+            permissions = Permissions.objects.all()
+        context = {'permissions': permissions, 'query': query}
+        
+        return render(request, 'home/permissions_list.html', context)
     else:
-        permissions = Permissions.objects.all()
-    context = {'permissions': permissions, 'query': query}
-    
-    return render(request, 'home/permissions_list.html', context)
+        messages.add_message(request, messages.ERROR,"لا تملك صلاحية  ")
+        return redirect('app:home')
 
 
 @login_required(login_url='app:login')
 def permissions_detail(request, pk):
-    permissions = get_object_or_404(Permissions, pk=pk)
-    if request.method == 'POST':
-        users = request.POST.getlist('userId')
-        permissions.userId.set(users)
-        permissions.modifiedByOffline=True
-        permissions.save()
-    try:
-        users = permissions.userId.all()
-    except User.DoesNotExist:
-        raise Http404("User does not exist")
-    all_users = User.objects.all()
-    context = {'permissions': permissions, 'users': users, 'all_users': all_users}
-    return render(request, 'home/permissions_detail.html', context)
+    if request.user.is_superuser:
+        permissions = get_object_or_404(Permissions, pk=pk)
+        if request.method == 'POST':
+            users = request.POST.getlist('userId')
+            permissions.userId.set(users)
+            permissions.modifiedByOffline=True
+            permissions.save()
+        try:
+            users = permissions.userId.all()
+        except User.DoesNotExist:
+            raise Http404("User does not exist")
+        all_users = User.objects.all()
+        context = {'permissions': permissions, 'users': users, 'all_users': all_users}
+        return render(request, 'home/permissions_detail.html', context)
+    else :
+        messages.add_message(request, messages.ERROR,"لا تملك صلاحية  ")
+        return redirect('app:home')
 
 
 @login_required(login_url='app:login')
@@ -2476,6 +2491,55 @@ def UpdatePermission(request, pk):
         else :
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية حذف السماحية")
             return redirect('app:permissions_detail',pk=pk)
+
+@login_required(login_url='app:login')
+def Register(request):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            checkPassword = authenticate(request, username=request.user.username, password=request.POST['admin_password'])
+            if checkPassword is not None:
+                try:
+                    id = None
+                    dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken'],
+                        'username':request.POST['username'],
+                        'first_name':request.POST['firstName'],
+                        'last_name':request.POST['lastName'],
+                        'password':request.POST['password'],
+                        'email':request.POST['email'],
+                        'date_joined':datetime.datetime.now()
+                        }
+                    form = AddUser(dic)
+                    if form.is_valid():
+                        id = form.save()
+                    else:
+                        raise Exception(form.errors)
+                    for perm in request.POST.getlist('permissions'):
+                        permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
+                        id.permissions.add(permission.id)
+                    LastPull.objects.create(userId= id, lastPullDate=datetime.datetime.now)
+                    UserSynchronization.objects.create(userId= id, isOffline=True)
+
+                    messages.add_message(request, messages.SUCCESS,"تمت إضافة الموظف")
+                    return redirect('app:register')
+                except Exception as e:
+                    messages.add_message(request, messages.ERROR,'حدث خطأ ما')
+                    return redirect('app:register')
+            else:
+                messages.add_message(request, messages.ERROR,"كلمة مرور المدير غير صحيحة")
+                return redirect('app:register')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تسجيل موظفين")
+            return redirect('app:register')
+
+    if request.user.is_superuser:
+        # permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
+        permissions=list(Permissions.objects.filter().values('permissionsCollege'))
+        d = JsonResponse({"data": permissions})
+        strr = d.content.decode("utf-8")
+        
+        return render(request, 'registration/register.html', {'colleges': strr })
+    else:
+        return render(request, 'registration/result.html', {'result': 'denied'})
 
 
 @login_required(login_url='app:login')
@@ -2619,7 +2683,7 @@ def DeleteUser(request, id):
                     savePoint = transaction.savepoint()
                     try:
                         user = get_object_or_404(User, id=id)
-                        isoff = user.isOffline
+                        isoff = user.userSynchronization.isOffline
                         user.delete()
                         if not isoff:
                             generalDelete('User', id)
@@ -2636,6 +2700,7 @@ def DeleteUser(request, id):
         else:
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية تعديل معلومات الموظفين")
             return redirect('app:user_list')
+
 
 def About(request):
     return render(request,"home/about-us.html")
