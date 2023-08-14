@@ -621,10 +621,12 @@ def ExtensionInsert(request, dispatchId,demonId):
                 status=SendEmailGmail(informationForEmail['email'],"هيلوز","بيباي")
                 if type(status) == ServerNotFoundError:
                     raise Exception("error")
-                print(informationForEmail['email'])
+                # print(informationForEmail['email'])
+                Extension.objects.filter(id=extensionId.id).update(emailSent=True)
                 messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد وتم إرسال الايميل للمعيد")
                 return redirect('app:demonstrator', id= demonId)
             except Exception as error:
+                Extension.objects.filter(id=extensionId.id).update(emailSent=False)
                 messages.add_message(request, messages.WARNING," تم إضافة التمديد ولكن لم يتم إرسال الايميل بسبب خطأ في الاتصال")
                 return redirect('app:demonstrator', id= demonId)
         else:
@@ -1929,30 +1931,30 @@ def generalUpdateHub(request, added, obj, addModel, modelName, idMap, savePoint)
     #Demonstrator
     if modelName in ['Dispatch', 'GraduateStudies', 'CertificateOfExcellence', 'AdjectiveChange']:
         #studentId
-        if idMap[modelName]:
-            if idMap[modelName][added['studentId']]:
+        if modelName in idMap:
+            if added['studentId'] in idMap[modelName]:
                 added['studentId'] = idMap[modelName][added['studentId']]
     elif modelName == 'Nomination':
         #nominationDecision
-        if idMap[modelName]:
-            if idMap[modelName][added['nominationDecision']]:
+        if modelName in idMap:
+            if added['nominationDecision'] in idMap[modelName]:
                 added['nominationDecision'] = idMap[modelName][added['nominationDecision']]
     elif modelName == 'UniversityDegree':
         #universityDegree
-        if idMap[modelName]:
-            if idMap[modelName][added['universityDegree']]:
+        if modelName in idMap:
+            if added['universityDegree'] in idMap[modelName]:
                 added['universityDegree'] = idMap[modelName][added['universityDegree']]
 
     #Dispatch
     elif modelName in ['Report', 'Extension', 'Freeze', 'DurationChange', 'AlimonyChange', 'UniversityChange', 'SpecializationChange']:
         #dispatchDecisionId
-        if idMap[modelName]:
-            if idMap[modelName][added['dispatchDecisionId']]:
+        if modelName in idMap:
+            if added['dispatchDecisionId'] in idMap[modelName]:
                 added['dispatchDecisionId'] = idMap[modelName][added['dispatchDecisionId']]
     elif modelName == 'Regularization':
         #regularizationDecisionId
-        if idMap[modelName]:
-            if idMap[modelName][added['regularizationDecisionId']]:
+        if modelName in idMap:
+            if added['regularizationDecisionId'] in idMap[modelName]:
                 added['regularizationDecisionId'] = idMap[modelName][added['regularizationDecisionId']]
     
     #User
@@ -2027,6 +2029,7 @@ def pushData(request):
                     data = None
                     idMap = {}
                     usersIds = []
+                    unsentEmails=[]
                     with open('uploads/synchronization.json', 'r') as f:
                         data = load(f)
 
@@ -2061,6 +2064,26 @@ def pushData(request):
                                     demonstrator.currentAdjective = added['adjectiveChangeAdjective']
                                     Demonstrator.full_clean(self=demonstrator)
                                     Demonstrator.save(self=demonstrator)
+                                if model.__name__ == 'Extension' and not id.emailSent:
+                                    college= list(Dispatch.objects.filter(pk=id.dispatchDecisionId.id).values('studentId__college', 'studentId__name', 'studentId__fatherName','studentId__email','dispatchEndDate'))
+                                    informationForEmail={ 'name': college[0]['studentId__name'],
+                                                    'fatherName': college[0]['studentId__fatherName'],
+                                                    'email': college[0]['studentId__email'],
+                                                    'extensionDecisionNumber': id.extensionDecisionNumber,
+                                                    'extensionDecisionDate': id.extensionDecisionDate,
+                                                    'extensionDecisionType': id.extensionDecisionType,
+                                                    'extensionDurationYear': id.extensionDurationYear,
+                                                    'extensionDurationMonth': id.extensionDurationMonth,
+                                                    'extensionDurationDay': id.extensionDurationDay,
+                                                    }
+                                    try:
+                                        status=SendEmailGmail(informationForEmail['email'],"هيلوز","بيباي")
+                                        if type(status) == ServerNotFoundError:
+                                            raise Exception("error")
+                                        # print(informationForEmail['email'])
+                                        Extension.objects.filter(id=id.id).update(emailSent=True)
+                                    except Exception as error:
+                                        unsentEmails.append('التمديد الخاص بالطالب '+college[0]['studentId__name']+' رقم '+str(id.extensionDecisionNumber)+' تاريخ '+str(id.extensionDecisionDate))
 
                     #update
                     for model in apps.get_models():
@@ -2138,6 +2161,7 @@ def pushData(request):
                                 userId = idMap['User'][userId]
                         LastPull.objects.create(userId= userId, lastPullDate=datetime.datetime.now)
                     
+                    print(unsentEmails)
                     messages.add_message(request, messages.SUCCESS,"تم تحديث المعلومات بنجاح")
                     return redirect('app:upload_file')
                 except Exception as e:
