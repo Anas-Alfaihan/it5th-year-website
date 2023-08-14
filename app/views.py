@@ -2350,7 +2350,7 @@ def firstPushData(request):
                                 userId = idMap['User'][userId]
                         LastPull.objects.create(userId= userId, lastPullDate=datetime.datetime.now)
                             
-                    messages.add_message(request, messages.SUCCESS,"تم تحديث المعلومات بنجاح")
+                    messages.add_message(request, messages.SUCCESS,"تمت تهيئة القاعدة بنجاح")
                     return redirect('app:upload_file')
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
