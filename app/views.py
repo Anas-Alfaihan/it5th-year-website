@@ -299,43 +299,6 @@ def Email(request):
     return render(request, 'home/send_email.html',{"select": strr,"late":late})
 
 
-@login_required(login_url='app:login')
-def Register(request):
-    if request.method == 'POST':
-        if request.user.is_superuser:
-            checkPassword = authenticate(request, username=request.user.username, password=request.POST['admin_password'])
-            if checkPassword is not None:
-                user = User.objects.create_user(
-                    username=request.POST['username'],
-                    first_name=request.POST['firstName'],
-                    last_name=request.POST['lastName'],
-                    password=request.POST['password'],
-                    email=request.POST['email']
-                )
-                for perm in request.POST.getlist('permissions'):
-                    permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
-                    user.permissions.add(permission.id)
-                LastPull.objects.create(userId= user, lastPullDate=datetime.datetime.now)
-                UserSynchronization.objects.create(userId= user)
-
-                messages.add_message(request, messages.SUCCESS,"تمت إضافة الموظف")
-                return redirect('app:register')
-            else:
-                messages.add_message(request, messages.ERROR,"كلمة مرور المدير غير صحيحة")
-                return redirect('app:register')
-        else:
-            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تسجيل موظفين")
-            return redirect('app:register')
-
-    if request.user.is_superuser:
-        # permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
-        permissions=list(Permissions.objects.filter().values('permissionsCollege'))
-        d = JsonResponse({"data": permissions})
-        strr = d.content.decode("utf-8")
-        
-        return render(request, 'registration/register.html', {'colleges': strr })
-    else:
-        return render(request, 'registration/result.html', {'result': 'denied'})
 
 
 def Login(request):
@@ -658,10 +621,12 @@ def ExtensionInsert(request, dispatchId,demonId):
                 status=SendEmailGmail(informationForEmail['email'],"هيلوز","بيباي")
                 if type(status) == ServerNotFoundError:
                     raise Exception("error")
-                print(informationForEmail['email'])
+                # print(informationForEmail['email'])
+                Extension.objects.filter(id=extensionId.id).update(emailSent=True)
                 messages.add_message(request, messages.SUCCESS,"تم إضافة التمديد وتم إرسال الايميل للمعيد")
                 return redirect('app:demonstrator', id= demonId)
             except Exception as error:
+                Extension.objects.filter(id=extensionId.id).update(emailSent=False)
                 messages.add_message(request, messages.WARNING," تم إضافة التمديد ولكن لم يتم إرسال الايميل بسبب خطأ في الاتصال")
                 return redirect('app:demonstrator', id= demonId)
         else:
@@ -1966,30 +1931,30 @@ def generalUpdateHub(request, added, obj, addModel, modelName, idMap, savePoint)
     #Demonstrator
     if modelName in ['Dispatch', 'GraduateStudies', 'CertificateOfExcellence', 'AdjectiveChange']:
         #studentId
-        if idMap[modelName]:
-            if idMap[modelName][added['studentId']]:
+        if modelName in idMap:
+            if added['studentId'] in idMap[modelName]:
                 added['studentId'] = idMap[modelName][added['studentId']]
     elif modelName == 'Nomination':
         #nominationDecision
-        if idMap[modelName]:
-            if idMap[modelName][added['nominationDecision']]:
+        if modelName in idMap:
+            if added['nominationDecision'] in idMap[modelName]:
                 added['nominationDecision'] = idMap[modelName][added['nominationDecision']]
     elif modelName == 'UniversityDegree':
         #universityDegree
-        if idMap[modelName]:
-            if idMap[modelName][added['universityDegree']]:
+        if modelName in idMap:
+            if added['universityDegree'] in idMap[modelName]:
                 added['universityDegree'] = idMap[modelName][added['universityDegree']]
 
     #Dispatch
     elif modelName in ['Report', 'Extension', 'Freeze', 'DurationChange', 'AlimonyChange', 'UniversityChange', 'SpecializationChange']:
         #dispatchDecisionId
-        if idMap[modelName]:
-            if idMap[modelName][added['dispatchDecisionId']]:
+        if modelName in idMap:
+            if added['dispatchDecisionId'] in idMap[modelName]:
                 added['dispatchDecisionId'] = idMap[modelName][added['dispatchDecisionId']]
     elif modelName == 'Regularization':
         #regularizationDecisionId
-        if idMap[modelName]:
-            if idMap[modelName][added['regularizationDecisionId']]:
+        if modelName in idMap:
+            if added['regularizationDecisionId'] in idMap[modelName]:
                 added['regularizationDecisionId'] = idMap[modelName][added['regularizationDecisionId']]
     
     #User
@@ -2064,6 +2029,7 @@ def pushData(request):
                     data = None
                     idMap = {}
                     usersIds = []
+                    unsentEmails=[]
                     with open('uploads/synchronization.json', 'r') as f:
                         data = load(f)
 
@@ -2075,13 +2041,14 @@ def pushData(request):
                                 if model.__name__ == 'User':
                                     usersIds.append(added['id'])
                                 id = generalPushAddHub(request, added , addModel, model.__name__, idMap, savePoint)
-                                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                                if type(id) == ErrorDict:
+                                    raise Exception(id)
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = 1
                                     if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                        dispatchId = added.dispatchDecisionId['id']
+                                        dispatchId = added['dispatchDecisionId'].id
                                     else:
-                                        dispatchId = added['id']
+                                        dispatchId = id.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
@@ -2094,10 +2061,29 @@ def pushData(request):
                                 if model.__name__ == 'AdjectiveChange':
                                     demonId= added.studentId
                                     demonstrator = Demonstrator.objects.get(pk=demonId)
-                                    demonstrator.currentAdjective = added.adjectiveChangeAdjective
+                                    demonstrator.currentAdjective = added['adjectiveChangeAdjective']
                                     Demonstrator.full_clean(self=demonstrator)
                                     Demonstrator.save(self=demonstrator)
-                               
+                                if model.__name__ == 'Extension' and not id.emailSent:
+                                    college= list(Dispatch.objects.filter(pk=id.dispatchDecisionId.id).values('studentId__college', 'studentId__name', 'studentId__fatherName','studentId__email','dispatchEndDate'))
+                                    informationForEmail={ 'name': college[0]['studentId__name'],
+                                                    'fatherName': college[0]['studentId__fatherName'],
+                                                    'email': college[0]['studentId__email'],
+                                                    'extensionDecisionNumber': id.extensionDecisionNumber,
+                                                    'extensionDecisionDate': id.extensionDecisionDate,
+                                                    'extensionDecisionType': id.extensionDecisionType,
+                                                    'extensionDurationYear': id.extensionDurationYear,
+                                                    'extensionDurationMonth': id.extensionDurationMonth,
+                                                    'extensionDurationDay': id.extensionDurationDay,
+                                                    }
+                                    try:
+                                        status=SendEmailGmail(informationForEmail['email'],"هيلوز","بيباي")
+                                        if type(status) == ServerNotFoundError:
+                                            raise Exception("error")
+                                        # print(informationForEmail['email'])
+                                        Extension.objects.filter(id=id.id).update(emailSent=True)
+                                    except Exception as error:
+                                        unsentEmails.append('التمديد الخاص بالطالب '+college[0]['studentId__name']+' رقم '+str(id.extensionDecisionNumber)+' تاريخ '+str(id.extensionDecisionDate))
 
                     #update
                     for model in apps.get_models():
@@ -2107,11 +2093,12 @@ def pushData(request):
                                 objs= model.objects.filter(pk=updated['id'])
                                 for obj in objs:
                                     id = generalUpdateHub(request, updated , obj, addModel, model.__name__, idMap, savePoint)
-                                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                                    if type(id) == ErrorDict:
+                                        raise Exception(id)
                                     if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                         dispatchId = 1
                                         if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                            dispatchId = updated.dispatchDecisionId['id']
+                                            dispatchId = updated['dispatchDecisionId'].id
                                         else:
                                             dispatchId = updated['id']
                                         dispatchObject = Dispatch.objects.filter(pk=dispatchId)
@@ -2126,7 +2113,7 @@ def pushData(request):
                                     if model.__name__ == 'AdjectiveChange':
                                         demonId= updated.studentId
                                         demonstrator = Demonstrator.objects.get(pk=demonId)
-                                        demonstrator.currentAdjective = updated.adjectiveChangeAdjective
+                                        demonstrator.currentAdjective = updated['adjectiveChangeAdjective']
                                         Demonstrator.full_clean(self=demonstrator)
                                         Demonstrator.save(self=demonstrator)
 
@@ -2140,7 +2127,7 @@ def pushData(request):
                                         deleted['objectId'] = idMap[model.__name__][deleted['objectId']]
                                 deletedObj= model.objects.filter(pk=deleted['objectId']).delete()
                                 if model.__name__ in [ 'Freeze', 'Extension', 'DurationChange']:
-                                    dispatchId = deletedObj.dispatchDecisionId['id']
+                                    dispatchId = deletedObj.dispatchDecisionId.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
@@ -2165,18 +2152,16 @@ def pushData(request):
 
                     #add LastPull for added users
                     for userIdItem in usersIds:
-                        print(userIdItem)
                         haveLastPull = User.objects.filter(pk=userIdItem)
-                        print(haveLastPull)
                         if 'lastPull' in haveLastPull:
                             continue
                         userId = userIdItem
-                    
                         if idMap['User']:
                             if idMap['User'][userId]:
                                 userId = idMap['User'][userId]
                         LastPull.objects.create(userId= userId, lastPullDate=datetime.datetime.now)
                     
+                    print(unsentEmails)
                     messages.add_message(request, messages.SUCCESS,"تم تحديث المعلومات بنجاح")
                     return redirect('app:upload_file')
                 except Exception as e:
@@ -2316,6 +2301,58 @@ def UpdatePermission(request, pk):
         else :
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية حذف السماحية")
             return redirect('app:permissions_detail',pk=pk)
+
+
+
+@login_required(login_url='app:login')
+def Register(request):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            checkPassword = authenticate(request, username=request.user.username, password=request.POST['admin_password'])
+            if checkPassword is not None:
+                try:
+                    id = None
+                    dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken'],
+                        'username':request.POST['username'],
+                        'first_name':request.POST['firstName'],
+                        'last_name':request.POST['lastName'],
+                        'password':request.POST['password'],
+                        'email':request.POST['email'],
+                        'date_joined':datetime.datetime.now()
+                        }
+                    form = AddUser(dic)
+                    if form.is_valid():
+                        id = form.save()
+                    else:
+                        raise Exception(form.errors)
+                    for perm in request.POST.getlist('permissions'):
+                        permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
+                        id.permissions.add(permission.id)
+                    LastPull.objects.create(userId= id, lastPullDate=datetime.datetime.now)
+                    UserSynchronization.objects.create(userId= id)
+
+                    messages.add_message(request, messages.SUCCESS,"تمت إضافة الموظف")
+                    return redirect('app:register')
+                except Exception as e:
+                    messages.add_message(request, messages.ERROR,'حدث خطأ ما')
+                    return redirect('app:register')
+            else:
+                messages.add_message(request, messages.ERROR,"كلمة مرور المدير غير صحيحة")
+                return redirect('app:register')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تسجيل موظفين")
+            return redirect('app:register')
+
+    if request.user.is_superuser:
+        # permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
+        permissions=list(Permissions.objects.filter().values('permissionsCollege'))
+        d = JsonResponse({"data": permissions})
+        strr = d.content.decode("utf-8")
+        
+        return render(request, 'registration/register.html', {'colleges': strr })
+    else:
+        return render(request, 'registration/result.html', {'result': 'denied'})
+
 
 
 @login_required(login_url='app:login')

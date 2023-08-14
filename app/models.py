@@ -237,6 +237,7 @@ class Extension(models.Model):
     extensionDurationYear = models.IntegerField()
     extensionDurationMonth = models.IntegerField()
     extensionDurationDay = models.IntegerField()
+    emailSent = models.BooleanField(null=True, blank=True, default=False)
     createdDate = models.DateTimeField(auto_now_add=datetime.datetime.now)
     lastModifiedDate = models.DateTimeField(auto_now=True)
     isOffline = models.BooleanField(null=True, blank=True, default=False)
