@@ -24,6 +24,7 @@ from . import serializers
 from ast import literal_eval
 from .constantVariables import ADJECTIVE_CHOICES
 from rest_framework.serializers import Serializer
+from django.utils import timezone
 
 
 import smtplib
@@ -292,43 +293,6 @@ def Email(request):
     return render(request, 'home/send_email.html',{"select": strr,"late":late})
 
 
-@login_required(login_url='app:login')
-def Register(request):
-    if request.method == 'POST':
-        if request.user.is_superuser:
-            checkPassword = authenticate(request, username=request.user.username, password=request.POST['admin_password'])
-            if checkPassword is not None:
-                user = User.objects.create_user(
-                    username=request.POST['username'],
-                    first_name=request.POST['firstName'],
-                    last_name=request.POST['lastName'],
-                    password=request.POST['password'],
-                    email=request.POST['email']
-                )
-                for perm in request.POST.getlist('permissions'):
-                    permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
-                    user.permissions.add(permission.id)
-                LastPull.objects.create(userId= user, lastPullDate=datetime.datetime.now)
-                UserSynchronization.objects.create(userId= user)
-
-                messages.add_message(request, messages.SUCCESS,"تمت إضافة الموظف")
-                return redirect('app:register')
-            else:
-                messages.add_message(request, messages.ERROR,"كلمة مرور المدير غير صحيحة")
-                return redirect('app:register')
-        else:
-            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تسجيل موظفين")
-            return redirect('app:register')
-
-    if request.user.is_superuser:
-        # permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
-        permissions=list(Permissions.objects.filter().values('permissionsCollege'))
-        d = JsonResponse({"data": permissions})
-        strr = d.content.decode("utf-8")
-        
-        return render(request, 'registration/register.html', {'colleges': strr })
-    else:
-        return render(request, 'registration/result.html', {'result': 'denied'})
 
 
 def Login(request):
@@ -2050,13 +2014,14 @@ def pushData(request):
                                 if model.__name__ == 'User':
                                     usersIds.append(added['id'])
                                 id = generalPushAddHub(request, added , addModel, model.__name__, idMap, savePoint)
-                                if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                                if type(id) == ErrorDict:
+                                    raise Exception(id)
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = 1
                                     if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                        dispatchId = added.dispatchDecisionId['id']
+                                        dispatchId = added['dispatchDecisionId'].id
                                     else:
-                                        dispatchId = added['id']
+                                        dispatchId = id.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
@@ -2069,10 +2034,9 @@ def pushData(request):
                                 if model.__name__ == 'AdjectiveChange':
                                     demonId= added.studentId
                                     demonstrator = Demonstrator.objects.get(pk=demonId)
-                                    demonstrator.currentAdjective = added.adjectiveChangeAdjective
+                                    demonstrator.currentAdjective = added['adjectiveChangeAdjective']
                                     Demonstrator.full_clean(self=demonstrator)
                                     Demonstrator.save(self=demonstrator)
-                               
 
                     #update
                     for model in apps.get_models():
@@ -2082,11 +2046,12 @@ def pushData(request):
                                 objs= model.objects.filter(pk=updated['id'])
                                 for obj in objs:
                                     id = generalUpdateHub(request, updated , obj, addModel, model.__name__, idMap, savePoint)
-                                    if type(id) == ErrorDict: return render(request, 'registration/result.html', {'result': id})
+                                    if type(id) == ErrorDict:
+                                        raise Exception(id)
                                     if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                         dispatchId = 1
                                         if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                            dispatchId = updated.dispatchDecisionId['id']
+                                            dispatchId = updated['dispatchDecisionId'].id
                                         else:
                                             dispatchId = updated['id']
                                         dispatchObject = Dispatch.objects.filter(pk=dispatchId)
@@ -2101,7 +2066,7 @@ def pushData(request):
                                     if model.__name__ == 'AdjectiveChange':
                                         demonId= updated.studentId
                                         demonstrator = Demonstrator.objects.get(pk=demonId)
-                                        demonstrator.currentAdjective = updated.adjectiveChangeAdjective
+                                        demonstrator.currentAdjective = updated['adjectiveChangeAdjective']
                                         Demonstrator.full_clean(self=demonstrator)
                                         Demonstrator.save(self=demonstrator)
 
@@ -2115,7 +2080,7 @@ def pushData(request):
                                         deleted['objectId'] = idMap[model.__name__][deleted['objectId']]
                                 deletedObj= model.objects.filter(pk=deleted['objectId']).delete()
                                 if model.__name__ in [ 'Freeze', 'Extension', 'DurationChange']:
-                                    dispatchId = deletedObj.dispatchDecisionId['id']
+                                    dispatchId = deletedObj.dispatchDecisionId.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
                                     dispatchSerialized = SerializerDispatch(dispatchObject, many= True)
                                     dispatch = loads(dumps(dispatchSerialized.data))
@@ -2140,13 +2105,10 @@ def pushData(request):
 
                     #add LastPull for added users
                     for userIdItem in usersIds:
-                        print(userIdItem)
                         haveLastPull = User.objects.filter(pk=userIdItem)
-                        print(haveLastPull)
                         if 'lastPull' in haveLastPull:
                             continue
                         userId = userIdItem
-                    
                         if idMap['User']:
                             if idMap['User'][userId]:
                                 userId = idMap['User'][userId]
@@ -2291,6 +2253,58 @@ def UpdatePermission(request, pk):
         else :
             messages.add_message(request, messages.ERROR,"لا تملك صلاحية حذف السماحية")
             return redirect('app:permissions_detail',pk=pk)
+
+
+
+@login_required(login_url='app:login')
+def Register(request):
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            checkPassword = authenticate(request, username=request.user.username, password=request.POST['admin_password'])
+            if checkPassword is not None:
+                try:
+                    id = None
+                    dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken'],
+                        'username':request.POST['username'],
+                        'first_name':request.POST['firstName'],
+                        'last_name':request.POST['lastName'],
+                        'password':request.POST['password'],
+                        'email':request.POST['email'],
+                        'date_joined':datetime.datetime.now()
+                        }
+                    form = AddUser(dic)
+                    if form.is_valid():
+                        id = form.save()
+                    else:
+                        raise Exception(form.errors)
+                    for perm in request.POST.getlist('permissions'):
+                        permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
+                        id.permissions.add(permission.id)
+                    LastPull.objects.create(userId= id, lastPullDate=datetime.datetime.now)
+                    UserSynchronization.objects.create(userId= id)
+
+                    messages.add_message(request, messages.SUCCESS,"تمت إضافة الموظف")
+                    return redirect('app:register')
+                except Exception as e:
+                    messages.add_message(request, messages.ERROR,'حدث خطأ ما')
+                    return redirect('app:register')
+            else:
+                messages.add_message(request, messages.ERROR,"كلمة مرور المدير غير صحيحة")
+                return redirect('app:register')
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية تسجيل موظفين")
+            return redirect('app:register')
+
+    if request.user.is_superuser:
+        # permissions= ser.serialize('json', Permissions.objects.all(),fields=('permissionsCollege'))
+        permissions=list(Permissions.objects.filter().values('permissionsCollege'))
+        d = JsonResponse({"data": permissions})
+        strr = d.content.decode("utf-8")
+        
+        return render(request, 'registration/register.html', {'colleges': strr })
+    else:
+        return render(request, 'registration/result.html', {'result': 'denied'})
+
 
 
 @login_required(login_url='app:login')
