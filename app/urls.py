@@ -20,6 +20,7 @@ urlpatterns = [
     path('dispatch/<int:demonId>/', views.DispatchInsert, name='dispatch'),
     path('getdispatch/<int:dispatchId>/', views.getDispatch, name='getdispatch'),
     path('extinsert/<int:dispatchId>/<int:demonId>/', views.ExtensionInsert, name='extinsert'),
+    path('extensionEmail/<int:dispatchId>/<int:demonId>/<int:extensionId>/', views.SendExtensionEmail, name='extensionEmail'),
     path('freinsert/<int:dispatchId>/<int:demonId>/', views.FreezeInsert, name='freinsert'),
     path('reportinsert/<int:dispatchId>/<int:demonId>/', views.ReportInsert, name='reportinsert'),
     path('updateExtension/<int:id>/<int:demonId>/', views.UpdateExtension, name='updateExtension'),
