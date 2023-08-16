@@ -637,6 +637,44 @@ def ExtensionInsert(request, dispatchId,demonId):
 
 
 @login_required(login_url='app:login')
+def SendExtensionEmail(request, dispatchId, demonId, extensionId):
+    if request.method == 'POST':
+        college= list(Dispatch.objects.filter(pk=dispatchId).values('studentId__college', 'studentId__name', 'studentId__fatherName','studentId__email','dispatchEndDate'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['studentId__college'] in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                
+                obj = get_object_or_404(Extension, pk=extensionId)
+                informationForEmail={ 'name': college[0]['studentId__name'],
+                                'fatherName': college[0]['studentId__fatherName'],
+                                'email': college[0]['studentId__email'],
+                                'extensionDecisionNumber': obj.extensionDecisionNumber,
+                                'extensionDecisionDate': obj.extensionDecisionDate,
+                                'extensionDecisionType': obj.extensionDecisionType,
+                                'extensionDurationYear': obj.extensionDurationYear,
+                                'extensionDurationMonth': obj.extensionDurationMonth,
+                                'extensionDurationDay': obj.extensionDurationDay,
+                                }
+                try:
+                    status=SendEmailGmail(informationForEmail['email'],"هيلوز","بيباي")
+                    if type(status) == ServerNotFoundError:
+                        raise Exception("error")
+                    # print(informationForEmail['email'])
+                    Extension.objects.filter(id=extensionId).update(emailSent=True)
+                    messages.add_message(request, messages.SUCCESS,"تم إرسال الايميل للمعيد")
+                    return redirect('app:demonstrator', id= demonId)
+                except Exception as error:
+                    Extension.objects.filter(id=extensionId).update(emailSent=False)
+                    messages.add_message(request, messages.WARNING,"لم يتم إرسال الايميل بسبب خطأ في الاتصال")
+                    return redirect('app:demonstrator', id= demonId)
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية التعديل في هذه الكلية")
+            return redirect('app:demonstrator', id= demonId)
+    
+
+
+@login_required(login_url='app:login')
 def FreezeInsert(request, dispatchId,demonId):
     if request.method == 'POST':
         college= list(Dispatch.objects.filter(pk=dispatchId).values('studentId__college'))
@@ -871,6 +909,13 @@ def UpdateDemonstrator(request, id):
                         demonId= generalUpdate(request, 'name', {}, Demonstrator, AddDemonstrator, demonstrator, savePoint)
                         if type(demonId) == ErrorDict:
                             raise Exception('error')
+                    
+                    nominations= Nomination.objects.filter(nominationDecision_id=id)
+                    for nomination in nominations:
+                        print(nomination)
+                        resId = generalUpdate(request, 'nominationDecisionNumber', {'nominationDecision': id}, Nomination, AddNomination, nomination, savePoint)
+                        if type(resId) == ErrorDict:
+                            raise Exception('error')
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
@@ -915,6 +960,7 @@ def UpdateNomination(request, id, demonId):
             with transaction.atomic():
                 savePoint = transaction.savepoint()
                 try:
+                    
                     nominations= Nomination.objects.filter(pk=id)
                     for nomination in nominations:
                         resId = generalUpdate(request, 'nominationDecisionNumber', {'nominationDecision': demonId}, Nomination, AddNomination, nomination, savePoint)
