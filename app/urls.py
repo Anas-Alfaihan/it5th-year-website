@@ -33,6 +33,7 @@ urlpatterns = [
     path('deleteDispatch/<int:id>/<int:demonId>/', views.DeleteDispatch, name='deleteDispatch'),
     path('deleteUnv/<int:id>/<int:demonId>/', views.DeleteUniversityDegree, name='deleteUnv'),
     path('deleteGrad/<int:id>/<int:demonId>/', views.DeleteGraduateStudies, name='deleteGrad'),
+    path('deleteCert/<int:id>/<int:demonId>/', views.DeleteCertificateOfExcellence, name='deleteCert'),
     path('deleteDemon/<int:id>/', views.DeleteDemonstrator, name='deleteDemon'),
     path('getAllEmails/', views.GetAllEmails, name='getAllEmails'),
     path('getLateEmails/', views.GetLateEmails, name='getLateEmails'),
