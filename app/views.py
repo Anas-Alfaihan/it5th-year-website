@@ -638,7 +638,7 @@ def ExtensionInsert(request, dispatchId,demonId):
 
 @login_required(login_url='app:login')
 def SendExtensionEmail(request, dispatchId, demonId, extensionId):
-    if request.method == 'POST':
+    if request.method == 'GET':
         college= list(Dispatch.objects.filter(pk=dispatchId).values('studentId__college', 'studentId__name', 'studentId__fatherName','studentId__email','dispatchEndDate'))
         permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
         if college[0]['studentId__college'] in permissionList or request.user.is_superuser:

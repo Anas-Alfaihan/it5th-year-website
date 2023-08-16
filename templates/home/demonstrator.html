@@ -237,11 +237,11 @@
             <div class="row g-0 ct" style="margin-bottom: 0 !important;">
               <div class="text-lead text-muted fs-6 col-3 pr-0">
                 رقم القرار /<span class="editable demon-{{demonstrator.id}}"
-                  name="dispatchDecisionNumber">{{demonstrator.nominationDecision.nominationDecisionNumber}}</span>/<span
-                  class="editable demon-{{demonstrator.id}} mul" name="dispatchDecisionType"
+                  name="nominationDecisionNumber">{{demonstrator.nominationDecision.nominationDecisionNumber}}</span>/<span
+                  class="editable demon-{{demonstrator.id}} mul" name="nominationDecisionType"
                   value="{{demonstrator.nominationDecision.nominationDecisionType}}">{{demonstrator.nominationDecision.get_nominationDecisionType_display}}
                 </span>
-                <div class="d-none choises dispatchDecisionType">
+                <div class="d-none choises nominationDecisionType">
                   <div><strong value="s">ش.ع</strong></div>
                   <div><strong value="o">و</strong></div>
                   <div><strong value="b">ب</strong></div>
@@ -250,7 +250,7 @@
               <p class="text-lead text-muted fs-6 col-2">
                 تاريخ
 
-                <span class="editable demon-{{demonstrator.id}}" name="dispatchDecisionDate"
+                <span class="editable demon-{{demonstrator.id}}" name="nominationDecisionDate"
                   data-toggle="datepicker">{{demonstrator.nominationDecision.nominationDecisionDate|date:"m/d/Y"}}</span>
               </p>
             </div>
@@ -539,16 +539,16 @@
       <div style="width: 100%; background: #fff">
         <div class="contain">
           <div class="seventh accordions__content" id="cer-content">
-            <div class="row mt-5">
+            <div class="row mt-5" id="certs">
               {% for cer in demonstrator.certificateOfExcellence.all %}
-              <div class="col-3">
+              <div class="col-3" id="cert-{{cer.id}}">
                 <div class="card border-primary mb-3" style="max-width: 20rem">
                   <div class="card-header">
                     <div class="row align-items-center">
                       <div class="col-9">شهادة تفوق</div>
                       <div class="col-2">
-                        <a href="/app/deleteCert/{{cer.id}}/{{demonstrator.id}}"
-                          class="btn btn-outline-danger btn-sm p-3"><i class="fa-solid fa-trash"></i></a>
+                        <button onclick="del('cert', '{{demonstrator.id}}', '{{cer.id}}')"
+                          class="btn btn-outline-danger btn-sm p-3"><i class="fa-solid fa-trash"></i></button>
                       </div>
                     </div>
                   </div>
@@ -725,6 +725,8 @@
                         <p class="ct col-6"><span>تاريخ انتهاء الإيفاد:</span><span data-toggle="datepicker"
                             class="efad-info-{{i.id}} editable"
                             name="dispatchEndDate">{{i.dispatchEndDate|date:"m/d/Y"}}</span></p>
+                        <p class="ct col-6"><span> المدة المتبقية:</span><span class="">{{i.remainingTime}} يوم</span>
+                        </p>
                         <p class="ct col-6"><span>تاريخ العودة:</span><span data-toggle="datepicker"
                             class="efad-info-{{i.id}} editable" name="backDate">{{i.backDate|date:"m/d/Y"}}</span>
                         </p>
@@ -851,6 +853,11 @@
                                   <p class="ct"><span>يوم:</span><span class="ex-{{ex.id}} editable"
                                       name="extensionDurationDay">{{ex.extensionDurationDay|default:"0"}}</span></p>
                                 </div>
+                                {% if ex.emailSent == False %}
+                                <p style="color:crimson">لم يتم إرسال إيميل لهذا الإيفاد <a
+                                    href="/app/extensionEmail/{{i.id}}/{{demonstrator.id}}/{{ex.id}}"
+                                    style="text-decoration:underline !important; color:inherit">اضغط هنا للإرسال</a></p>
+                                {% endif %}
                               </div>
                             </div>
                           </div>
@@ -1288,11 +1295,13 @@
       unv: `/app/deleteUnv/${id}/${did}/`,
       grad: `/app/deleteGrad/${id}/${did}/`,
       demon: `/app/deleteDemon/${did}/`,
+      cert: `/app/deleteCert/${id}/${did}/`
     };
     ids = {
       efad: `Efad-${id}`,
       ex: `Extension-${id}`,
       fr: `Freeze-${id}`,
+      cert: `cert-${id}`,
       unv: `/app/deleteUnv/${id}/${did}/`,
       grad: `/app/deleteGrad/${id}/${did}/`,
     }
@@ -1307,7 +1316,7 @@
           position: "left", // `left`, `center` or `right`
           stopOnFocus: true, // Prevents dismissing of toast on hover
           style: {
-            background: "linear-gradient(45deg, #ff5e5e, #f9a43a)",
+            background: "linear-gradient(-45deg, #00ff9c, #00d1ff)",
             width: "300px",
             border: "16px",
           },
@@ -1324,6 +1333,12 @@
           let newElement = $("<p>لا يوجد إيفادات بعد</p>")
           ef.prepend(newElement)
         }
+        let cer = $("#certs")
+        if (cer.children().length === 0 && type === "cert") {
+
+          let newElement = $("<p>لا يوجد شهادات تفوق </p>")
+          cer.prepend(newElement)
+        }
       } else {
 
         Toastify({
@@ -1339,6 +1354,9 @@
             border: "16px",
           },
         }).showToast();
+        setTimeout(() => {
+          location.reload()
+        }, 1500)
       }
     });
   }

@@ -26,7 +26,6 @@ function areAllAccordionsOpen() {
 }
 
 function updateAccordion(label) {
-    console.log(app);
     const accordionHeader = app.querySelector(
         `[onclick="toggleAccordion('${label}')"`
     );
