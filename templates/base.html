@@ -177,23 +177,23 @@
     </main>
     {% block files %}{% endblock %}
     <script>
-      let radioInput = document.getElementById("flexRadioDefault2");
-      let radioInput2 = document.getElementById("flexRadioDefault1");
-      let dte = document.getElementById("dte");
+      //   let radioInput = document.getElementById("flexRadioDefault2");
+      //   let radioInput2 = document.getElementById("flexRadioDefault1");
+      //   let dte = document.getElementById("dte");
 
-      radioInput2.addEventListener("change", function () {
-        if (dte.hasAttribute("required")) {
-          dte.removeAttribute("required");
-        }
-      });
+      //   radioInput2.addEventListener("change", function () {
+      //     if (dte.hasAttribute("required")) {
+      //       dte.removeAttribute("required");
+      //     }
+      //   });
 
-      radioInput.addEventListener("change", function () {
-        if (dte.hasAttribute("required")) {
-          dte.removeAttribute("required");
-        } else {
-          dte.setAttribute("required", true);
-        }
-      });
+      //   radioInput.addEventListener("change", function () {
+      //     if (dte.hasAttribute("required")) {
+      //       dte.removeAttribute("required");
+      //     } else {
+      //       dte.setAttribute("required", true);
+      //     }
+      //   });
     </script>
 
     <script src="{% static 'js/skydash/template.js' %}"></script>
