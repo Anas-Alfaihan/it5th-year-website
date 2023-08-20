@@ -198,7 +198,8 @@ class Dispatch(models.Model):
     @property
     def remainingTime(self):
         if (self.dispatchEndDate):
-            return self.dispatchEndDate - self.commencementDate
+            td = self.dispatchEndDate - self.commencementDate
+            return td.days
         else:
             return None
 

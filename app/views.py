@@ -195,96 +195,101 @@ def SendEmailGmail(email,subject,message):
         return error
 
 
+@login_required(login_url='app:login')
 def SendEmails(request):
-    if request.POST['emails'] == 'normal':
-        try:
-            emails=[]
-            if request.POST['email']:
-                emails.append(request.POST['email'])
+    if request.user.is_superuser:
+        if request.POST['emails'] == 'normal':
+            try:
+                emails=[]
+                if request.POST['email']:
+                    emails.append(request.POST['email'])
 
-            if request.POST['user']:
-                emails.append(request.POST['user']+"@albaath-univ.edu.sy")
+                if request.POST['user']:
+                    emails.append(request.POST['user']+"@albaath-univ.edu.sy")
 
-            if request.POST['college'] == 'all':
+                if request.POST['college'] == 'all':
 
-                all=list(Demonstrator.objects.all().filter().values('email'))
+                    all=list(Demonstrator.objects.all().filter().values('email'))
 
-                for x in range(len(all)):
-                    if all[x]['email']:
-                        if all[x]['email'] not in emails:
-                            emails.append(all[x]['email'])
+                    for x in range(len(all)):
+                        if all[x]['email']:
+                            if all[x]['email'] not in emails:
+                                emails.append(all[x]['email'])
+
+                    
+                elif request.POST['college'] is not None:
+                    print(request.POST['college'])
+                    college = list(Demonstrator.objects.filter(college=request.POST['college']).values('email'))
+                    for x in range(len(college)):
+                        if college[x]['email']:
+                            if college[x]['email'] not in emails:
+                                emails.append(college[x]['email'])
 
                 
-            elif request.POST['college'] is not None:
-                print(request.POST['college'])
-                college = list(Demonstrator.objects.filter(college=request.POST['college']).values('email'))
-                for x in range(len(college)):
-                    if college[x]['email']:
-                        if college[x]['email'] not in emails:
-                            emails.append(college[x]['email'])
+
+                emails_str=""
+
+                for x in emails:
+                    emails_str+=x+", "
+                    if request.POST['server'] == 'gmail':
+                        gm=SendEmailGmail(x,request.POST['subject'],request.POST['msg'])
+                        print("dndkfn",type(gm))
+                        if type(gm) == ServerNotFoundError:
+                            raise Exception("error")
+                    elif request.POST['server'] == 'hotmail':
+                        SendEmailHotmail(x,request.POST['subject'],request.POST['msg'])
+                    elif request.POST['server'] == 'albaath':
+                        SendEmailAlbaath(x,request.POST['subject'],request.POST['msg'])
+
+                emails_str=emails_str[:-2]
+                return render(request, 'home/success.html', {"emails": emails})
+
+
+            except Exception as error:
+                # TODO(developer) - Handle errors from gmail API.
+                print(error)
+                messages.add_message(request, messages.ERROR,"تأكد من معلوماتك واتصالك بالانترنت")
+                return render(request, 'home/send_email.html')
+
 
             
 
+        elif request.POST['emails'] == 'late':
+            emails=[]
             emails_str=""
+
+            todayDate = datetime.date.today() 
+            lateDate = datetime.date.today() + relativedelta(seconds=-5)
+            reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':lateDate})).values('dispatchDecisionId_id')
+            dis =[]
+            for report in list(reports):
+                dis.append(report['dispatchDecisionId_id'])
+            dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis})).values('studentId_id')
+            res =[]
+            for dispatch in list(dispatchLate):
+                res.append(dispatch['studentId_id'])
+            
+            late = list(Demonstrator.objects.filter(pk__in=res).values('email'))
+            print(late)
+            for x in range(len(late)):
+                    if late[x]['email']:
+                        if late[x]['email'] not in emails:
+                            emails.append(late[x]['email'])
 
             for x in emails:
                 emails_str+=x+", "
+                message="تم انتهاء المدة القانونية الخاصة بك يطلب اليك بالسرعة القصوى ارسال تقرير دراسي مفصل...."
                 if request.POST['server'] == 'gmail':
-                    gm=SendEmailGmail(x,request.POST['subject'],request.POST['msg'])
-                    print("dndkfn",type(gm))
-                    if type(gm) == ServerNotFoundError:
-                        raise Exception("error")
+                    SendEmailGmail(x,"إنذار",message)
                 elif request.POST['server'] == 'hotmail':
-                    SendEmailHotmail(x,request.POST['subject'],request.POST['msg'])
-                elif request.POST['server'] == 'albaath':
-                    SendEmailAlbaath(x,request.POST['subject'],request.POST['msg'])
+                    SendEmailHotmail(x,"إنذار",message)
 
             emails_str=emails_str[:-2]
+
             return render(request, 'home/success.html', {"emails": emails})
-
-
-        except Exception as error:
-            # TODO(developer) - Handle errors from gmail API.
-            print(error)
-            messages.add_message(request, messages.ERROR,"تأكد من معلوماتك واتصالك بالانترنت")
-            return render(request, 'home/send_email.html')
-
-
-
-
-    elif request.POST['emails'] == 'late':
-        emails=[]
-        emails_str=""
-
-        todayDate = datetime.date.today() 
-        lateDate = datetime.date.today() + relativedelta(seconds=-5)
-        reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':lateDate})).values('dispatchDecisionId_id')
-        dis =[]
-        for report in list(reports):
-            dis.append(report['dispatchDecisionId_id'])
-        dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis})).values('studentId_id')
-        res =[]
-        for dispatch in list(dispatchLate):
-            res.append(dispatch['studentId_id'])
-        
-        late = list(Demonstrator.objects.filter(pk__in=res).values('email'))
-        print(late)
-        for x in range(len(late)):
-                if late[x]['email']:
-                    if late[x]['email'] not in emails:
-                        emails.append(late[x]['email'])
-
-        for x in emails:
-            emails_str+=x+", "
-            message="تم انتهاء المدة القانونية الخاصة بك يطلب اليك بالسرعة القصوى ارسال تقرير دراسي مفصل...."
-            if request.POST['server'] == 'gmail':
-                SendEmailGmail(x,"إنذار",message)
-            elif request.POST['server'] == 'hotmail':
-                SendEmailHotmail(x,"إنذار",message)
-
-        emails_str=emails_str[:-2]
-
-        return render(request, 'home/success.html', {"emails": emails})
+    else:
+        messages.add_message(request, messages.ERROR,"لا تملك صلاحية إرسال الإيميلات")
+        return render(request, 'home/send_email.html')
 
 
 def Email(request):
@@ -633,6 +638,43 @@ def ExtensionInsert(request, dispatchId,demonId):
     else:
         return render(request, 'home/ext.html')
 
+@login_required(login_url='app:login')
+def SendExtensionEmail(request, dispatchId, demonId, extensionId):
+    if request.method == 'GET':
+        college= list(Dispatch.objects.filter(pk=dispatchId).values('studentId__college', 'studentId__name', 'studentId__fatherName','studentId__email','dispatchEndDate'))
+        permissionList= [perm.permissionsCollege for perm in request.user.permissions.all()]
+        if college[0]['studentId__college'] in permissionList or request.user.is_superuser:
+            with transaction.atomic():
+                savePoint = transaction.savepoint()
+                
+                obj = get_object_or_404(Extension, pk=extensionId)
+                informationForEmail={ 'name': college[0]['studentId__name'],
+                                'fatherName': college[0]['studentId__fatherName'],
+                                'email': college[0]['studentId__email'],
+                                'extensionDecisionNumber': obj.extensionDecisionNumber,
+                                'extensionDecisionDate': obj.extensionDecisionDate,
+                                'extensionDecisionType': obj.extensionDecisionType,
+                                'extensionDurationYear': obj.extensionDurationYear,
+                                'extensionDurationMonth': obj.extensionDurationMonth,
+                                'extensionDurationDay': obj.extensionDurationDay,
+                                }
+                try:
+                    status=SendEmailGmail(informationForEmail['email'],"هيلوز","بيباي")
+                    if type(status) == ServerNotFoundError:
+                        raise Exception("error")
+                    # print(informationForEmail['email'])
+                    Extension.objects.filter(id=extensionId).update(emailSent=True, modifiedByOffline=True)
+                    messages.add_message(request, messages.SUCCESS,"تم إرسال الايميل للمعيد")
+                    return redirect('app:demonstrator', id= demonId)
+                except Exception as error:
+                    Extension.objects.filter(id=extensionId).update(emailSent=False)
+                    messages.add_message(request, messages.WARNING,"لم يتم إرسال الايميل بسبب خطأ في الاتصال")
+                    return redirect('app:demonstrator', id= demonId)
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية التعديل في هذه الكلية")
+            return redirect('app:demonstrator', id= demonId)
+    
+
 
 @login_required(login_url='app:login')
 def FreezeInsert(request, dispatchId,demonId):
@@ -869,6 +911,13 @@ def UpdateDemonstrator(request, id):
                     for demonstrator in demonstrators:
                         demonId= generalUpdate(request, 'name', {}, Demonstrator, AddDemonstrator, demonstrator, savePoint)
                         if type(demonId) == ErrorDict:
+                            raise Exception('error')
+                        
+                    nominations= Nomination.objects.filter(nominationDecision_id=id)
+                    for nomination in nominations:
+                        print(nomination)
+                        resId = generalUpdate(request, 'nominationDecisionNumber', {'nominationDecision': id}, Nomination, AddNomination, nomination, savePoint)
+                        if type(resId) == ErrorDict:
                             raise Exception('error')
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
