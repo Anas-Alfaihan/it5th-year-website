@@ -280,7 +280,7 @@ button {
 
 .contain {
     width: 100%;
-    max-width: 1200;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 38px;
     box-sizing: border-box;
@@ -387,7 +387,7 @@ button {
     transform: translateY(38px);
 }
 .accordions__content--expanded {
-    max-height: 200vh;
+    max-height: 2000vh;
     opacity: 1;
     padding-bottom: 76px;
     transform: none;

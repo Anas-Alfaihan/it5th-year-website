@@ -15,7 +15,6 @@
 
 {% load static %} {% block content %}
 
-<h2 class="tit"><span class="editable demon-{{demonstrator.id}}" name="name">{{demonstrator.name}}</span></h2>
 <div id="keyTips" class="row justify-content-around d-none mr-0">
   <div class="col-4">
     <key>shift</key> + <key>enter</key> - حفظ التعديل
@@ -25,35 +24,14 @@
   </div>
 </div>
 <section class="">
+
   <class class="container">
-    <div id="nav" class="row justify-content-between">
-      <!-- <ul>
-        <li class="aactive first">
-          <button type="button">المعلومات الشخصية</button>
-        </li>
-        <li class="second">
-          <button type="button">معلومات الاتصال</button>
-        </li>
-        <li class="third">
-          <button type="button">الحالة الاجتماعية</button>
-        </li>
-        <li class="forth">
-          <button type="button">معلومات التعيين</button>
-        </li>
-        <li class="fifth">
-          <button type="button">الشهادة الجامعية</button>
-        </li>
-        <li class="sixth">
-          <button type="button">دراسات عليا</button>
-        </li>
-        <li class="seventh">
-          <button type="button">شهادات التفوق</button>
-        </li>
-        <li class="eigth">
-          <button type="button">الإيفادات</button>
-        </li>
-      </ul> -->
-      <div class="col-4"></div>
+    <div id="nav" class="row align-items-center sjustify-content-between">
+
+      <h2 class="tit col-7 pt-5"><span class=" editable demon-{{demonstrator.id}}" name="name">
+          {{demonstrator.name}}</span>
+      </h2>
+
       <div class="col-4 d-flex justify-content-end ml-4">
         <button type="button" class="btn btn btn-outline-success ml-3" onclick="editDemon(event, '{{demonstrator.id}}')"
           id="deb-{{demonstrator.id}}">تعديل</button>
@@ -258,12 +236,12 @@
           <div class="forth accordions__content" id="experience-content">
             <div class="row g-0 ct" style="margin-bottom: 0 !important;">
               <div class="text-lead text-muted fs-6 col-3 pr-0">
-                رقم القرار /<span class=""
-                  name="dispatchDecisionNumber">{{demonstrator.nominationDecision.nominationDecisionNumber}}</span>/<span
-                  class="" name="dispatchDecisionType"
+                رقم القرار /<span class="editable demon-{{demonstrator.id}}"
+                  name="nominationDecisionNumber">{{demonstrator.nominationDecision.nominationDecisionNumber}}</span>/<span
+                  class="editable demon-{{demonstrator.id}} mul" name="nominationDecisionType"
                   value="{{demonstrator.nominationDecision.nominationDecisionType}}">{{demonstrator.nominationDecision.get_nominationDecisionType_display}}
                 </span>
-                <div class="d-none choises dispatchDecisionType">
+                <div class="d-none choises nominationDecisionType">
                   <div><strong value="s">ش.ع</strong></div>
                   <div><strong value="o">و</strong></div>
                   <div><strong value="b">ب</strong></div>
@@ -272,7 +250,7 @@
               <p class="text-lead text-muted fs-6 col-2">
                 تاريخ
 
-                <span class="" name="dispatchDecisionDate"
+                <span class="editable demon-{{demonstrator.id}}" name="nominationDecisionDate"
                   data-toggle="datepicker">{{demonstrator.nominationDecision.nominationDecisionDate|date:"m/d/Y"}}</span>
               </p>
             </div>
@@ -561,11 +539,19 @@
       <div style="width: 100%; background: #fff">
         <div class="contain">
           <div class="seventh accordions__content" id="cer-content">
-            <div class="row mt-5">
+            <div class="row mt-5" id="certs">
               {% for cer in demonstrator.certificateOfExcellence.all %}
-              <div class="col-3">
-                <div class="card border-primary mb-3" style="max-width: 18rem">
-                  <div class="card-header">شهادة تفوق</div>
+              <div class="col-3" id="cert-{{cer.id}}">
+                <div class="card border-primary mb-3" style="max-width: 20rem">
+                  <div class="card-header">
+                    <div class="row align-items-center">
+                      <div class="col-9">شهادة تفوق</div>
+                      <div class="col-2">
+                        <button onclick="del('cert', '{{demonstrator.id}}', '{{cer.id}}')"
+                          class="btn btn-outline-danger btn-sm p-3"><i class="fa-solid fa-trash"></i></button>
+                      </div>
+                    </div>
+                  </div>
                   <div class="card-body">
                     <p class="card-text">المرتبة: {{cer.get_certificateOfExcellenceDegree_display}}</p>
                     <p class="card-text">السنة: {{cer.get_certificateOfExcellenceYear_display}}</p>
@@ -576,6 +562,58 @@
               {% endfor %}
             </div>
             {% if not demonstrator.certificateOfExcellence.all%} <p> لا يوجد شهادات تفوق </p>{% endif %}
+            <div class="row justify-content-center mt-5">
+              <div class="col-6 text-center">
+                <button type="button" class="btn btn-lg btn-outline-primary" data-bs-toggle="modal"
+                  data-bs-target="#Modalreee{{demonstrator.id}}">إضافة شهادة تفوق </button>
+              </div>
+              <div class="modal fade" id="Modalreee{{demonstrator.id}}" tabindex="-1"
+                aria-labelledby="ModalLabel{{i.id}}" aria-hidden="true">
+                <div class="modal-dialog   modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="ModalLabell{{demonstrator.id}}">إضافة شهادة تفوق</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body fs-6">
+                      <form method="post" class="needs-validation" novalidate
+                        action="/app/insertExcellence/{{demonstrator.id}}/">
+                        {% csrf_token %}
+
+                        <div class="form-floating mb-3">
+                          <select class="form-select" name="certificateOfExcellenceDegree"
+                            id="certificateOfExcellenceDegree" required>
+                            <option value="">اختر...</option>
+                            <option value="1">الأول</option>
+                            <option value="2">الثاني</option>
+                            <option value="3">الثالث</option>
+                          </select>
+                          <label class="graduateStudiesDegree">الشهادة</label>
+                        </div>
+                        <div class="row">
+                          <div class="col-12">
+                            <div class="form-floating mb-3">
+                              <select class="form-select" name="certificateOfExcellenceYear" required>
+                                <option value="">اختر...</option>
+                                <option value="1">سنة أولى</option>
+                                <option value="2">سنة ثانية</option>
+                                <option value="3">سنة ثالثة</option>
+                                <option value="4">سنة رابعة</option>
+                                <option value="5">سنة خامسة</option>
+                                <option value="6">سنة سادسة</option>
+                                <option value="g">تخرج</option>
+                              </select>
+                              <label class="form-label">سنة الشهادة</label>
+                            </div>
+                          </div>
+                        </div>
+                        <input type="submit" value="إضافة" class="btn btn-outline-primary" />
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -687,6 +725,8 @@
                         <p class="ct col-6"><span>تاريخ انتهاء الإيفاد:</span><span data-toggle="datepicker"
                             class="efad-info-{{i.id}} editable"
                             name="dispatchEndDate">{{i.dispatchEndDate|date:"m/d/Y"}}</span></p>
+                        <p class="ct col-6"><span> المدة المتبقية:</span><span class="">{{i.remainingTime}} يوم</span>
+                        </p>
                         <p class="ct col-6"><span>تاريخ العودة:</span><span data-toggle="datepicker"
                             class="efad-info-{{i.id}} editable" name="backDate">{{i.backDate|date:"m/d/Y"}}</span>
                         </p>
@@ -813,6 +853,11 @@
                                   <p class="ct"><span>يوم:</span><span class="ex-{{ex.id}} editable"
                                       name="extensionDurationDay">{{ex.extensionDurationDay|default:"0"}}</span></p>
                                 </div>
+                                {% if ex.emailSent == False %}
+                                <p style="color:crimson">لم يتم إرسال إيميل لهذا الإيفاد <a
+                                    href="/app/extensionEmail/{{i.id}}/{{demonstrator.id}}/{{ex.id}}"
+                                    style="text-decoration:underline !important; color:inherit">اضغط هنا للإرسال</a></p>
+                                {% endif %}
                               </div>
                             </div>
                           </div>
@@ -975,29 +1020,29 @@
                             </div>
                             <div class="modal-body fs-6">
                               <form method="post" class="needs-validation" novalidate
-                                action="/app/durationInsert/{{i.id}}/">
+                                action="/app/durationInsert/{{i.id}}/{{demonstrator.id}}/">
                                 {% csrf_token %}
 
                                 <div class="row">
                                   <p class="col-12">مدة التغيير</p>
                                   <div class="col-4">
                                     <div class="form-floating mb-3">
-                                      <input type="text" class="form-control" id="floatinyear" placeholder="0"
-                                        name="durationChangeDurationYear" value="0" required />
+                                      <input type="number" class="form-control" id="floatinyear" placeholder="0"
+                                        name="durationChangeDurationYear" min="0" value="0" required />
                                       <label for="floatinyear">سنة</label>
                                     </div>
                                   </div>
                                   <div class="col-4">
                                     <div class="form-floating mb-3">
-                                      <input type="text" class="form-control" id="floatinmonth" placeholder="0"
-                                        name="durationChangeDurationMonth" value="0" required />
+                                      <input type="number" class="form-control" id="floatinmonth" placeholder="0"
+                                        name="durationChangeDurationMonth" value="0" min="0" required />
                                       <label for="floatinmonth">شهر</label>
                                     </div>
                                   </div>
                                   <div class="col-4">
                                     <div class="form-floating mb-3">
-                                      <input type="text" class="form-control" id="floatinday" placeholder="0"
-                                        name="durationChangeDurationDay" value="0" required />
+                                      <input type="number" class="form-control" id="floatinday" placeholder="0"
+                                        name="durationChangeDurationDay" value="0" min="0" required />
                                       <label for="floatinday">يوم</label>
                                     </div>
                                   </div>
@@ -1078,22 +1123,22 @@
                                   <p class="col-12">مدة التمديد</p>
                                   <div class="col-4">
                                     <div class="form-floating mb-3">
-                                      <input type="text" class="form-control" id="floatinyear" placeholder="0"
-                                        name="extensionDurationYear" value="0" required />
+                                      <input type="number" class="form-control" id="floatinyear" placeholder="0"
+                                        name="extensionDurationYear" value="0" min="0" required />
                                       <label for="floatinyear">سنة</label>
                                     </div>
                                   </div>
                                   <div class="col-4">
                                     <div class="form-floating mb-3">
-                                      <input type="text" class="form-control" id="floatinmonth" placeholder="0"
-                                        name="extensionDurationMonth" value="0" required />
+                                      <input type="number" class="form-control" id="floatinmonth" placeholder="0"
+                                        name="extensionDurationMonth" value="0" min="0" required />
                                       <label for="floatinmonth">شهر</label>
                                     </div>
                                   </div>
                                   <div class="col-4">
                                     <div class="form-floating mb-3">
-                                      <input type="text" class="form-control" id="floatinday" placeholder="0"
-                                        name="extensionDurationDay" value="0" required />
+                                      <input type="number" class="form-control" id="floatinday" placeholder="0"
+                                        name="extensionDurationDay" value="0" min="0" required />
                                       <label for="floatinday">يوم</label>
                                     </div>
                                   </div>
@@ -1143,22 +1188,22 @@
                                   <p class="col-12">مدة التجميد</p>
                                   <div class="col-4">
                                     <div class="form-floating mb-3">
-                                      <input type="text" class="form-control" id="floatinyear" placeholder="0"
-                                        name="freezeDurationYear" value="0" required />
+                                      <input type="number" class="form-control" id="floatinyear" placeholder="0"
+                                        name="freezeDurationYear" value="0" min="0" required />
                                       <label for="floatinyear">سنة</label>
                                     </div>
                                   </div>
                                   <div class="col-4">
                                     <div class="form-floating mb-3">
-                                      <input type="text" class="form-control" id="floatinmonth" placeholder="0"
-                                        name="freezeDurationMonth" value="0" required />
+                                      <input type="number" class="form-control" id="floatinmonth" placeholder="0"
+                                        name="freezeDurationMonth" value="0" min="0" required />
                                       <label for="floatinmonth">شهر</label>
                                     </div>
                                   </div>
                                   <div class="col-4">
                                     <div class="form-floating mb-3">
-                                      <input type="text" class="form-control" id="floatinday" placeholder="0"
-                                        name="freezeDurationDay" value="0" required />
+                                      <input type="number" class="form-control" id="floatinday" placeholder="0"
+                                        name="freezeDurationDay" value="0" min="0" required />
                                       <label for="floatinday">يوم</label>
                                     </div>
                                   </div>
@@ -1224,7 +1269,7 @@
           },
         }).showToast();
       } else {
-        console.log(data)
+
         Toastify({
           text: data["status"],
           duration: 3000,
@@ -1250,11 +1295,13 @@
       unv: `/app/deleteUnv/${id}/${did}/`,
       grad: `/app/deleteGrad/${id}/${did}/`,
       demon: `/app/deleteDemon/${did}/`,
+      cert: `/app/deleteCert/${id}/${did}/`
     };
     ids = {
       efad: `Efad-${id}`,
       ex: `Extension-${id}`,
       fr: `Freeze-${id}`,
+      cert: `cert-${id}`,
       unv: `/app/deleteUnv/${id}/${did}/`,
       grad: `/app/deleteGrad/${id}/${did}/`,
     }
@@ -1269,7 +1316,7 @@
           position: "left", // `left`, `center` or `right`
           stopOnFocus: true, // Prevents dismissing of toast on hover
           style: {
-            background: "linear-gradient(45deg, #ff5e5e, #f9a43a)",
+            background: "linear-gradient(-45deg, #00ff9c, #00d1ff)",
             width: "300px",
             border: "16px",
           },
@@ -1286,8 +1333,14 @@
           let newElement = $("<p>لا يوجد إيفادات بعد</p>")
           ef.prepend(newElement)
         }
+        let cer = $("#certs")
+        if (cer.children().length === 0 && type === "cert") {
+
+          let newElement = $("<p>لا يوجد شهادات تفوق </p>")
+          cer.prepend(newElement)
+        }
       } else {
-        console.log(data)
+
         Toastify({
           text: data["status"],
           duration: 3000,
@@ -1301,6 +1354,9 @@
             border: "16px",
           },
         }).showToast();
+        setTimeout(() => {
+          location.reload()
+        }, 1500)
       }
     });
   }
@@ -1390,7 +1446,7 @@
 <script>
   var acc = document.getElementsByClassName("accord");
   var i;
-  console.log();
+
 
   for (i = 0; i < acc.length; i++) {
     acc[i].addEventListener("click", function () {

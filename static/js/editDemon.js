@@ -182,6 +182,19 @@ function editDemon(e, id) {
             language: (str) => {
                 return !validator.isEmpty(str);
             },
+            nominationDecisionNumber: (str) => {
+                return !validator.isEmpty(str) && validator.isNumeric(str);
+            },
+            nominationDecisionType: (str) => {
+                return (
+                    validator.equals(str, 's') ||
+                    validator.equals(str, 'o') ||
+                    validator.equals(str, 'b')
+                );
+            },
+            nominationDecisionDate: (str) => {
+                return validator.isDate(str, { format: 'mm/dd/yyyy' });
+            },
         };
         const errors = {
             name: 'تأكد من حقل الاسم',
@@ -201,6 +214,9 @@ function editDemon(e, id) {
             college: 'تأكد من حقل كلية التعيين',
             commencementAfterNominationDate: 'تأكد من حقل المباشرة ',
             language: 'تأكد من حقل اللغة',
+            nominationDecisionNumber: 'تأكد من حقل رقم القرار',
+            nominationDecisionType: 'تأكد من حقل نوع القرار',
+            nominationDecisionDate: 'تأكد من حقل تاريخ القرار',
         };
 
         let df = true;

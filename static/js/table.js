@@ -141,6 +141,7 @@ class DataTabler extends HTMLElement {
         // error handling needs to be done :|
         this.data = JSON.parse(this.src);
         this.df = this.data;
+
         this.render();
     }
 
@@ -183,6 +184,11 @@ class DataTabler extends HTMLElement {
 
         let tbody = this.shadowRoot.querySelector('tbody');
         tbody.innerHTML = result;
+        if (this.df.length <= 10) {
+            let buttons = this.shadowRoot.querySelectorAll('button');
+            buttons[0].classList.add('d-none');
+            buttons[1].classList.add('d-none');
+        }
     }
 
     renderHeader() {
