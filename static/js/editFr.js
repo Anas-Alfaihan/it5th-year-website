@@ -29,10 +29,11 @@ function resetFrez() {
         frezId = '';
         btnId = '';
         originals = {};
+        $('#keyTips').addClass('d-none');
     }
 }
 
-function editFrez(e, id, did) {
+async function editFrez(e, id, did) {
     if (editMode && frezId !== `fr-${id}`) {
         reset();
     }
@@ -137,27 +138,31 @@ function editFrez(e, id, did) {
             }
         }
         if (df) {
-            for (let i = 0; i < items1.length; i++) {
-                if (items1[i].classList.contains('mul')) {
-                    items1[i].className = `editable fr-${id} mul`;
-                } else {
-                    items1[i].className = `editable fr-${id}`;
-                }
-
-                items1[i].setAttribute('contenteditable', 'false');
-            }
-            e.target.innerHTML = 'تعديل';
-            $(`.${frezId}[data-toggle="datepicker"]`).datepicker('destroy');
-            $('#keyTips').addClass('d-none');
-
-            editMode = false;
-            frezId = '';
-            btnId = '';
-            orignals = {};
             console.log(values);
             values['csrfmiddlewaretoken'] = csrf.value;
 
-            edit(values, id, did, 'fr');
+            let status = await edit(values, id, did, 'fr');
+            if (status === 'good') {
+                for (let i = 0; i < items1.length; i++) {
+                    if (items1[i].classList.contains('mul')) {
+                        items1[i].className = `editable fr-${id} mul`;
+                    } else {
+                        items1[i].className = `editable fr-${id}`;
+                    }
+
+                    items1[i].setAttribute('contenteditable', 'false');
+                }
+                e.target.innerHTML = 'تعديل';
+                $(`.${frezId}[data-toggle="datepicker"]`).datepicker('destroy');
+                $('#keyTips').addClass('d-none');
+
+                editMode = false;
+                frezId = '';
+                btnId = '';
+                orignals = {};
+            } else {
+                resetFrez();
+            }
         } else {
             values = {};
         }

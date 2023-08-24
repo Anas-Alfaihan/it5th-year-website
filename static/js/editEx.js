@@ -29,10 +29,11 @@ function resetEx() {
         exId = '';
         btnId = '';
         originals = {};
+        $('#keyTips').addClass('d-none');
     }
 }
 
-function editEx(e, id, did) {
+async function editEx(e, id, did) {
     if (editMode && exId !== `ex-${id}`) {
         reset();
     }
@@ -137,27 +138,31 @@ function editEx(e, id, did) {
             }
         }
         if (df) {
-            for (let i = 0; i < items1.length; i++) {
-                if (items1[i].classList.contains('mul')) {
-                    items1[i].className = `editable ex-${id} mul`;
-                } else {
-                    items1[i].className = `editable ex-${id}`;
-                }
-
-                items1[i].setAttribute('contenteditable', 'false');
-            }
-            e.target.innerHTML = 'تعديل';
-            $(`.${exId}[data-toggle="datepicker"]`).datepicker('destroy');
-            $('#keyTips').addClass('d-none');
-
-            editMode = false;
-            exId = '';
-            btnId = '';
-            orignals = {};
             console.log(values);
             values['csrfmiddlewaretoken'] = csrf.value;
 
-            edit(values, id, did, 'ex');
+            let status = await edit(values, id, did, 'ex');
+            if (status === 'good') {
+                for (let i = 0; i < items1.length; i++) {
+                    if (items1[i].classList.contains('mul')) {
+                        items1[i].className = `editable ex-${id} mul`;
+                    } else {
+                        items1[i].className = `editable ex-${id}`;
+                    }
+
+                    items1[i].setAttribute('contenteditable', 'false');
+                }
+                e.target.innerHTML = 'تعديل';
+                $(`.${exId}[data-toggle="datepicker"]`).datepicker('destroy');
+                $('#keyTips').addClass('d-none');
+
+                editMode = false;
+                exId = '';
+                btnId = '';
+                orignals = {};
+            } else {
+                resetEx();
+            }
         } else {
             values = {};
         }

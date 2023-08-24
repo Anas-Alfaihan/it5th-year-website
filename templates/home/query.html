@@ -208,14 +208,14 @@
         <option value="section">القسم</option>
         <option value="specialization">التخصص</option>
         <option value="commencementAfterNominationDate">تاريخ المباشرة</option>
-        <option value="universityDegree.universityDegreeUniversity">جامعة التخرج</option>
-        <option value="universityDegree.universityDegreeCollege">كلية التخرج</option>
-        <option value="universityDegree.universityDegreeSection">قسم التخرج</option>
-        <option value="universityDegree.universityDegreeYear">سنة التخرج</option>
-        <option value="universityDegree.universityDegreeAverage">معدل التخرج</option>
-        <option value="nominationDecision.nominationDecisionNumber">رقم قرار الترشيح</option>
-        <option value="nominationDecision.nominationDecisionType">نوع قرار الترشيح</option>
-        <option value="nominationDecision.nominationDecisionDate">تاريخ قرار الترشيح</option>
+        <option value="universityDegree__universityDegreeUniversity">جامعة التخرج</option>
+        <option value="universityDegree__universityDegreeCollege">كلية التخرج</option>
+        <option value="universityDegree__universityDegreeSection">قسم التخرج</option>
+        <option value="universityDegree__universityDegreeYear">سنة التخرج</option>
+        <option value="universityDegree__universityDegreeAverage">معدل التخرج</option>
+        <option value="nominationDecision__nominationDecisionNumber">رقم قرار الترشيح</option>
+        <option value="nominationDecision__nominationDecisionType">نوع قرار الترشيح</option>
+        <option value="nominationDecision__nominationDecisionDate">تاريخ قرار الترشيح</option>
         <option value="certificateOfExcellence"> شهادات التفوق</option>
         <option value="graduateStudies">الدراسات العليا</option>
         <option value="dispatch">الإيفادات</option>
@@ -414,7 +414,9 @@
       plugin: 'datepicker',
       plugin_config: {
         format: 'yyyy-mm-dd',
-        autoclose: true
+        autoclose: true,
+        todayBtn: 'linked',
+        todayHighlight: true,
       },
       operators: ['equal', 'greater', 'less', 'greater_or_equal', 'less_or_equal']
     }, {

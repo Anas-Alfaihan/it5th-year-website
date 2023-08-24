@@ -27,13 +27,14 @@ function resetDemon() {
             items1[i].setAttribute('contenteditable', 'false');
         }
         editMode = false;
-        exId = '';
+        demonId = '';
         btnId = '';
         originals = {};
+        $('#keyTips').addClass('d-none');
     }
 }
 
-function editDemon(e, id) {
+async function editDemon(e, id) {
     if (editMode && demonId !== `demon-${id}`) {
         reset();
     }
@@ -240,26 +241,33 @@ function editDemon(e, id) {
             }
         }
         if (df) {
-            for (let i = 0; i < items1.length; i++) {
-                if (items1[i].classList.contains('mul')) {
-                    items1[i].className = `editable demon-${id} mul`;
-                } else {
-                    items1[i].className = `editable demon-${id}`;
-                }
-
-                items1[i].setAttribute('contenteditable', 'false');
-            }
-            $('#keyTips').addClass('d-none');
-            e.target.innerHTML = 'تعديل';
-            $(`.${demonId}[data-toggle="datepicker"]`).datepicker('destroy');
-            editMode = false;
-            demonId = '';
-            btnId = '';
-            orignals = {};
             console.log(values);
             values['csrfmiddlewaretoken'] = csrf.value;
+            let status = await edit(values, id, 9, 'demon');
 
-            edit(values, id, 9, 'demon');
+            if (status === 'good') {
+                for (let i = 0; i < items1.length; i++) {
+                    if (items1[i].classList.contains('mul')) {
+                        items1[i].className = `editable demon-${id} mul`;
+                    } else {
+                        items1[i].className = `editable demon-${id}`;
+                    }
+
+                    items1[i].setAttribute('contenteditable', 'false');
+                }
+
+                $('#keyTips').addClass('d-none');
+                e.target.innerHTML = 'تعديل';
+                $(`.${demonId}[data-toggle="datepicker"]`).datepicker(
+                    'destroy'
+                );
+                editMode = false;
+                demonId = '';
+                btnId = '';
+                orignals = {};
+            } else {
+                resetDemon();
+            }
         } else {
             values = {};
         }
