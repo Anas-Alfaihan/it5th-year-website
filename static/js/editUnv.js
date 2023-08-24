@@ -29,10 +29,12 @@ function resetUnv() {
         unvId = '';
         btnId = '';
         originals = {};
+        $('#keyTips').addClass('d-none');
+
     }
 }
 
-function editUnv(e, id, did) {
+async function editUnv(e, id, did) {
     console.log(id, did);
     if (editMode && unvId !== `unv-${id}`) {
         reset();
@@ -140,27 +142,34 @@ function editUnv(e, id, did) {
             }
         }
         if (df) {
-            for (let i = 0; i < items1.length; i++) {
-                if (items1[i].classList.contains('mul')) {
-                    items1[i].className = `editable unv-${id} mul`;
-                } else {
-                    items1[i].className = `editable unv-${id}`;
-                }
 
-                items1[i].setAttribute('contenteditable', 'false');
-            }
-            e.target.innerHTML = 'تعديل';
-            $(`.${unvId}[data-toggle="datepicker"]`).datepicker('destroy');
-            $('#keyTips').addClass('d-none');
-
-            editMode = false;
-            unvId = '';
-            btnId = '';
-            orignals = {};
             console.log(values);
             values['csrfmiddlewaretoken'] = csrf.value;
 
-            edit(values, id, did, 'unv');
+            let status = await edit(values, id, did, 'unv'); 
+            if(status === 'good'){
+
+                for (let i = 0; i < items1.length; i++) {
+                    if (items1[i].classList.contains('mul')) {
+                        items1[i].className = `editable unv-${id} mul`;
+                    } else {
+                        items1[i].className = `editable unv-${id}`;
+                    }
+    
+                    items1[i].setAttribute('contenteditable', 'false');
+                }
+                e.target.innerHTML = 'تعديل';
+                $(`.${unvId}[data-toggle="datepicker"]`).datepicker('destroy');
+                $('#keyTips').addClass('d-none');
+    
+                editMode = false;
+                unvId = '';
+                btnId = '';
+                orignals = {};
+            } else {
+                resetUnv()
+            }
+            
         } else {
             values = {};
         }

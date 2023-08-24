@@ -35,10 +35,11 @@ function resetEfad() {
         efadId = '';
         btnId = '';
         originals = {};
+        $('#keyTips').addClass('d-none');
     }
 }
 
-function editEfad(e, id, did) {
+async function editEfad(e, id, did) {
     if (editMode && efadId !== `efad-info-${id}`) {
         reset();
     }
@@ -240,35 +241,40 @@ function editEfad(e, id, did) {
             }
         }
         if (df) {
-            textarea.setAttribute('disabled', 'true');
-
-            for (let i = 0; i < items1.length; i++) {
-                if (items1[i].classList.contains('mul')) {
-                    items1[i].className = `editable efad-info-${id} mul`;
-                } else {
-                    items1[i].className = `editable efad-info-${id}`;
-                }
-
-                items1[i].setAttribute('contenteditable', 'false');
-            }
-            $(`#requiredCertificateo`).addClass('d-none');
-            $(`#requiredCertificate`).text(
-                $(`.${efadId}[name=requiredCertificate]`).text()
-            );
-
-            e.target.innerHTML = 'تعديل';
-            $(`.${efadId}[data-toggle="datepicker"]`).datepicker('destroy');
-            $('#keyTips').addClass('d-none');
-
-            editMode = false;
-            efadId = '';
-            btnId = '';
-            orignals = {};
             console.log(values);
             values['csrfmiddlewaretoken'] = csrf.value;
             values['dispatchNotes'] = textarea.value;
 
-            edit(values, id, did, 'efad');
+            let status = await edit(values, id, did, 'efad');
+
+            if (status === 'good') {
+                textarea.setAttribute('disabled', 'true');
+
+                for (let i = 0; i < items1.length; i++) {
+                    if (items1[i].classList.contains('mul')) {
+                        items1[i].className = `editable efad-info-${id} mul`;
+                    } else {
+                        items1[i].className = `editable efad-info-${id}`;
+                    }
+
+                    items1[i].setAttribute('contenteditable', 'false');
+                }
+                $(`#requiredCertificateo`).addClass('d-none');
+                $(`#requiredCertificate`).text(
+                    $(`.${efadId}[name=requiredCertificate]`).text()
+                );
+
+                e.target.innerHTML = 'تعديل';
+                $(`.${efadId}[data-toggle="datepicker"]`).datepicker('destroy');
+                $('#keyTips').addClass('d-none');
+
+                editMode = false;
+                efadId = '';
+                btnId = '';
+                orignals = {};
+            } else {
+                resetEfad();
+            }
         } else {
             values = {};
         }

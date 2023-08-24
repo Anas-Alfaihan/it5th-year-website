@@ -75,7 +75,7 @@
         <div class="contain">
           <div class="first accordions__content rich-text" id="personal-content">
 
-            <div class="grd">
+            <div class="grd mb-5">
               <div class="gr-1">
                 <p class="ct">
                   <span> اسم الأب:</span>
@@ -1245,45 +1245,55 @@
   }
 
   function edit(object, id, did, type) {
-    links = {
-      efad: `/app/updateDispatch/${id}/${did}/`,
-      ex: `/app/updateExtension/${id}/${did}/`,
-      fr: `/app/updateFreeze/${id}/${did}/`,
-      unv: `/app/updateUnv/${id}/${did}/`,
-      grad: `/app/updateGrad/${id}/${did}/`,
-      demon: `/app/updateDemon/${id}/`,
-    };
-    $.post(links[type], object, function (data) {
-      if (data.status === "good") {
-        Toastify({
-          text: "تم التعديل بنجاح",
-          duration: 3000,
-          close: true,
-          gravity: "top", // `top` or `bottom`
-          position: "left", // `left`, `center` or `right`
-          stopOnFocus: true, // Prevents dismissing of toast on hover
-          style: {
-            background: "linear-gradient(-45deg, #00ff9c, #00d1ff)",
-            width: "300px",
-            border: "16px",
-          },
-        }).showToast();
-      } else {
+    return new Promise((resolve, reject) => {
+      const links = {
+        efad: `/app/updateDispatch/${id}/${did}/`,
+        ex: `/app/updateExtension/${id}/${did}/`,
+        fr: `/app/updateFreeze/${id}/${did}/`,
+        unv: `/app/updateUnv/${id}/${did}/`,
+        grad: `/app/updateGrad/${id}/${did}/`,
+        demon: `/app/updateDemon/${id}/`
+      };
 
-        Toastify({
-          text: data["status"],
-          duration: 3000,
-          close: true,
-          gravity: "top", // `top` or `bottom`
-          position: "left", // `left`, `center` or `right`
-          stopOnFocus: true, // Prevents dismissing of toast on hover
-          style: {
-            background: "linear-gradient(45deg, #ff0084, #ff8c00)",
-            width: "300px",
-            border: "16px",
-          },
-        }).showToast();
-      }
+      $.post(links[type], object)
+        .done(function (data) {
+          if (data.status === "good") {
+            Toastify({
+              text: "تم التعديل بنجاح",
+              duration: 3000,
+              close: true,
+              gravity: "top", // `top` or `bottom`
+              position: "left", // `left`, `center` or `right`
+              stopOnFocus: true, // Prevents dismissing of toast on hover
+              style: {
+                background:
+                  "linear-gradient(-45deg, #00ff9c, #00d1ff)",
+                width: "300px",
+                border: "16px"
+              }
+            }).showToast();
+          } else {
+            console.log(data);
+            Toastify({
+              text: data["message"],
+              duration: 3000,
+              close: true,
+              gravity: "top", // `top` or `bottom`
+              position: "left",// `left`, , ``center`` or 'right'
+              stopOnFocus: true,// Prevents dismissing of toast on hover
+              style: {
+                background: 'linear-gradient(45deg,#ff0084,#ff8c00)',
+                width: '300px',
+                border: '16px'
+              }
+            }).showToast();
+          }
+          console.log(data.status);
+          resolve(data.status); // Resolve the promise with data.status
+        })
+        .fail(function (error) {
+          reject(error); // Reject the promise with error
+        });
     });
   }
 
@@ -1379,6 +1389,9 @@
     if (e.keyCode === 13 && editMode && e.shiftKey) {
       e.preventDefault();
       $(`#${btnId}`).click();
+    }
+    if (e.keyCode === 13 && editMode) {
+      e.preventDefault()
     }
 
     if (e.keyCode === 27) {
