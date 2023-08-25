@@ -15,15 +15,6 @@
 <link rel="stylesheet" href="{% static 'css/query.css' %}">
 
 <style>
-  /* .query-builder,
-  .query-builder * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  } */
-
-
-
   .query-builder {
     font-family: tajawal !important;
   }
@@ -56,73 +47,7 @@
     border-radius: 4px;
   }
 
-  /* .query-builder .btn.focus,
-  .query-builder .btn:focus,
-  .query-builder .btn:hover {
-    color: #333;
-    text-decoration: none;
-  } */
 
-  /* .query-builder .btn.active,
-  .query-builder .btn:active {
-    background-image: none;
-    outline: 0px none;
-    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.125) inset;
-  } */
-
-  /* .query-builder .btn-success {
-    color: #FFF;
-    background-color: #5CB85C;
-    border-color: #4CAE4C;
-  } */
-
-  /* .query-builder .btn-primary {
-    color: #FFF;
-    background-color: #337AB7;
-    border-color: #2E6DA4;
-  } */
-
-  /* .query-builder .btn-danger {
-    color: #FFF;
-    background-color: #D9534F;
-    border-color: #D43F3A;
-  } */
-
-  /* .query-builder .btn-success.active,
-  .query-builder .btn-success.focus,
-  .query-builder .btn-success:active,
-  .query-builder .btn-success:focus,
-  .query-builder .btn-success:hover {
-    color: #FFF;
-    background-color: #449D44;
-    border-color: #398439;
-  } */
-
-  /* .query-builder .btn-primary.active,
-  .query-builder .btn-primary.focus,
-  .query-builder .btn-primary:active,
-  .query-builder .btn-primary:focus,
-  .query-builder .btn-primary:hover {
-    color: #FFF;
-    background-color: #286090;
-    border-color: #204D74;
-  } */
-
-  /* .query-builder .btn-danger.active,
-  .query-builder .btn-danger.focus,
-  .query-builder .btn-danger:active,
-  .query-builder .btn-danger:focus,
-  .query-builder .btn-danger:hover {
-    color: #FFF;
-    background-color: #C9302C;
-    border-color: #AC2925;
-  } */
-
-  /* .query-builder .btn-group {
-    position: relative;
-    display: inline-block;
-    vertical-align: middle;
-  } */
 
   .query-builder .btn-group>.btn {
     position: relative;
@@ -136,30 +61,6 @@
     border-radius: 0.5rem;
   }
 
-  /* .query-builder .btn-group>.btn:first-child:not(:last-child) {
-    border-top-right-radius: 0px;
-    border-bottom-right-radius: 0px;
-  } */
-
-  /* .query-builder .btn-group>.btn:last-child:not(:first-child) {
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-  } */
-
-  /* .query-builder .btn-group .btn+.btn,
-  .query-builder .btn-group .btn+.btn-group,
-  .query-builder .btn-group .btn-group+.btn,
-  .query-builder .btn-group .btn-group+.btn-group {
-    margin-left: -1px;
-  } */
-
-  /* .query-builder .btn-xs,
-  .query-builder .btn-group-xs>.btn {
-    padding: 1px 5px;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 3px;
-  } */
   .form-inline {
     display: block !important;
   }
@@ -170,23 +71,23 @@
 
 {% block content %}
 
-<h2 class="tit">
+<h2 class="tit mt-5">
   استعلامات
 </h2>
 
-<div class="sec">
+<div class="mt-5">
   <div id="builder-basic" dir="ltr" style="direction: ltr !important; text-align: left;">
   </div>
   <div class="row mt-4 px-3 justify-content-between">
     <div class="col-4 py-2">
       <div class="btn-group">
-        <button class="btn btn-warning reset mx-2" data-target="basic" id="btn-reset">إعادة تعيين</button>
-        <!-- <button class="btn btn-success set-json mx-2" data-target="basic" id="btn-set">Set rules</button> -->
+        <button class="btn btn-secondary reset mx-2" data-target="basic" id="btn-reset">إعادة تعيين</button>
         <button class="btn btn-primary parse-json mx-2" data-target="basic" id="btn-get">استعلام</button>
       </div>
     </div>
     <div class="col-8">
       <select class="fancy-select form-select" name="category" required="required" multiple="multiple">
+        <option value="all">كل الحقول</option>
         <option value="name">الاسم</option>
         <option value="fatherName">اسم الأب</option>
         <option value="motherName">اسم الأم</option>
@@ -208,14 +109,8 @@
         <option value="section">القسم</option>
         <option value="specialization">التخصص</option>
         <option value="commencementAfterNominationDate">تاريخ المباشرة</option>
-        <option value="universityDegree__universityDegreeUniversity">جامعة التخرج</option>
-        <option value="universityDegree__universityDegreeCollege">كلية التخرج</option>
-        <option value="universityDegree__universityDegreeSection">قسم التخرج</option>
-        <option value="universityDegree__universityDegreeYear">سنة التخرج</option>
-        <option value="universityDegree__universityDegreeAverage">معدل التخرج</option>
-        <option value="nominationDecision__nominationDecisionNumber">رقم قرار الترشيح</option>
-        <option value="nominationDecision__nominationDecisionType">نوع قرار الترشيح</option>
-        <option value="nominationDecision__nominationDecisionDate">تاريخ قرار الترشيح</option>
+        <option value="universityDegree">الشهادة الجامعية</option>
+        <option value="nominationDecision"> قرار الترشيح</option>
         <option value="certificateOfExcellence"> شهادات التفوق</option>
         <option value="graduateStudies">الدراسات العليا</option>
         <option value="dispatch">الإيفادات</option>

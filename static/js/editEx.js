@@ -108,14 +108,25 @@ async function editEx(e, id, did) {
                     validator.equals(str, 'b')
                 );
             },
-            extensionDurationYear: (str) => true,
-            extensionDurationMonth: (str) => true,
-            extensionDurationDay: (str) => true,
+            extensionDurationYear: (str) => {
+                return validator.isNumeric(str) && parseInt(str) >= 0;
+            },
+            extensionDurationMonth: (str) => {
+                return validator.isNumeric(str) && parseInt(str) >= 0;
+            },
+            extensionDurationDay: (str) => {
+                return validator.isNumeric(str) && parseInt(str) >= 0;
+            },
         };
         const errors = {
             extensionDecisionDate: 'تأكد من حقل تاريخ القرار',
             extensionDecisionNumber: 'تأكد من حقل رقم القرار',
             extensionDecisionType: 'تأكد من حقل نوع القرار',
+            extensionDurationYear:
+                'يجب أن تكون  مدة السنين أكبر أو تساوي الصفر',
+            extensionDurationMonth:
+                'يجب أن تكون مدة الشهور أكبر أو تساوي الصفر',
+            extensionDurationDay: 'يجب أن تكون مدة الأيام أكبر أو تساوي الصفر',
         };
 
         let df = true;

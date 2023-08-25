@@ -108,14 +108,23 @@ async function editFrez(e, id, did) {
                     validator.equals(str, 'b')
                 );
             },
-            freezeDurationYear: (str) => true,
-            freezeDurationMonth: (str) => true,
-            freezeDurationDay: (str) => true,
+            freezeDurationYear: (str) => {
+                return validator.isNumeric(str) && parseInt(str) >= 0;
+            },
+            freezeDurationMonth: (str) => {
+                return validator.isNumeric(str) && parseInt(str) >= 0;
+            },
+            freezeDurationDay: (str) => {
+                return validator.isNumeric(str) && parseInt(str) >= 0;
+            },
         };
         const errors = {
             freezeDecisionDate: 'تأكد من حقل تاريخ القرار',
             freezeDecisionNumber: 'تأكد من حقل رقم القرار',
             freezeDecisionType: 'تأكد من حقل نوع القرار',
+            freezeDurationYear: 'يجب أن تكون  مدة السنين أكبر أو تساوي الصفر',
+            freezeDurationMonth: 'يجب أن تكون مدة الشهور أكبر أو تساوي الصفر',
+            freezeDurationDay: 'يجب أن تكون مدة الأيام أكبر أو تساوي الصفر',
         };
 
         let df = true;
