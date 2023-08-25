@@ -2205,7 +2205,12 @@ def pushData(request):
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
                             for updated in data[model.__name__]['updated']:
-                                objs= model.objects.filter(pk=updated['id'])
+                                idName = 'id'
+                                if model.__name__ == 'UniversityDegree': idName = 'universityDegree'
+                                elif model.__name__ == 'Nomination': idName = 'nominationDecision'
+                                elif model.__name__ == 'Regularization': idName = 'regularizationDecisionId'
+
+                                objs= model.objects.filter(pk=updated[idName])
                                 for obj in objs:
                                     id = generalUpdateHub(request, updated , obj, addModel, model.__name__, idMap, savePoint)
                                     if type(id) == ErrorDict:
