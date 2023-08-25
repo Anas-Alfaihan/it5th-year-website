@@ -81,6 +81,14 @@ def DownloadFile(request):
     return response
 
 
+@login_required(login_url='app:login')
+def downloadDocumentation(request):
+    response = FileResponse(open("docs/docs.pdf", 'rb'))
+    response['Content-Disposition'] = 'attachment; filename=' + "docs.pdf"
+    response['Content-Type'] = 'application/octet-stream'
+    return response
+
+
 def RemoveOldToken():
     N = 6
     
