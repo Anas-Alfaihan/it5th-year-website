@@ -81,6 +81,14 @@ def DownloadFile(request):
     return response
 
 
+@login_required(login_url='app:login')
+def downloadDocumentation(request):
+    response = FileResponse(open("docs/docs.pdf", 'rb'))
+    response['Content-Disposition'] = 'attachment; filename=' + "docs.pdf"
+    response['Content-Type'] = 'application/octet-stream'
+    return response
+
+
 def RemoveOldToken():
     N = 6
     
@@ -111,17 +119,15 @@ def SendEmailHotmail(email,subject,message):
     newmail.Body=message
     newmail.Send()
 
-
 def SendEmailAlbaath(email,subject,message):
-    smtp_server = "albaath-univ.edu.sy"
-    port = 465  # For starttls
+    smtp_server = "out.albaath-univ.edu.sy"
+    port =465   
     sender_email = "test1234@albaath-univ.edu.sy"
     receiver_email = email
-    password = '9Xpas66@'
+    password = 'fpC80o9^6'
     msg = f"Subject: {subject}\n\n{message}"
-    context = ssl.create_default_context()
 
-    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+    with smtplib.SMTP_SSL(smtp_server, port) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, msg)
         
@@ -289,9 +295,40 @@ def SendEmails(request):
             emails_str=emails_str[:-2]
 
             return render(request, 'home/success.html', {"emails": emails})
-    else:
-        messages.add_message(request, messages.ERROR,"لا تملك صلاحية إرسال الإيميلات")
-        return render(request, 'home/send_email.html')
+        elif request.POST['emails'] == 'unsent':
+            emails=[]
+            if request.user.is_superuser:
+                information=ShowUnsentEmails(request)
+                extensions= information['extensions']
+                for extension in extensions:
+                    college= list(Dispatch.objects.filter(pk=extension.dispatchDecisionId.id).values('studentId__college', 'studentId__name', 'studentId__fatherName','studentId__email','dispatchEndDate'))
+                    informationForEmail={ 'name': college[0]['studentId__name'],
+                                    'fatherName': college[0]['studentId__fatherName'],
+                                    'email': college[0]['studentId__email'],
+                                    'extensionDecisionNumber': extension.extensionDecisionNumber,
+                                    'extensionDecisionDate': extension.extensionDecisionDate,
+                                    'extensionDecisionType': extension.extensionDecisionType,
+                                    'extensionDurationYear': extension.extensionDurationYear,
+                                    'extensionDurationMonth': extension.extensionDurationMonth,
+                                    'extensionDurationDay': extension.extensionDurationDay,
+                                    }
+                    emails.append(informationForEmail['email'])
+                                
+                    try:
+                        status=SendEmailGmail(informationForEmail['email'],"هيلوز","بيباي")
+                        if type(status) == ServerNotFoundError:
+                            raise Exception("error")
+                        Extension.objects.filter(id=extension.id).update(emailSent=True)
+                    except Exception as error:
+                        messages.add_message(request, messages.ERROR,"تأكد من معلوماتك واتصالك بالانترنت")
+                        return render(request, 'home/send_email.html')
+            else:
+                messages.add_message(request, messages.WARNING,"ليست لديك صلاحية الدخول إلى هذه الصفحة")
+                return render(request, 'home/send_email.html')
+            return render(request, 'home/success.html', {"emails": emails})
+        else:
+            messages.add_message(request, messages.ERROR,"لا تملك صلاحية إرسال الإيميلات")
+            return render(request, 'home/send_email.html')
 
 
 def Email(request):
@@ -301,10 +338,33 @@ def Email(request):
     strr = d.content.decode("utf-8")
 
     late=GetLateEmails(request)
-    return render(request, 'home/send_email.html',{"select": strr,"late":late})
+    if late== False:
+            messages.add_message(request, messages.ERROR,"ليست لديك الصلاحية لهذه العملية")
+            return render(request, 'home/send_email.html')
 
+    unsent=ShowUnsentEmails(request)
+    print(unsent)
+    return render(request, 'home/send_email.html',{"select": strr,"late":late,"unsent":unsent["listOfExtensions"]})
 
-
+@login_required(login_url='app:login')
+def ShowUnsentEmails(request):
+    extensions= list(Extension.objects.filter(emailSent=False))
+    listOfExtensions= [] 
+    for extension in extensions:
+        college= list(Dispatch.objects.filter(pk=extension.dispatchDecisionId.id).values('studentId__college', 'studentId__name', 'studentId__fatherName','studentId__email','dispatchEndDate'))
+        informationForEmail={ 'name': college[0]['studentId__name'],
+                        'fatherName': college[0]['studentId__fatherName'],
+                        'email': college[0]['studentId__email'],
+                        'extensionDecisionNumber': extension.extensionDecisionNumber,
+                        'extensionDecisionDate': extension.extensionDecisionDate,
+                        'extensionDecisionType': extension.extensionDecisionType,
+                        'extensionDurationYear': extension.extensionDurationYear,
+                        'extensionDurationMonth': extension.extensionDurationMonth,
+                        'extensionDurationDay': extension.extensionDurationDay,
+                        }
+        listOfExtensions.append(informationForEmail)
+    ExtensionsInformation={"listOfExtensions":listOfExtensions,"extensions":extensions}
+    return ExtensionsInformation
 
 def Login(request):
 
@@ -859,20 +919,24 @@ def GetAllEmails(request):
 
 
 def GetLateEmails(request):
-    if request.method == 'GET':
-        todayDate = datetime.date.today() 
-        lateDate = datetime.date.today() + relativedelta(seconds=-5)
-        reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':lateDate})).values('dispatchDecisionId_id')
-        dis =[]
-        for report in list(reports):
-            dis.append(report['dispatchDecisionId_id'])
-        dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis})).values('studentId_id')
-        res =[]
-        for dispatch in list(dispatchLate):
-            res.append(dispatch['studentId_id'])
-        
-        Late_Emails = list(Demonstrator.objects.filter(pk__in=res).values('email','mobile', 'name'))
-        return Late_Emails
+    if request.user.is_superuser:
+        if request.method == 'GET':
+            todayDate = datetime.date.today() 
+            lateDate = datetime.date.today() + relativedelta(seconds=-5)
+            reports = Report.objects.filter().values('dispatchDecisionId_id').annotate(Max('reportDate')).filter(Q(**{'reportDate__max__lte':lateDate})).values('dispatchDecisionId_id')
+            dis =[]
+            for report in list(reports):
+                dis.append(report['dispatchDecisionId_id'])
+            dispatchLate= Dispatch.objects.filter(Q(**{'id__in': dis})).values('studentId_id')
+            res =[]
+            for dispatch in list(dispatchLate):
+                res.append(dispatch['studentId_id'])
+            
+            Late_Emails = list(Demonstrator.objects.filter(pk__in=res).values('email','mobile', 'name'))
+            return Late_Emails
+    else:
+            return False
+
 
 
 @login_required(login_url='app:login')
@@ -928,7 +992,7 @@ def UpdateDemonstrator(request, id):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -953,7 +1017,7 @@ def UpdateUniversityDegree(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -978,7 +1042,7 @@ def UpdateNomination(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1010,7 +1074,7 @@ def UpdateAdjectiveChange(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1034,7 +1098,7 @@ def UpdateCertificateOfExcellence(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1059,7 +1123,7 @@ def UpdateGraduateStudies(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1095,7 +1159,7 @@ def UpdateDispatch(request, id, demonId):
                 
             return JsonResponse({"status": "good" , 'endDate': endDate})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1119,7 +1183,7 @@ def UpdateReport(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1143,7 +1207,7 @@ def UpdateRegularization(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1181,7 +1245,7 @@ def UpdateExtension(request, id, demonId):
 
             return JsonResponse({"status": "good", 'endDate': endDate})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1219,7 +1283,7 @@ def UpdateFreeze(request, id, demonId):
 
             return JsonResponse({"status": "good", 'endDate': endDate})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1256,7 +1320,7 @@ def UpdateDurationChange(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1280,7 +1344,7 @@ def UpdateAlimonyChange(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1304,7 +1368,7 @@ def UpdateUniversityChange(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1328,7 +1392,7 @@ def UpdateSpecializationChange(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
  
 def generalDelete(modelName, objectId):
     deletedObject= DeletedObjects()
@@ -1356,7 +1420,7 @@ def DeleteDemonstrator(request, id):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1378,7 +1442,7 @@ def DeleteUniversityDegree(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1401,7 +1465,7 @@ def DeleteNomination(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1431,7 +1495,7 @@ def DeleteAdjectiveChange(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1454,7 +1518,7 @@ def DeleteCertificateOfExcellence(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1477,7 +1541,7 @@ def DeleteGraduateStudies(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1500,7 +1564,7 @@ def DeleteDispatch(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1522,7 +1586,7 @@ def DeleteReport(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1544,7 +1608,7 @@ def DeleteRegularization(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1581,7 +1645,7 @@ def DeleteExtension(request, id, demonId):
 
             return JsonResponse({"status": "good", 'endDate': endDate})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1619,7 +1683,7 @@ def DeleteFreeze(request, id, demonId):
 
             return JsonResponse({"status": "good", 'endDate': endDate})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1657,7 +1721,7 @@ def DeleteDurationChange(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1679,7 +1743,7 @@ def DeleteAlimonyChange(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1701,7 +1765,7 @@ def DeleteUniversityChange(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -1723,7 +1787,7 @@ def DeleteSpecializationChange(request, id, demonId):
 
             return JsonResponse({"status": "good"})
         else :
-            return JsonResponse({"status": 'you are not allowed to edit in this college'})
+            return JsonResponse({"status": "bad", "message": 'ليست لديك الصلاحية للقيام بهذه العملية'})
 
 
 @login_required(login_url='app:login')
@@ -2144,7 +2208,12 @@ def pushData(request):
                         if not model.__name__ in ['LogEntry', 'Permission', 'Group', 'ContentType', 'Session', 'LastPull', 'DeletedObjects', 'UploadedFile']:
                             addModel= getForm(model.__name__)
                             for updated in data[model.__name__]['updated']:
-                                objs= model.objects.filter(pk=updated['id'])
+                                idName = 'id'
+                                if model.__name__ == 'UniversityDegree': idName = 'universityDegree'
+                                elif model.__name__ == 'Nomination': idName = 'nominationDecision'
+                                elif model.__name__ == 'Regularization': idName = 'regularizationDecisionId'
+
+                                objs= model.objects.filter(pk=updated[idName])
                                 for obj in objs:
                                     id = generalUpdateHub(request, updated , obj, addModel, model.__name__, idMap, savePoint)
                                     if type(id) == ErrorDict:
