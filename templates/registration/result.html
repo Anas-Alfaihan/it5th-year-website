@@ -16,8 +16,8 @@
 
 {% block content %}
 
-<div class="sec w-100 h-100">
-
+<div class=" w-100 h-100">
+    <h2 class="tit my-5">استعلام</h2>
     <!-- <query-table src="{{result}}" cols="{{fields}}"></query-table> -->
     <div id="dd" class="striped"></div>
     <div><button id="download-csv" class="mt-5 mr-3 btn btn-lg btn-primary">تصدير</button></div>
@@ -87,6 +87,34 @@
         'outer': 'خارجي', 'grant': 'منحة',
         'seat': 'مقعد'
     }
+    let allFields = [
+        "name",
+        "fatherName",
+        "motherName",
+        "birthDate",
+        "gender",
+        "home",
+        "residence",
+        "email",
+        "mobile",
+        "telephone",
+        "maritalStatus",
+        "militarySituation",
+        "language",
+        "currentAdjective",
+        "nominationReason",
+        "contestAnnouncementDate",
+        "university",
+        "college",
+        "section",
+        "specialization",
+        "commencementAfterNominationDate",
+        "universityDegree",
+        "nominationDecision",
+        "certificateOfExcellence",
+        "graduateStudies",
+        "dispatch"
+    ]
 
 </script>
 
@@ -142,27 +170,52 @@
         let data = []
         da.forEach(element => {
             let dat = {}
-            fe.forEach(r => {
-                if (typeof element[r] !== "object")
-                    dat[fes[r]] = _.has(regz, element[r]) ? _.get(regz, element[r]) : element[r]
-                else {
-                    if (r === "certificateOfExcellence") {
-                        dat["شهادات التفوق"] = fixCer(element[r])
-                    } else if (r === "graduateStudies") {
-                        dat["دراسات عليا"] = fixGrad(element[r])
-                    } else if (r === "nominationDecision") {
-                        dat["قرار الترشيح"] = fixNom(element[r])
-                    } else if (r === "universityDegree") {
-                        dat["الشهادة الجامعية"] = fixUnv(element[r])
-                    } else if (r === "dispatch") {
-                        element[r].forEach((el, index) => {
-                            dat[`إيفاد-${index + 1}`] = fixDis(el)
-                            dat[`تجميد-${index + 1}`] = fixFr(el.freeze)
-                            dat[`تمديد-${index + 1}`] = fixEx(el.extension)
-                        })
+            if (fe[0] === 'all') {
+
+                allFields.forEach(r => {
+                    if (typeof element[r] !== "object")
+                        dat[fes[r]] = _.has(regz, element[r]) ? _.get(regz, element[r]) : element[r]
+                    else {
+                        if (r === "certificateOfExcellence") {
+                            dat["شهادات التفوق"] = fixCer(element[r])
+                        } else if (r === "graduateStudies") {
+                            dat["دراسات عليا"] = fixGrad(element[r])
+                        } else if (r === "nominationDecision") {
+                            dat["قرار الترشيح"] = fixNom(element[r])
+                        } else if (r === "universityDegree") {
+                            dat["الشهادة الجامعية"] = fixUnv(element[r])
+                        } else if (r === "dispatch") {
+                            element[r].forEach((el, index) => {
+                                dat[`إيفاد-${index + 1}`] = fixDis(el)
+                                dat[`تجميد-${index + 1}`] = fixFr(el.freeze)
+                                dat[`تمديد-${index + 1}`] = fixEx(el.extension)
+                            })
+                        }
                     }
-                }
-            })
+                })
+            } else {
+                fe.forEach(r => {
+                    if (typeof element[r] !== "object")
+                        dat[fes[r]] = _.has(regz, element[r]) ? _.get(regz, element[r]) : element[r]
+                    else {
+                        if (r === "certificateOfExcellence") {
+                            dat["شهادات التفوق"] = fixCer(element[r])
+                        } else if (r === "graduateStudies") {
+                            dat["دراسات عليا"] = fixGrad(element[r])
+                        } else if (r === "nominationDecision") {
+                            dat["قرار الترشيح"] = fixNom(element[r])
+                        } else if (r === "universityDegree") {
+                            dat["الشهادة الجامعية"] = fixUnv(element[r])
+                        } else if (r === "dispatch") {
+                            element[r].forEach((el, index) => {
+                                dat[`إيفاد-${index + 1}`] = fixDis(el)
+                                dat[`تجميد-${index + 1}`] = fixFr(el.freeze)
+                                dat[`تمديد-${index + 1}`] = fixEx(el.extension)
+                            })
+                        }
+                    }
+                })
+            }
             data.push(dat)
         });
         return data
@@ -170,14 +223,21 @@
     let d = "{{result|escapejs}}"
     d = JSON.parse(d)["data"]
 
-    console.log(d)
+
 
     let f = "{{fields}}".split(",")
-    console.log(fixData(d, f))
+    let sortColumn = { column: 'الاسم', dir: 'desc' }
+    if (f[0] !== 'all')
+        sortColumn.column = fes[f[0]]
+
     var table = new Tabulator("#dd", {
         textDirection: "rtl",
         data: fixData(d, f),
         autoColumns: true,
+        maxHeight: '55vh',
+        layout: "fitDataStretch",
+        initialSort: [sortColumn]
+
 
     });
 
