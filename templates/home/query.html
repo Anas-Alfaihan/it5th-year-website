@@ -265,7 +265,8 @@
   let csrf = createElementFromHTML(`{% csrf_token %}`)
 
   function modifyKeys(obj) {
-    op = ["lt", "ne", "in", "nin", "lte", "gt", "gte"]
+    op = ["lt", "ne", "in", "nin", "lte", "gt", "gte", "regex"]
+    console.log(obj);
     Object.keys(obj).forEach(key => {
       if (key[0] === "$") {
         obj[`${key.slice(1)}`] = obj[key];
@@ -279,8 +280,14 @@
       }
       if (op.includes(`${key}`)) {
         console.log("asdfasdfadsfsda");
-        obj[`__${key}`] = obj[key];
-        delete obj[key];
+        if (key === 'regex') {
+
+          obj[`__contains`] = obj[key];
+          delete obj[key];
+        } else {
+          obj[`__${key}`] = obj[key];
+          delete obj[key];
+        }
       }
 
     });
@@ -291,117 +298,162 @@
 
     default_condition: 'AND',
 
-    filters: [{
-      id: 'gender',
-      label: 'الجنس',
-      type: 'string',
-      input: 'select',
-      values: {
-        "male": 'ذكر',
-        "female": 'أنثى',
+    filters: [
+      {
+        id: 'name',
+        label: 'الاسم',
+        type: 'string',
+        input: 'text',
+        operators: ['equal', 'contains', 'not_equal']
       },
-      operators: ['equal']
-    }, {
-      id: 'birthDate',
-      label: 'تاريخ الميلاد',
-      type: 'string',
-      input: "text",
-      plugin: 'datepicker',
-      plugin_config: {
-        format: 'yyyy-mm-dd',
-        autoclose: true,
-        todayBtn: 'linked',
-        todayHighlight: true,
+      {
+        id: 'fatherName',
+        label: 'اسم الأب',
+        type: 'string',
+        input: 'text',
+        operators: ['equal', 'contains', 'not_equal']
       },
-      operators: ['equal', 'greater', 'less', 'greater_or_equal', 'less_or_equal']
-    }, {
-      id: 'maritalStatus',
-      label: 'الحالة الاجتماعية',
-      type: 'string',
-      input: "select",
-      values: {
-        'married': 'متزوج',
-        'unmarried': 'أعزب'
+      {
+        id: 'motherName',
+        label: 'اسم الأم',
+        type: 'string',
+        input: 'text',
+        operators: ['equal', 'in', 'not_equal']
       },
-      operators: ['equal']
-    }, {
-      id: 'militarySituation',
-      label: 'وضع التجنيد',
-      type: 'string',
-      input: "select",
-      values: {
-        'delayed': 'مؤجل',
-        'laid off': 'مسرح'
+      {
+        id: 'home',
+        label: 'عنوان الإقامة',
+        type: 'string',
+        input: 'text',
+        operators: ['contains']
       },
-      operators: ['equal']
-    }, {
-      id: 'language',
-      label: 'اللغة',
-      type: 'string',
-      input: "text",
-      operators: ['equal', 'not_equal']
-    }, {
-      id: 'currentAdjective',
-      label: 'الصفة الحالية',
-      type: 'string',
-      input: "select",
-      values: {
-        'demonstrator': 'معيد',
-        'returning': 'عائد',
-        'envoy': 'موفد',
-        'returning demonstrator': 'معيد عائد',
-        'loathes': 'مستنكف',
-        'transfer outside the university': 'نقل خارج الجامعة',
-        'end services': 'انهاء خدمات',
-        'resigned': 'انهاء بحكم المستقيل',
+      {
+        id: 'residence',
+        label: 'عنوان الحالي',
+        type: 'string',
+        input: 'text',
+        operators: ['contains']
       },
-      operators: ['equal', 'not_equal']
-    }, {
-      id: 'nominationReason',
-      label: 'سبب الترشيح',
-      type: 'string',
-      input: "select",
-      values: {
-        'contest': 'مسابقة',
-        'First graduate': 'خريج أول'
+      {
+        id: 'email',
+        label: 'الإيميل',
+        type: 'string',
+        input: 'text',
+        operators: ['equal', 'not_equal']
       },
-      operators: ['equal']
-    }, {
-      id: 'universityDegree__universityDegreeUniversity',
-      label: 'الجامعة',
-      type: 'string',
-      input: "text",
-      operators: ['equal', 'not_equal']
-    }, {
-      id: 'universityDegree__universityDegreeCollege',
-      label: 'الكلية',
-      type: 'string',
-      input: "text",
-      operators: ['equal', 'not_equal']
-    }, {
-      id: 'universityDegree__universityDegreeSection',
-      label: 'القسم',
-      type: 'string',
-      input: "text",
-      operators: ['equal', 'not_equal']
-    }, {
-      id: 'specialization',
-      label: 'التخصص',
-      type: 'string',
-      input: "text",
-      operators: ['is_not_null']
-    },
-    {
-      id: 'dispatch__dispatchType',
-      label: 'نوع الإيفاد',
-      type: 'string',
-      input: 'select',
-      values: {
-        'inner': 'داخلي',
-        'outer': 'خارجي',
+      {
+        id: 'gender',
+        label: 'الجنس',
+        type: 'string',
+        input: 'select',
+        values: {
+          "male": 'ذكر',
+          "female": 'أنثى',
+        },
+        operators: ['equal']
+      }, {
+        id: 'birthDate',
+        label: 'تاريخ الميلاد',
+        type: 'string',
+        input: "text",
+        plugin: 'datepicker',
+        plugin_config: {
+          format: 'yyyy-mm-dd',
+          autoclose: true,
+          todayBtn: 'linked',
+          todayHighlight: true,
+        },
+        operators: ['equal', 'greater', 'less', 'greater_or_equal', 'less_or_equal']
       },
-      operators: ['equal']
-    }
+
+      {
+        id: 'maritalStatus',
+        label: 'الحالة الاجتماعية',
+        type: 'string',
+        input: "select",
+        values: {
+          'married': 'متزوج',
+          'unmarried': 'أعزب'
+        },
+        operators: ['equal']
+      }, {
+        id: 'militarySituation',
+        label: 'وضع التجنيد',
+        type: 'string',
+        input: "select",
+        values: {
+          'delayed': 'مؤجل',
+          'laid off': 'مسرح'
+        },
+        operators: ['equal']
+      }, {
+        id: 'language',
+        label: 'اللغة',
+        type: 'string',
+        input: "text",
+        operators: ['equal', 'not_equal']
+      }, {
+        id: 'currentAdjective',
+        label: 'الصفة الحالية',
+        type: 'string',
+        input: "select",
+        values: {
+          'demonstrator': 'معيد',
+          'returning': 'عائد',
+          'envoy': 'موفد',
+          'returning demonstrator': 'معيد عائد',
+          'loathes': 'مستنكف',
+          'transfer outside the university': 'نقل خارج الجامعة',
+          'end services': 'انهاء خدمات',
+          'resigned': 'انهاء بحكم المستقيل',
+        },
+        operators: ['equal', 'not_equal']
+      }, {
+        id: 'nominationReason',
+        label: 'سبب الترشيح',
+        type: 'string',
+        input: "select",
+        values: {
+          'contest': 'مسابقة',
+          'First graduate': 'خريج أول'
+        },
+        operators: ['equal']
+      }, {
+        id: 'universityDegree__universityDegreeUniversity',
+        label: 'الجامعة',
+        type: 'string',
+        input: "text",
+        operators: ['equal', 'not_equal']
+      }, {
+        id: 'universityDegree__universityDegreeCollege',
+        label: 'الكلية',
+        type: 'string',
+        input: "text",
+        operators: ['equal', 'not_equal']
+      }, {
+        id: 'universityDegree__universityDegreeSection',
+        label: 'القسم',
+        type: 'string',
+        input: "text",
+        operators: ['equal', 'not_equal']
+      }, {
+        id: 'specialization',
+        label: 'التخصص',
+        type: 'string',
+        input: "text",
+        operators: ['is_not_null']
+      },
+      {
+        id: 'dispatch__dispatchType',
+        label: 'نوع الإيفاد',
+        type: 'string',
+        input: 'select',
+        values: {
+          'inner': 'داخلي',
+          'outer': 'خارجي',
+        },
+        operators: ['equal']
+      }
       ,],
 
 
@@ -433,6 +485,7 @@
       d['csrfmiddlewaretoken'] = csrf.value;
       d['cols'] = values
       d['query'] = JSON.stringify(result)
+      console.log(d);
       post("/app/query/", d, "post")
       // alert(JSON.stringify(result, null, 2));
     }
