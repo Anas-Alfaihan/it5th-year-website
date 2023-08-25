@@ -121,15 +121,14 @@ def SendEmailHotmail(email,subject,message):
 
 
 def SendEmailAlbaath(email,subject,message):
-    smtp_server = "albaath-univ.edu.sy"
-    port = 465  # For starttls
+    smtp_server = "out.albaath-univ.edu.sy"
+    port =465   
     sender_email = "test1234@albaath-univ.edu.sy"
     receiver_email = email
-    password = '9Xpas66@'
+    password = 'fpC80o9^6'
     msg = f"Subject: {subject}\n\n{message}"
-    context = ssl.create_default_context()
 
-    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+    with smtplib.SMTP_SSL(smtp_server, port) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, msg)
         
