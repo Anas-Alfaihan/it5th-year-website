@@ -81,8 +81,9 @@
             <ul class="navbar-nav navbar-nav-right">
 
                 <li class="nav-item nav-profile dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
+                    <a class="nav-link tooltip-container " href="#" data-toggle="dropdown" id="profileDropdown">
                         <img src="{% static 'images/user-logo.svg' %}" alt="profile">
+                        <span class="tooltip">{{user.username}}</span>
                     </a>
                 </li>
             </ul>
@@ -126,10 +127,12 @@
                     <a class="nav-link" href="{% url 'app:gett' %}"><i class="fa-solid fa-filter menu-icon"></i><span
                             class="menu-title">استعلام</span></a>
                 </li>
+                {% if user.is_superuser %}
                 <li class="nav-item" id="nav-6">
                     <a class="nav-link" href="{% url 'app:email' %}"><i class="fa-solid fa-envelope menu-icon"></i><span
                             class="menu-title"> الإيميل</span></a>
                 </li>
+                {% endif %}
                 <li class="nav-item" id="nav-6">
                     <a class="nav-link" href="{% url 'app:about_us' %}"><i
                             class="fa-solid fa-circle-info menu-icon"></i><span class="menu-title"> من نحن</span></a>
@@ -173,7 +176,7 @@
                                 <input class="form-check-input" type="radio" name="lastPull" id="flexRadioDefault1"
                                     value="1" checked>
                                 <label class="form-check-label" for="flexRadioDefault1">
-                                    منذ آخر عملية سحب
+                                    منذ آخر عملية سحب ({{user.lastPull.lastPullDate}})
                                 </label>
                             </div>
                             <div class="form-check">

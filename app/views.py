@@ -1810,7 +1810,7 @@ def QueryDemonstrator(request):
                         else: obj = obj | Q(**{q+p: item[q][p]})
                     else:
                         if p=='__ne': obj = obj & ~Q(**{q: item[q][p]})
-                        else: Q(**{q+p: item[q][p]})
+                        else: obj = obj & Q(**{q+p: item[q][p]})
                 else: 
                     if op == 'or':
                         obj = obj | Q(**{q: item[q]})
@@ -1820,7 +1820,10 @@ def QueryDemonstrator(request):
         
         query = loads(request.POST['query'])
         op = list(query.keys())[0]
+        print(query)
+        print(op)
         obj = makeQuery(query[op], op)
+        print(obj)
         result= Demonstrator.objects.filter(obj)
         da = SerializerDemonstrator(result, many=True)
         finalResult={}
