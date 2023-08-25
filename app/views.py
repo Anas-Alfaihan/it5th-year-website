@@ -2361,32 +2361,41 @@ def Register(request):
         if request.user.is_superuser:
             checkPassword = authenticate(request, username=request.user.username, password=request.POST['admin_password'])
             if checkPassword is not None:
-                try:
-                    id = None
-                    dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken'],
-                        'username':request.POST['username'],
-                        'first_name':request.POST['firstName'],
-                        'last_name':request.POST['lastName'],
-                        'password':request.POST['password'],
-                        'email':request.POST['email'],
-                        'date_joined':datetime.datetime.now()
-                        }
-                    form = AddUser(dic)
-                    if form.is_valid():
-                        id = form.save()
-                    else:
-                        raise Exception(form.errors)
-                    for perm in request.POST.getlist('permissions'):
-                        permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
-                        id.permissions.add(permission.id)
-                    LastPull.objects.create(userId= id, lastPullDate=datetime.datetime.now)
-                    UserSynchronization.objects.create(userId= id)
+                with transaction.atomic():
+                    savePoint = transaction.savepoint()
+                    try:
+                        dic = {'csrfmiddlewaretoken': request.POST['csrfmiddlewaretoken'],
+                            'username':request.POST['username'],
+                            'first_name':request.POST['firstName'],
+                            'last_name':request.POST['lastName'],
+                            'password':request.POST['password'],
+                            'email':request.POST['email'],
+                            'date_joined':datetime.datetime.now()
+                            }
+                        form = AddUser(dic)
+                        if form.is_valid():
+                            user = User.objects.create_user(
+                            username=request.POST['username'],
+                            first_name=request.POST['firstName'],
+                            last_name=request.POST['lastName'],
+                            password=request.POST['password'],
+                            email=request.POST['email']
+                            )
+                        else:
+                            raise Exception(form.errors)
+                        for perm in request.POST.getlist('permissions'):
+                            permission, created= Permissions.objects.get_or_create(permissionsCollege=perm)
+                            user.permissions.add(permission.id)
+                        LastPull.objects.create(userId= user, lastPullDate=datetime.datetime.now)
+                        UserSynchronization.objects.create(userId= user)
 
-                    messages.add_message(request, messages.SUCCESS,"تمت إضافة الموظف")
-                    return redirect('app:register')
-                except Exception as e:
-                    messages.add_message(request, messages.ERROR,'حدث خطأ ما')
-                    return redirect('app:register')
+                        messages.add_message(request, messages.SUCCESS,"تمت إضافة الموظف")
+                        return redirect('app:register')
+                    except Exception as e:
+                        transaction.savepoint_rollback(savePoint)
+                        print(e)
+                        messages.add_message(request, messages.ERROR,'حدث خطأ ما')
+                        return redirect('app:register')
             else:
                 messages.add_message(request, messages.ERROR,"كلمة مرور المدير غير صحيحة")
                 return redirect('app:register')
