@@ -10,7 +10,7 @@
 <!-- something here for nothing  -->
 {% block style %}
 <link rel="stylesheet" href="{% static 'jQuery-QueryBuilder-2.6.2/dist/css/query-builder.default.min.css' %}">
-<link rel="stylesheet" href="{% static 'bootstrap-5.2.0/dist/css/bootstrap.min.css' %}" />
+<!-- <link rel="stylesheet" href="{% static 'bootstrap-5.2.0/dist/css/bootstrap.min.css' %}" /> -->
 <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.standalone.min.css' %}">
 <link rel="stylesheet" href="{% static 'css/query.css' %}">
 
@@ -63,6 +63,22 @@
 
   .form-inline {
     display: block !important;
+  }
+
+  .btn-success {
+    color: #fff;
+    background-color: #4B49AC;
+    border-color: #4B49AC;
+  }
+
+  .btn-success:hover {
+    color: #fff;
+    background-color: #413f96;
+    border-color: #4B49AC;
+  }
+
+  #builder-basic_group_0 {
+    background-color: rgba(0, 0, 255, .1)
   }
 </style>
 

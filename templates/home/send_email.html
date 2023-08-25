@@ -113,9 +113,12 @@
 
     <button id="notification" name="emails" value="late" style="background-color:#4b49ac" class="btn text-white  ">ارسال
       انذار للمتأخرين</button>
-      
-    <button id="notification" name="emails" value="unsent" style="background-color:#4b49ac" class="btn text-white  ">ارسال
-      انذار للمتأخرين</button>
+
+    <button type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample2"
+      aria-controls="offcanvasExample2" style="background-color:#4b49ac" class="btn text-white  ">التمديدات الغير
+      مرسلة</button>
+    <button id="notification" name="emails" value="unsent" style="background-color:#4b49ac"
+      class="btn text-white  ">ارسال التمديدات الغير مرسلة</button>
   </form>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
     <div class="offcanvas-header">
@@ -132,6 +135,28 @@
             <p><strong>{{lat.name}}</strong></p>
             <p>{{lat.email}}</p>
             <p>{{lat.mobile}}</p>
+          </div>
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample2" aria-labelledby="offcanvasExampleLabel2">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offcanvasExampleLabel">التمديدات الغير مرسلة</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body">
+      <ol class="alternating-colors">
+        {% for lat in unsent %}
+
+        <li>
+          <div>
+            <p><strong>{{lat.name}}</strong></p>
+            <p>{{lat.email}}</p>
+            <p>{{lat.mobile}}</p>
+            <p>{{lat.extensionDecisionNumber}}/{{lat.extensionDecisionType}}/{{lat.extensionDecisionDate}}</p>
           </div>
         </li>
         {% endfor %}
