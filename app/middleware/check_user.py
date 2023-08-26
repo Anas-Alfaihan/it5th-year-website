@@ -19,7 +19,7 @@ class CheckUser(object):
             if request.user.is_authenticated and request.user.lastPull.waitingMerge and request.method=='POST':
                 
                 if '/app/updateDispatch/' in request.path or '/app/updateExtension/' in request.path or '/app/updateFreeze/' in request.path or '/app/updateUnv/' in request.path or '/app/updateGrad/' in request.path or '/app/updateDemon/' in request.path:
-                    return JsonResponse({"status": "عليك جلب التحديثات من نسخة الأونلاين"})
+                    return JsonResponse({'status': 'bad', "message": "عليك جلب التحديثات من نسخة الأونلاين"})
                 else:
                     messages.add_message(request, messages.ERROR,"عليك جلب التحديثات من نسخة الأونلاين")
                     return redirect(request.META.get('HTTP_REFERER'))

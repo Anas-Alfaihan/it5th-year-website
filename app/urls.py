@@ -6,6 +6,7 @@ app_name = 'app'
 urlpatterns = [
     path('', views.home, name='home'),
     path('download/', views.pullData, name='download'),
+    path('downloadDocumentation/', views.downloadDocumentation, name='downloadDocumentation'),
     path('upload/', views.pushData, name='upload_file'),
     path('firstUpload/', views.firstPushData, name='first_upload_file'),
     path('send/', views.Email, name='email'),
