@@ -51,6 +51,19 @@ from django.http import FileResponse
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
 Late_Emails=[]
+
+def ExtensionMessage(informationForEmail):
+    typeName={
+        's': 'ش.ع',
+        'o': 'و',
+        'b': 'ب'
+    }
+    message="المعيد "+informationForEmail['name']+" بن "+informationForEmail['fatherName']+"\n\n\n\n\n\n\n\
+بناء على القرار رقم "+informationForEmail['extensionDecisionNumber']+"/"+ typeName[informationForEmail['extensionDecisionType']]+" تاريخ "+informationForEmail['extensionDecisionDate']+" تم تمديد عملك كمعيد لمدة "+informationForEmail['extensionDurationYear']+"سنة و "+informationForEmail['extensionDurationMonth']+" شهر و "+informationForEmail['extensionDurationDay']+" يوم" 
+    return message
+
+
+
 @login_required(login_url='app:login')
 def UploadFile(request):
     print('lmmm22')
@@ -125,7 +138,7 @@ def SendEmailAlbaath(email,subject,message):
     sender_email = "test1234@albaath-univ.edu.sy"
     receiver_email = email
     password = 'fpC80o9^6'
-    msg = f"Subject: {subject}\n\n{message}"
+    msg = f"Subject: {subject}\n\n{message}".encode('utf-8').strip()
 
     with smtplib.SMTP_SSL(smtp_server, port) as server:
         server.login(sender_email, password)
@@ -184,7 +197,7 @@ def SendEmailGmail(email,subject,message):
 
         # Call the Gmail API
         service = build('gmail', 'v1', credentials=creds)
-        message = MIMEText(message)
+        message = MIMEText(message,'plain','utf-8')
         message['to'] = email
         message['subject'] = subject
         create_message = {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
@@ -288,9 +301,11 @@ def SendEmails(request):
                 emails_str+=x+", "
                 message="تم انتهاء المدة القانونية الخاصة بك يطلب اليك بالسرعة القصوى ارسال تقرير دراسي مفصل...."
                 if request.POST['server'] == 'gmail':
-                    SendEmailGmail(x,"إنذار",message)
+                    SendEmailGmail(x," إنذار بانتهاء المدة القانونية الخاصة بك",message)
                 elif request.POST['server'] == 'hotmail':
-                    SendEmailHotmail(x,"إنذار",message)
+                    SendEmailHotmail(x," إنذار بانتهاء المدة القانونية الخاصة بك",message)
+                elif request.POST['server'] == 'albaath':
+                    SendEmailAlbaath(x," إنذار بانتهاء المدة القانونية الخاصة بك",message)
 
             emails_str=emails_str[:-2]
 
@@ -315,7 +330,7 @@ def SendEmails(request):
                     emails.append(informationForEmail['email'])
                                 
                     try:
-                        status=SendEmailGmail(informationForEmail['email'],"هيلوز","بيباي")
+                        status=SendEmailGmail(informationForEmail['email'],"تمديد مدة العمل كمعيد",ExtensionMessage(informationForEmail))
                         if type(status) == ServerNotFoundError:
                             raise Exception("error")
                         Extension.objects.filter(id=extension.id).update(emailSent=True)
@@ -683,7 +698,7 @@ def ExtensionInsert(request, dispatchId,demonId):
                             'extensionDurationDay': request.POST['extensionDurationDay'],
                             }
             try:
-                status=SendEmailGmail(informationForEmail['email'],"هيلوز","بيباي")
+                status=SendEmailGmail(informationForEmail['email'],"تمديد مدة العمل كمعيد",ExtensionMessage(informationForEmail))
                 if type(status) == ServerNotFoundError:
                     raise Exception("error")
                 # print(informationForEmail['email'])
