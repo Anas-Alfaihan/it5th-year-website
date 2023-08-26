@@ -1,1 +1,40 @@
-
+{
+  "User": { "updated": [], "added": [], "deleted": [] },
+  "UserSynchronization": { "updated": [], "added": [], "deleted": [] },
+  "Permissions": { "updated": [], "added": [], "deleted": [] },
+  "Demonstrator": { "updated": [], "added": [], "deleted": [] },
+  "UniversityDegree": { "updated": [], "added": [], "deleted": [] },
+  "Nomination": { "updated": [], "added": [], "deleted": [] },
+  "AdjectiveChange": { "updated": [], "added": [], "deleted": [] },
+  "CertificateOfExcellence": { "updated": [], "added": [], "deleted": [] },
+  "GraduateStudies": { "updated": [], "added": [], "deleted": [] },
+  "Dispatch": { "updated": [], "added": [], "deleted": [] },
+  "Report": { "updated": [], "added": [], "deleted": [] },
+  "Regularization": { "updated": [], "added": [], "deleted": [] },
+  "Extension": {
+    "updated": [],
+    "added": [
+      {
+        "id": 4,
+        "extensionDecisionNumber": 56,
+        "extensionDecisionDate": "2023-12-31",
+        "extensionDecisionType": "o",
+        "extensionDurationYear": 1,
+        "extensionDurationMonth": 0,
+        "extensionDurationDay": 0,
+        "emailSent": false,
+        "createdDate": "2023-08-26T07:13:05.887285Z",
+        "lastModifiedDate": "2023-08-26T07:13:05.887285Z",
+        "isOffline": true,
+        "modifiedByOffline": false,
+        "dispatchDecisionId": 8
+      }
+    ],
+    "deleted": []
+  },
+  "Freeze": { "updated": [], "added": [], "deleted": [] },
+  "DurationChange": { "updated": [], "added": [], "deleted": [] },
+  "AlimonyChange": { "updated": [], "added": [], "deleted": [] },
+  "UniversityChange": { "updated": [], "added": [], "deleted": [] },
+  "SpecializationChange": { "updated": [], "added": [], "deleted": [] }
+}

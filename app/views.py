@@ -2161,7 +2161,7 @@ def pushData(request):
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = 1
                                     if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                        dispatchId = added['dispatchDecisionId'].id
+                                        dispatchId = added['dispatchDecisionId']
                                     else:
                                         dispatchId = id.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
@@ -2218,7 +2218,7 @@ def pushData(request):
                                     if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                         dispatchId = 1
                                         if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                            dispatchId = updated['dispatchDecisionId'].id
+                                            dispatchId = updated['dispatchDecisionId']
                                         else:
                                             dispatchId = updated['id']
                                         dispatchObject = Dispatch.objects.filter(pk=dispatchId)
@@ -2282,8 +2282,12 @@ def pushData(request):
                         LastPull.objects.create(userId= userId, lastPullDate=datetime.datetime.now)
                     
                     print(unsentEmails)
-                    messages.add_message(request, messages.SUCCESS,"تم تحديث المعلومات بنجاح")
-                    return redirect('app:upload_file')
+                    if len(unsentEmails) > 0:
+                        messages.add_message(request, messages.SUCCESS,"تم تحديث المعلومات بنجاح , لم يتم إرسال بعض إيميلات التمديد بسبب خطأ في الاتصال")
+                        return redirect('app:upload_file')
+                    else:
+                        messages.add_message(request, messages.SUCCESS,"تم تحديث المعلومات بنجاح")
+                        return redirect('app:upload_file')
                 except Exception as e:
                     transaction.savepoint_rollback(savePoint)
                     print(str(e))
