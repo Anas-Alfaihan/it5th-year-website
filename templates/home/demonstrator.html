@@ -510,7 +510,7 @@
                           <div class="form-floating mb-3">
                             <input type="number" min="60" max="100" step="0.001" class="form-control"
                               id="graduateStudiesAverage" name="graduateStudiesAverage" maxlength="50" required />
-                            <label class="graduateStudiesAverage">الجامعة</label>
+                            <label class="graduateStudiesAverage">المعدل</label>
                           </div>
                         </div>
                       </div>
@@ -660,7 +660,7 @@
                           </div>
                         </div>
                         <div class="col-12 row g-0 ct" style="margin-bottom: 0 !important;">
-                          <div class="text-lead text-muted fs-6 col-2 mb-4 p-0">
+                          <div class="text-lead text-muted fs-6 col-2 col-md-4 mb-4 p-0">
                             رقم القرار /<span class="efad-info-{{i.id}} editable"
                               name="dispatchDecisionNumber">{{i.dispatchDecisionNumber}}</span>/<span
                               class=" efad-info-{{i.id}} editable mul" name="dispatchDecisionType"
@@ -671,7 +671,7 @@
                               <div><strong value="b">ب</strong></div>
                             </div>
                           </div>
-                          <p class="text-lead text-muted fs-6 col-2">
+                          <p class="text-lead text-muted fs-6 col-2 col-md-4">
                             تاريخ
 
                             <span class="efad-info-{{i.id}} editable" name="dispatchDecisionDate"
@@ -725,7 +725,7 @@
                         <p class="ct col-6"><span>تاريخ انتهاء الإيفاد:</span><span data-toggle="datepicker"
                             class="efad-info-{{i.id}} editable"
                             name="dispatchEndDate">{{i.dispatchEndDate|date:"m/d/Y"}}</span></p>
-                        <p class="ct col-6"><span> المدة المتبقية:</span><span class="">{{i.remainingTime}} يوم</span>
+                        <p class="ct col-6"><span> المدة المتبقية:</span><span class="">{{i.remainingTime|default:""}} {% if i.remainingTime %} يوم {% endif %}</span>
                         </p>
                         <p class="ct col-6"><span>تاريخ العودة:</span><span data-toggle="datepicker"
                             class="efad-info-{{i.id}} editable" name="backDate">{{i.backDate|date:"m/d/Y"}}</span>
@@ -740,7 +740,6 @@
                             class="efad-info-{{i.id}} editable"
                             name="atDisposalOfUniversityDate">{{i.atDisposalOfUniversityDate|date:"m/d/Y"}}</span>
                         </p>
-                        <p class="col-6"></p>
                         <p class="ct col-6"><span>تاريخ آخر تقرير:</span><span class="efad-info-{{i.id}} editable"
                             data-toggle="datepicker" name="lastReportDate">{{i.lastReportDate|date:"m/d/Y"}}</span></p>
                         <p class="ct col-6">جدول التغييرات</p>
@@ -814,7 +813,7 @@
                                     class="btn btn-sm btn-outline-success mb-md-2"
                                     onclick="editEx(event,'{{ex.id}}', '{{demonstrator.id}}')"
                                     id="exeb-{{ex.id}}">تعديل</button>
-                                  <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                  <button type="button" class="btn btn-outline-danger mb-md-2" data-bs-toggle="modal"
                                     data-bs-target="#deleteEx-{{ex.id}}">حذف</button>
                                   <div class="modal fade" id="deleteEx-{{ex.id}}" data-bs-backdrop="static"
                                     data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
@@ -894,7 +893,7 @@
                                   <button type="button" class="btn btn-sm btn-outline-success mb-md-2"
                                     onclick="editFrez(event,'{{fr.id}}', '{{demonstrator.id}}')"
                                     id="freb-{{fr.id}}">تعديل</button>
-                                  <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                  <button type="button" class="btn btn-outline-danger mb-md-2" data-bs-toggle="modal"
                                     data-bs-target="#deleteFr-{{fr.id}}">حذف</button>
                                   <div class="modal fade" id="deleteFr-{{fr.id}}" data-bs-backdrop="static"
                                     data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
@@ -970,19 +969,19 @@
                           <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
                             data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">التقارير</button>
                         </div>
-                        <div class="col-8 text-center d-flex justify-content-end">
-                          <button type="button" class="btn btn-outline-warning mr-1" data-bs-toggle="modal"
+                        <div class="col-8 text-center justify-content-end">
+                          <button type="button" class="btn btn-outline-warning mr-1 mb-1" data-bs-toggle="modal"
                             data-bs-target="#Modalfr{{i.id}}">إضافة تجميد</button>
-                          <button type="button" class="btn btn-outline-primary mr-1" data-bs-toggle="modal"
+                          <button type="button" class="btn btn-outline-primary mr-1 mb-1" data-bs-toggle="modal"
                             data-bs-target="#Modalex{{i.id}}">إضافة تمديد</button>
-                          <button type="button" class="btn btn-outline-success mr-1"
+                          <button type="button" class="btn btn-outline-success mr-1 mb-1"
                             onclick="editEfad(event,'{{i.id}}', '{{demonstrator.id}}')"
                             id="efeb-{{i.id}}">تعديل</button>
-                          <button type="button" class="btn btn-outline-info mr-1" data-bs-toggle="modal"
+                          <button type="button" class="btn btn-outline-info mr-1 mb-1" data-bs-toggle="modal"
                             data-bs-target="#Modalre{{i.id}}">إضافة تقرير</button>
-                          <button type="button" class="btn btn-outline-secondary mr-1" data-bs-toggle="modal"
+                          <button type="button" class="btn btn-outline-secondary mr-1 mb-1" data-bs-toggle="modal"
                             data-bs-target="#Modalch{{i.id}}">تغيير المدة</button>
-                          <button type="button" class="btn btn-outline-danger mr-1" data-bs-toggle="modal"
+                          <button type="button" class="btn btn-outline-danger mr-1 mb-1" data-bs-toggle="modal"
                             data-bs-target="#deleteEfad-{{i.id}}">حذف</button>
                         </div>
 
