@@ -29,10 +29,11 @@ function resetFrez() {
         frezId = '';
         btnId = '';
         originals = {};
+        $('#keyTips').addClass('d-none');
     }
 }
 
-function editFrez(e, id, did) {
+async function editFrez(e, id, did) {
     if (editMode && frezId !== `fr-${id}`) {
         reset();
     }
@@ -107,14 +108,23 @@ function editFrez(e, id, did) {
                     validator.equals(str, 'b')
                 );
             },
-            freezeDurationYear: (str) => true,
-            freezeDurationMonth: (str) => true,
-            freezeDurationDay: (str) => true,
+            freezeDurationYear: (str) => {
+                return validator.isNumeric(str) && parseInt(str) >= 0;
+            },
+            freezeDurationMonth: (str) => {
+                return validator.isNumeric(str) && parseInt(str) >= 0;
+            },
+            freezeDurationDay: (str) => {
+                return validator.isNumeric(str) && parseInt(str) >= 0;
+            },
         };
         const errors = {
             freezeDecisionDate: 'تأكد من حقل تاريخ القرار',
             freezeDecisionNumber: 'تأكد من حقل رقم القرار',
             freezeDecisionType: 'تأكد من حقل نوع القرار',
+            freezeDurationYear: 'يجب أن تكون  مدة السنين أكبر أو تساوي الصفر',
+            freezeDurationMonth: 'يجب أن تكون مدة الشهور أكبر أو تساوي الصفر',
+            freezeDurationDay: 'يجب أن تكون مدة الأيام أكبر أو تساوي الصفر',
         };
 
         let df = true;
@@ -137,27 +147,31 @@ function editFrez(e, id, did) {
             }
         }
         if (df) {
-            for (let i = 0; i < items1.length; i++) {
-                if (items1[i].classList.contains('mul')) {
-                    items1[i].className = `editable fr-${id} mul`;
-                } else {
-                    items1[i].className = `editable fr-${id}`;
-                }
-
-                items1[i].setAttribute('contenteditable', 'false');
-            }
-            e.target.innerHTML = 'تعديل';
-            $(`.${frezId}[data-toggle="datepicker"]`).datepicker('destroy');
-            $('#keyTips').addClass('d-none');
-
-            editMode = false;
-            frezId = '';
-            btnId = '';
-            orignals = {};
             console.log(values);
             values['csrfmiddlewaretoken'] = csrf.value;
 
-            edit(values, id, did, 'fr');
+            let status = await edit(values, id, did, 'fr');
+            if (status === 'good') {
+                for (let i = 0; i < items1.length; i++) {
+                    if (items1[i].classList.contains('mul')) {
+                        items1[i].className = `editable fr-${id} mul`;
+                    } else {
+                        items1[i].className = `editable fr-${id}`;
+                    }
+
+                    items1[i].setAttribute('contenteditable', 'false');
+                }
+                e.target.innerHTML = 'تعديل';
+                $(`.${frezId}[data-toggle="datepicker"]`).datepicker('destroy');
+                $('#keyTips').addClass('d-none');
+
+                editMode = false;
+                frezId = '';
+                btnId = '';
+                orignals = {};
+            } else {
+                resetFrez();
+            }
         } else {
             values = {};
         }

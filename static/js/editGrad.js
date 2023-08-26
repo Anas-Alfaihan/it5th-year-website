@@ -29,10 +29,11 @@ function resetGrad() {
         gradId = '';
         btnId = '';
         originals = {};
+        $('#keyTips').addClass('d-none');
     }
 }
 
-function editGrad(e, id, did) {
+async function editGrad(e, id, did) {
     console.log(id, did);
     if (editMode && gradId !== `grad-${id}`) {
         reset();
@@ -154,27 +155,31 @@ function editGrad(e, id, did) {
             }
         }
         if (df) {
-            for (let i = 0; i < items1.length; i++) {
-                if (items1[i].classList.contains('mul')) {
-                    items1[i].className = `editable grad-${id} mul`;
-                } else {
-                    items1[i].className = `editable grad-${id}`;
-                }
-
-                items1[i].setAttribute('contenteditable', 'false');
-            }
-            e.target.innerHTML = 'تعديل';
-            $(`.${gradId}[data-toggle="datepicker"]`).datepicker('destroy');
-            $('#keyTips').addClass('d-none');
-
-            editMode = false;
-            gradId = '';
-            btnId = '';
-            orignals = {};
             console.log(values);
             values['csrfmiddlewaretoken'] = csrf.value;
 
-            edit(values, id, did, 'grad');
+            let status = await edit(values, id, did, 'grad');
+            if (status === 'good') {
+                for (let i = 0; i < items1.length; i++) {
+                    if (items1[i].classList.contains('mul')) {
+                        items1[i].className = `editable grad-${id} mul`;
+                    } else {
+                        items1[i].className = `editable grad-${id}`;
+                    }
+
+                    items1[i].setAttribute('contenteditable', 'false');
+                }
+                e.target.innerHTML = 'تعديل';
+                $(`.${gradId}[data-toggle="datepicker"]`).datepicker('destroy');
+                $('#keyTips').addClass('d-none');
+
+                editMode = false;
+                gradId = '';
+                btnId = '';
+                orignals = {};
+            } else {
+                resetGrad();
+            }
         } else {
             values = {};
         }

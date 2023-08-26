@@ -107,11 +107,13 @@ div.ct {
 }
 
 .choises {
+    height: 150px;
+    overflow-y: auto;
     position: absolute !important;
     border: 1px solid #d4d4d4 !important;
     border-bottom: none !important;
     border-top: none !important;
-    z-index: 99 !important;
+    z-index: 999999 !important;
     /*position the autocomplete items to be the same width as the container:*/
     right: 50px !important;
     top: 20px !important;

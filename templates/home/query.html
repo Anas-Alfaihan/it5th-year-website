@@ -10,20 +10,11 @@
 <!-- something here for nothing  -->
 {% block style %}
 <link rel="stylesheet" href="{% static 'jQuery-QueryBuilder-2.6.2/dist/css/query-builder.default.min.css' %}">
-<link rel="stylesheet" href="{% static 'bootstrap-5.2.0/dist/css/bootstrap.min.css' %}" />
+<!-- <link rel="stylesheet" href="{% static 'bootstrap-5.2.0/dist/css/bootstrap.min.css' %}" /> -->
 <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.standalone.min.css' %}">
 <link rel="stylesheet" href="{% static 'css/query.css' %}">
 
 <style>
-  /* .query-builder,
-  .query-builder * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  } */
-
-
-
   .query-builder {
     font-family: tajawal !important;
   }
@@ -56,73 +47,7 @@
     border-radius: 4px;
   }
 
-  /* .query-builder .btn.focus,
-  .query-builder .btn:focus,
-  .query-builder .btn:hover {
-    color: #333;
-    text-decoration: none;
-  } */
 
-  /* .query-builder .btn.active,
-  .query-builder .btn:active {
-    background-image: none;
-    outline: 0px none;
-    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.125) inset;
-  } */
-
-  /* .query-builder .btn-success {
-    color: #FFF;
-    background-color: #5CB85C;
-    border-color: #4CAE4C;
-  } */
-
-  /* .query-builder .btn-primary {
-    color: #FFF;
-    background-color: #337AB7;
-    border-color: #2E6DA4;
-  } */
-
-  /* .query-builder .btn-danger {
-    color: #FFF;
-    background-color: #D9534F;
-    border-color: #D43F3A;
-  } */
-
-  /* .query-builder .btn-success.active,
-  .query-builder .btn-success.focus,
-  .query-builder .btn-success:active,
-  .query-builder .btn-success:focus,
-  .query-builder .btn-success:hover {
-    color: #FFF;
-    background-color: #449D44;
-    border-color: #398439;
-  } */
-
-  /* .query-builder .btn-primary.active,
-  .query-builder .btn-primary.focus,
-  .query-builder .btn-primary:active,
-  .query-builder .btn-primary:focus,
-  .query-builder .btn-primary:hover {
-    color: #FFF;
-    background-color: #286090;
-    border-color: #204D74;
-  } */
-
-  /* .query-builder .btn-danger.active,
-  .query-builder .btn-danger.focus,
-  .query-builder .btn-danger:active,
-  .query-builder .btn-danger:focus,
-  .query-builder .btn-danger:hover {
-    color: #FFF;
-    background-color: #C9302C;
-    border-color: #AC2925;
-  } */
-
-  /* .query-builder .btn-group {
-    position: relative;
-    display: inline-block;
-    vertical-align: middle;
-  } */
 
   .query-builder .btn-group>.btn {
     position: relative;
@@ -136,32 +61,24 @@
     border-radius: 0.5rem;
   }
 
-  /* .query-builder .btn-group>.btn:first-child:not(:last-child) {
-    border-top-right-radius: 0px;
-    border-bottom-right-radius: 0px;
-  } */
-
-  /* .query-builder .btn-group>.btn:last-child:not(:first-child) {
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-  } */
-
-  /* .query-builder .btn-group .btn+.btn,
-  .query-builder .btn-group .btn+.btn-group,
-  .query-builder .btn-group .btn-group+.btn,
-  .query-builder .btn-group .btn-group+.btn-group {
-    margin-left: -1px;
-  } */
-
-  /* .query-builder .btn-xs,
-  .query-builder .btn-group-xs>.btn {
-    padding: 1px 5px;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 3px;
-  } */
   .form-inline {
     display: block !important;
+  }
+
+  .btn-success {
+    color: #fff;
+    background-color: #4B49AC;
+    border-color: #4B49AC;
+  }
+
+  .btn-success:hover {
+    color: #fff;
+    background-color: #413f96;
+    border-color: #4B49AC;
+  }
+
+  #builder-basic_group_0 {
+    background-color: rgba(0, 0, 255, .1)
   }
 </style>
 
@@ -170,23 +87,23 @@
 
 {% block content %}
 
-<h2 class="tit">
+<h2 class="tit mt-5">
   استعلامات
 </h2>
 
-<div class="sec">
+<div class="mt-5">
   <div id="builder-basic" dir="ltr" style="direction: ltr !important; text-align: left;">
   </div>
   <div class="row mt-4 px-3 justify-content-between">
     <div class="col-4 py-2">
       <div class="btn-group">
-        <button class="btn btn-warning reset mx-2" data-target="basic" id="btn-reset">إعادة تعيين</button>
-        <!-- <button class="btn btn-success set-json mx-2" data-target="basic" id="btn-set">Set rules</button> -->
+        <button class="btn btn-secondary reset mx-2" data-target="basic" id="btn-reset">إعادة تعيين</button>
         <button class="btn btn-primary parse-json mx-2" data-target="basic" id="btn-get">استعلام</button>
       </div>
     </div>
     <div class="col-8">
       <select class="fancy-select form-select" name="category" required="required" multiple="multiple">
+        <option value="all">كل الحقول</option>
         <option value="name">الاسم</option>
         <option value="fatherName">اسم الأب</option>
         <option value="motherName">اسم الأم</option>
@@ -208,14 +125,8 @@
         <option value="section">القسم</option>
         <option value="specialization">التخصص</option>
         <option value="commencementAfterNominationDate">تاريخ المباشرة</option>
-        <option value="universityDegree.universityDegreeUniversity">جامعة التخرج</option>
-        <option value="universityDegree.universityDegreeCollege">كلية التخرج</option>
-        <option value="universityDegree.universityDegreeSection">قسم التخرج</option>
-        <option value="universityDegree.universityDegreeYear">سنة التخرج</option>
-        <option value="universityDegree.universityDegreeAverage">معدل التخرج</option>
-        <option value="nominationDecision.nominationDecisionNumber">رقم قرار الترشيح</option>
-        <option value="nominationDecision.nominationDecisionType">نوع قرار الترشيح</option>
-        <option value="nominationDecision.nominationDecisionDate">تاريخ قرار الترشيح</option>
+        <option value="universityDegree">الشهادة الجامعية</option>
+        <option value="nominationDecision"> قرار الترشيح</option>
         <option value="certificateOfExcellence"> شهادات التفوق</option>
         <option value="graduateStudies">الدراسات العليا</option>
         <option value="dispatch">الإيفادات</option>
@@ -370,7 +281,8 @@
   let csrf = createElementFromHTML(`{% csrf_token %}`)
 
   function modifyKeys(obj) {
-    op = ["lt", "ne", "in", "nin", "lte", "gt", "gte"]
+    op = ["lt", "ne", "in", "nin", "lte", "gt", "gte", "regex"]
+    console.log(obj);
     Object.keys(obj).forEach(key => {
       if (key[0] === "$") {
         obj[`${key.slice(1)}`] = obj[key];
@@ -384,8 +296,14 @@
       }
       if (op.includes(`${key}`)) {
         console.log("asdfasdfadsfsda");
-        obj[`__${key}`] = obj[key];
-        delete obj[key];
+        if (key === 'regex') {
+
+          obj[`__contains`] = obj[key];
+          delete obj[key];
+        } else {
+          obj[`__${key}`] = obj[key];
+          delete obj[key];
+        }
       }
 
     });
@@ -396,115 +314,162 @@
 
     default_condition: 'AND',
 
-    filters: [{
-      id: 'gender',
-      label: 'الجنس',
-      type: 'string',
-      input: 'select',
-      values: {
-        "male": 'ذكر',
-        "female": 'أنثى',
+    filters: [
+      {
+        id: 'name',
+        label: 'الاسم',
+        type: 'string',
+        input: 'text',
+        operators: ['equal', 'contains', 'not_equal']
       },
-      operators: ['equal']
-    }, {
-      id: 'birthDate',
-      label: 'تاريخ الميلاد',
-      type: 'string',
-      input: "text",
-      plugin: 'datepicker',
-      plugin_config: {
-        format: 'yyyy-mm-dd',
-        autoclose: true
+      {
+        id: 'fatherName',
+        label: 'اسم الأب',
+        type: 'string',
+        input: 'text',
+        operators: ['equal', 'contains', 'not_equal']
       },
-      operators: ['equal', 'greater', 'less', 'greater_or_equal', 'less_or_equal']
-    }, {
-      id: 'maritalStatus',
-      label: 'الحالة الاجتماعية',
-      type: 'string',
-      input: "select",
-      values: {
-        'married': 'متزوج',
-        'unmarried': 'أعزب'
+      {
+        id: 'motherName',
+        label: 'اسم الأم',
+        type: 'string',
+        input: 'text',
+        operators: ['equal', 'in', 'not_equal']
       },
-      operators: ['equal']
-    }, {
-      id: 'militarySituation',
-      label: 'وضع التجنيد',
-      type: 'string',
-      input: "select",
-      values: {
-        'delayed': 'مؤجل',
-        'laid off': 'مسرح'
+      {
+        id: 'home',
+        label: 'عنوان الإقامة',
+        type: 'string',
+        input: 'text',
+        operators: ['contains']
       },
-      operators: ['equal']
-    }, {
-      id: 'language',
-      label: 'اللغة',
-      type: 'string',
-      input: "text",
-      operators: ['equal', 'not_equal']
-    }, {
-      id: 'currentAdjective',
-      label: 'الصفة الحالية',
-      type: 'string',
-      input: "select",
-      values: {
-        'demonstrator': 'معيد',
-        'returning': 'عائد',
-        'envoy': 'موفد',
-        'returning demonstrator': 'معيد عائد',
-        'loathes': 'مستنكف',
-        'transfer outside the university': 'نقل خارج الجامعة',
-        'end services': 'انهاء خدمات',
-        'resigned': 'انهاء بحكم المستقيل',
+      {
+        id: 'residence',
+        label: 'عنوان الحالي',
+        type: 'string',
+        input: 'text',
+        operators: ['contains']
       },
-      operators: ['equal', 'not_equal']
-    }, {
-      id: 'nominationReason',
-      label: 'سبب الترشيح',
-      type: 'string',
-      input: "select",
-      values: {
-        'contest': 'مسابقة',
-        'First graduate': 'خريج أول'
+      {
+        id: 'email',
+        label: 'الإيميل',
+        type: 'string',
+        input: 'text',
+        operators: ['equal', 'not_equal']
       },
-      operators: ['equal']
-    }, {
-      id: 'universityDegree__universityDegreeUniversity',
-      label: 'الجامعة',
-      type: 'string',
-      input: "text",
-      operators: ['equal', 'not_equal']
-    }, {
-      id: 'universityDegree__universityDegreeCollege',
-      label: 'الكلية',
-      type: 'string',
-      input: "text",
-      operators: ['equal', 'not_equal']
-    }, {
-      id: 'universityDegree__universityDegreeSection',
-      label: 'القسم',
-      type: 'string',
-      input: "text",
-      operators: ['equal', 'not_equal']
-    }, {
-      id: 'specialization',
-      label: 'التخصص',
-      type: 'string',
-      input: "text",
-      operators: ['is_not_null']
-    },
-    {
-      id: 'dispatch__dispatchType',
-      label: 'نوع الإيفاد',
-      type: 'string',
-      input: 'select',
-      values: {
-        'inner': 'داخلي',
-        'outer': 'خارجي',
+      {
+        id: 'gender',
+        label: 'الجنس',
+        type: 'string',
+        input: 'select',
+        values: {
+          "male": 'ذكر',
+          "female": 'أنثى',
+        },
+        operators: ['equal']
+      }, {
+        id: 'birthDate',
+        label: 'تاريخ الميلاد',
+        type: 'string',
+        input: "text",
+        plugin: 'datepicker',
+        plugin_config: {
+          format: 'yyyy-mm-dd',
+          autoclose: true,
+          todayBtn: 'linked',
+          todayHighlight: true,
+        },
+        operators: ['equal', 'greater', 'less', 'greater_or_equal', 'less_or_equal']
       },
-      operators: ['equal']
-    }
+
+      {
+        id: 'maritalStatus',
+        label: 'الحالة الاجتماعية',
+        type: 'string',
+        input: "select",
+        values: {
+          'married': 'متزوج',
+          'unmarried': 'أعزب'
+        },
+        operators: ['equal']
+      }, {
+        id: 'militarySituation',
+        label: 'وضع التجنيد',
+        type: 'string',
+        input: "select",
+        values: {
+          'delayed': 'مؤجل',
+          'laid off': 'مسرح'
+        },
+        operators: ['equal']
+      }, {
+        id: 'language',
+        label: 'اللغة',
+        type: 'string',
+        input: "text",
+        operators: ['equal', 'not_equal']
+      }, {
+        id: 'currentAdjective',
+        label: 'الصفة الحالية',
+        type: 'string',
+        input: "select",
+        values: {
+          'demonstrator': 'معيد',
+          'returning': 'عائد',
+          'envoy': 'موفد',
+          'returning demonstrator': 'معيد عائد',
+          'loathes': 'مستنكف',
+          'transfer outside the university': 'نقل خارج الجامعة',
+          'end services': 'انهاء خدمات',
+          'resigned': 'انهاء بحكم المستقيل',
+        },
+        operators: ['equal', 'not_equal']
+      }, {
+        id: 'nominationReason',
+        label: 'سبب الترشيح',
+        type: 'string',
+        input: "select",
+        values: {
+          'contest': 'مسابقة',
+          'First graduate': 'خريج أول'
+        },
+        operators: ['equal']
+      }, {
+        id: 'universityDegree__universityDegreeUniversity',
+        label: 'الجامعة',
+        type: 'string',
+        input: "text",
+        operators: ['equal', 'not_equal']
+      }, {
+        id: 'universityDegree__universityDegreeCollege',
+        label: 'الكلية',
+        type: 'string',
+        input: "text",
+        operators: ['equal', 'not_equal']
+      }, {
+        id: 'universityDegree__universityDegreeSection',
+        label: 'القسم',
+        type: 'string',
+        input: "text",
+        operators: ['equal', 'not_equal']
+      }, {
+        id: 'specialization',
+        label: 'التخصص',
+        type: 'string',
+        input: "text",
+        operators: ['is_not_null']
+      },
+      {
+        id: 'dispatch__dispatchType',
+        label: 'نوع الإيفاد',
+        type: 'string',
+        input: 'select',
+        values: {
+          'inner': 'داخلي',
+          'outer': 'خارجي',
+        },
+        operators: ['equal']
+      }
       ,],
 
 
@@ -536,6 +501,7 @@
       d['csrfmiddlewaretoken'] = csrf.value;
       d['cols'] = values
       d['query'] = JSON.stringify(result)
+      console.log(d);
       post("/app/query/", d, "post")
       // alert(JSON.stringify(result, null, 2));
     }

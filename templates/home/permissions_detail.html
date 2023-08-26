@@ -104,7 +104,7 @@
             <form method="post">
                 {% csrf_token %}
                 <div class=" mb-3 autocomplete">
-                    <select id="floatingP" name="userId" placeholder="nothing" class="form-select" multiple required />
+                    <select id="floatingP" name="userId" placeholder="nothing" class="form-select" multiple />
 
                     <label for="floatingP">السماحية </label>
                     </select>
@@ -123,6 +123,7 @@
         let op
         let select = document.getElementById("floatingP");
         "{% for user in all_users %}"
+        "{% if not user.is_superuser %}"
         op = document.createElement("option")
         op.value = "{{user.pk}}"
         op.text = "{{user}}"
@@ -130,6 +131,7 @@
         op.selected = true
         "{% endif %}"
         select.add(op)
+        "{% endif %}"
         "{% endfor %}"
 
 

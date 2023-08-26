@@ -42,6 +42,9 @@
                     case '/app/send/':
                         $('#nav-6').addClass('active');
                         break;
+                    case '/app/about-us':
+                        $('#nav-8').addClass('active');
+                        break;
                     default:
                         $('#nav-1').addClass('active');
                 }
