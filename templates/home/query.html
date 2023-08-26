@@ -61,6 +61,10 @@
     border-radius: 0.5rem;
   }
 
+  .query-builder .btn-group>.btn-primary:not(.disabled):not(.active) {
+    background-color: rgba(75, 73 ,172,0.3);
+  }
+
   .form-inline {
     display: block !important;
   }
@@ -99,6 +103,7 @@
       <div class="btn-group">
         <button class="btn btn-secondary reset mx-2" data-target="basic" id="btn-reset">إعادة تعيين</button>
         <button class="btn btn-primary parse-json mx-2" data-target="basic" id="btn-get">استعلام</button>
+        <button class="btn btn-primary parse-json mx-2" data-target="basic" id="btn-get-all">استعلام عن الكل</button>
       </div>
     </div>
     <div class="col-8">
@@ -300,7 +305,10 @@
 
           obj[`__contains`] = obj[key];
           delete obj[key];
-        } else {
+        } else if(key === 'begins_with'){
+          obj[`__starts_with`] = obj[key];
+          delete obj[key];
+        }else {
           obj[`__${key}`] = obj[key];
           delete obj[key];
         }
@@ -440,6 +448,22 @@
         type: 'string',
         input: "text",
         operators: ['equal', 'not_equal']
+      },
+      {
+        id: "universityDegree__universityDegreeAverage",
+        label: "المعدل",
+        type: "double",
+        validation: {
+          min: 60,
+          step: 0.01,
+        },
+        operators: [
+          "equal",
+          "greater",
+          "less",
+          "greater_or_equal",
+          "less_or_equal",
+        ],
       }, {
         id: 'universityDegree__universityDegreeCollege',
         label: 'الكلية',
@@ -457,7 +481,7 @@
         label: 'التخصص',
         type: 'string',
         input: "text",
-        operators: ['is_not_null']
+        operators: ['equal', 'not_equal', 'contains']
       },
       {
         id: 'dispatch__dispatchType',
@@ -505,6 +529,26 @@
       post("/app/query/", d, "post")
       // alert(JSON.stringify(result, null, 2));
     }
+  });
+
+  $('#btn-get-all').on('click', function () {
+    let cols = document.getElementById("colsSelected").querySelectorAll("div")
+    let values = []
+
+    cols.forEach(col => {
+      if (col.getAttribute("data-selected") == 1) {
+        values.push(col.getAttribute('data-value'))
+      }
+    })
+      let d = {}
+      if (values.length === 0) values.push("name")
+      d['csrfmiddlewaretoken'] = csrf.value;
+      d['cols'] = values
+      d['query'] = JSON.stringify({'or': []})
+      console.log(d);
+      post("/app/query/", d, "post")
+      // alert(JSON.stringify(result, null, 2));
+    
   });
 
   function post(path, params, method = 'post') {

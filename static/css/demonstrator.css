@@ -107,7 +107,7 @@ div.ct {
 }
 
 .choises {
-    height: 150px;
+    max-height: 100px;
     overflow-y: auto;
     position: absolute !important;
     border: 1px solid #d4d4d4 !important;

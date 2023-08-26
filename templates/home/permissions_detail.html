@@ -92,8 +92,9 @@
     <p class="fs-5 mb-3 ut">الموظفون الذين لديهم الصلاحية </p>
     <ol class="mbt-ol mb-4">
         {% for user in users %}
+        {% if not user.is_superuser %}
         <li>{{ user.username }}</li>
-
+        {% endif %}
         {% endfor %}
     </ol>
 
