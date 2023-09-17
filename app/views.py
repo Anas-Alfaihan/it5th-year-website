@@ -1987,7 +1987,7 @@ def generalPushAdd(request ,added, addModel, modelName, idMap, savePoint):
         if haveId:
             if not modelName in idMap:
                 idMap[modelName] = {}
-            idMap[modelName].update({oldId: id})
+            idMap[modelName].update({oldId: id.id})
         
     else:
         transaction.savepoint_rollback(savePoint)
@@ -2092,10 +2092,18 @@ def generalUpdateHub(request, added, obj, addModel, modelName, idMap, savePoint)
 
     #User
     elif modelName in ['UserSynchronization', 'Permissions']:
-        #userId
-        if modelName in idMap:
-            if added['userId'] in idMap[modelName]:
-                added['userId'] = idMap[modelName][added['userId']]
+        if 'User' in idMap:
+            if modelName == 'UserSynchronization':
+                if added['userId'] in idMap['User']:
+                    added['userId'] = idMap['User'][added['userId']]
+            else:
+                userIdList=[]
+                for userIdItem in added['userId']:
+                    if userIdItem in idMap['User']:
+                        userIdList.append(idMap['User'][userIdItem])
+                    else:
+                        userIdList.append(userIdItem)
+                added['userId'] = userIdList
 
     return generalPushUpdate(request, modelName, added, obj, addModel, savePoint)
 
@@ -2191,7 +2199,7 @@ def pushData(request):
                                 if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                     dispatchId = 1
                                     if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                        dispatchId = added['dispatchDecisionId'].id
+                                        dispatchId = added['dispatchDecisionId']
                                     else:
                                         dispatchId = id.id
                                     dispatchObject = Dispatch.objects.filter(pk=dispatchId)
@@ -2231,7 +2239,7 @@ def pushData(request):
                                     if model.__name__ in ['Dispatch', 'Freeze', 'Extension', 'DurationChange']:
                                         dispatchId = 1
                                         if model.__name__ in ['Freeze', 'Extension', 'DurationChange']:
-                                            dispatchId = updated['dispatchDecisionId'].id
+                                            dispatchId = updated['dispatchDecisionId']
                                         else:
                                             dispatchId = updated['id']
                                         dispatchObject = Dispatch.objects.filter(pk=dispatchId)
