@@ -1,7 +1,7 @@
 import datetime
-# import pythoncom
+import pythoncom
 import time
-# import win32com.client
+import win32com.client
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -59,7 +59,7 @@ def ExtensionMessage(informationForEmail):
         'b': 'ب'
     }
     message="المعيد "+informationForEmail['name']+" بن "+informationForEmail['fatherName']+"\n\n\n\n\n\n\n\
-بناء على القرار رقم "+informationForEmail['extensionDecisionNumber']+"/"+ typeName[informationForEmail['extensionDecisionType']]+" تاريخ "+informationForEmail['extensionDecisionDate']+" تم تمديد عملك كمعيد لمدة "+informationForEmail['extensionDurationYear']+"سنة و "+informationForEmail['extensionDurationMonth']+" شهر و "+informationForEmail['extensionDurationDay']+" يوم" 
+بناء على القرار رقم "+str(informationForEmail['extensionDecisionNumber'])+"/"+ typeName[informationForEmail['extensionDecisionType']]+" تاريخ "+str(informationForEmail['extensionDecisionDate'])+" تم تمديد عملك كمعيد لمدة "+str(informationForEmail['extensionDurationYear'])+"سنة و "+str(informationForEmail['extensionDurationMonth'])+" شهر و "+str(informationForEmail['extensionDurationDay'])+" يوم" 
     return message
 
 
@@ -241,10 +241,14 @@ def SendEmails(request):
                 elif request.POST['college'] is not None:
                     print(request.POST['college'])
                     college = list(Demonstrator.objects.filter(college=request.POST['college']).values('email'))
+                    print(college)
                     for x in range(len(college)):
                         if college[x]['email']:
                             if college[x]['email'] not in emails:
                                 emails.append(college[x]['email'])
+                    print(emails)
+
+
 
                 
 
@@ -330,13 +334,13 @@ def SendEmails(request):
                     emails.append(informationForEmail['email'])
                                 
                     try:
-                        status=SendEmailGmail(informationForEmail['email'],"تمديد مدة العمل كمعيد",ExtensionMessage(informationForEmail))
+                        status=SendEmailAlbaath(informationForEmail['email'],"تمديد مدة العمل كمعيد",ExtensionMessage(informationForEmail))
                         if type(status) == ServerNotFoundError:
                             raise Exception("error")
                         Extension.objects.filter(id=extension.id).update(emailSent=True)
                     except Exception as error:
+                        print(error)
                         messages.add_message(request, messages.ERROR,"تأكد من معلوماتك واتصالك بالانترنت")
-                        return render(request, 'home/send_email.html')
             else:
                 messages.add_message(request, messages.WARNING,"ليست لديك صلاحية الدخول إلى هذه الصفحة")
                 return render(request, 'home/send_email.html')
@@ -1984,7 +1988,7 @@ def generalPushAdd(request ,added, addModel, modelName, idMap, savePoint):
         if haveId:
             if not modelName in idMap:
                 idMap[modelName] = {}
-            idMap[modelName].update({oldId: id})
+            idMap[modelName].update({oldId: id.id})
         
     else:
         transaction.savepoint_rollback(savePoint)
@@ -2089,10 +2093,18 @@ def generalUpdateHub(request, added, obj, addModel, modelName, idMap, savePoint)
     
     #User
     elif modelName in ['UserSynchronization', 'Permissions']:
-        #userId
-        if modelName in idMap:
-            if added['userId'] in idMap[modelName]:
-                added['userId'] = idMap[modelName][added['userId']]
+        if 'User' in idMap:
+            if modelName == 'UserSynchronization':
+                if added['userId'] in idMap['User']:
+                    added['userId'] = idMap['User'][added['userId']]
+            else:
+                userIdList=[]
+                for userIdItem in added['userId']:
+                    if userIdItem in idMap['User']:
+                        userIdList.append(idMap['User'][userIdItem])
+                    else:
+                        userIdList.append(userIdItem)
+                added['userId'] = userIdList
 
     return generalPushUpdate(request, modelName, added, obj, addModel, savePoint)
 
