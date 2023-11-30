@@ -51,7 +51,7 @@
 
     <div class="row">
         <div class="col-6">
-            <h1 class="mb-4">الصلاحية: {{ permissions.permissionsCollege }}</h1>
+            <h1 class="mb-4">القسم: {{ permissions.permissionsCollege }}</h1>
         </div>
         <div class="col-6 d-flex justify-content-end">
             <div>
@@ -66,7 +66,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">تعديل السماحية</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">تعديل القسم</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -75,7 +75,7 @@
                         <div class="form-floating">
                             <input type="text" class="form-control" value="{{ permissions.permissionsCollege }}"
                                 name="permissionsCollege" placeholder="asdf" id="t">
-                            <label for="t">السماحية</label>
+                            <label for="t">القسم</label>
                         </div>
                     </form>
                 </div>
@@ -89,7 +89,7 @@
 
 
 
-    <p class="fs-5 mb-3 ut">الموظفون الذين لديهم الصلاحية </p>
+    <p class="fs-5 mb-3 ut">موظفوا القسم</p>
     <ol class="mbt-ol mb-4">
         {% for user in users %}
         {% if not user.is_superuser %}
@@ -107,7 +107,7 @@
                 <div class=" mb-3 autocomplete">
                     <select id="floatingP" name="userId" placeholder="nothing" class="form-select" multiple />
 
-                    <label for="floatingP">السماحية </label>
+                    <label for="floatingP">القسم </label>
                     </select>
                 </div>
 
