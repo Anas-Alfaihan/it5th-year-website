@@ -14,29 +14,29 @@
 
 <h2 class="tit">تسجيل معيد</h2>
 
-<div class="col-lg-10 col-md-6 mx-auto sec">
+<div class="col-lg-10 col-md-6 mx-lg-auto sec">
     <form class="p-3 needs-validation" novalidate method="POST">
         {% csrf_token %}
         <h4 class="my-3 lead">المعلومات الشخصية</h4>
         <div class="row g-3">
-            <div class="col-sm-4">
+            <div class="col-12 col-lg-4">
                 <label for="name" class="form-label">الاسم</label>
                 <input type="text" class="form-control" id="firstName" required name="name" maxlength="50" />
                 <div class="invalid-feedback">يرجى إدخال اسم أول صحيح.</div>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-12 col-lg-4">
                 <label for="lastName" class="form-label">اسم الأب</label>
                 <input type="text" class="form-control" id="lastName" name="fatherName" maxlength="50" required />
                 <div class="invalid-feedback">يرجى إدخال اسم صحيح.</div>
             </div>
-            <div class="col-sm-4">
+            <div class="col-12 col-lg-4">
                 <label for="lastName" class="form-label">اسم الأم</label>
                 <input type="text" class="form-control" id="lastName" name="motherName" maxlength="50" required />
                 <div class="invalid-feedback">يرجى إدخال اسم صحيح.</div>
             </div>
 
-            <div class="col-sm-6">
+            <div class="col-12 col-lg-6">
                 <label for="lastName" class="form-label">تاريخ الميلاد</label>
 
                 <input type="date" name="birthDate" class="form-control" id="date" required />
@@ -44,7 +44,7 @@
                 <div class="invalid-feedback">يرجى إدخال تاريخ صحيح.</div>
             </div>
 
-            <div class="col-sm-6">
+            <div class="col-12 col-lg-6">
                 <label class="form-label" for="sex">الجنس</label>
 
                 <select class="form-select" id="sex" name="gender" required>
@@ -100,7 +100,7 @@
 
             <hr class="my-4" />
             <h4 class="mb-3 lead">الحالة الاجتماعية</h4>
-            <div class="col-md-7">
+            <div class="col-12 col-lg-7">
                 <label for="social" class="form-label">الحالة العائلية</label>
                 <select class="form-select" id="social" name="maritalStatus" required>
                     <option value="">اختر...</option>
@@ -112,7 +112,7 @@
                 </div>
             </div>
 
-            <div class="col-md-5">
+            <div class="col-12 col-lg-5">
                 <label for="mil" class="form-label">الوضع العسكري</label>
                 <select class="form-select" id="mil" name="militarySituation" required>
                     <option value="">اختر...</option>
@@ -126,13 +126,13 @@
         <hr class="my-4" />
         <dtv class="row gy-3">
             <h4 class="mb-3 lead">الشهادة الجامعية</h4>
-            <div class="col-md-6">
+            <div class="col-12 col-lg-6">
                 <label for="cc-name" class="form-label">الجامعة</label>
                 <input type="text" class="form-control" name="universityDegreeUniversity" maxlength="100" required />
 
                 <div class="invalid-feedback">الجامعةمطلوبة</div>
             </div>
-            <div class="col-md-6">
+            <div class="col-12 col-lg-6">
                 <label for="cc-name" class="form-label">الكلية</label>
                 <select name="universityDegreeCollege" class="form-select" id="floatingSelect"
                     aria-label="Floating label select example">
@@ -141,19 +141,19 @@
 
                 <div class="invalid-feedback">الكلية مطلوبة</div>
             </div>
-            <div class="col-md-6">
+            <div class="col-12 col-lg-6">
                 <label for="cc-name" class="form-label">القسم</label>
                 <input type="text" class="form-control" name="universityDegreeSection" maxlength="100" />
             </div>
 
-            <div class="col-md-6">
+            <div class="col-12 col-lg-6">
                 <label for="cc-name" class="form-label">سنة التخرج</label>
                 <input type="text" class="form-control" name="universityDegreeYear" pattern="^[0-9]{4}[-][0-9]{4}$"
                     placeholder="2018-2019" required />
                 <div class="invalid-feedback">أدخل بتنسيق 2018-2019</div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-12 col-lg-6">
                 <label for="cc-name" class="form-label">معدل التخرج</label>
                 <input type="number" min="60" max="100" step="0.001" class="form-control" name="universityDegreeAverage"
                     required />
@@ -163,14 +163,14 @@
 
         <div class="row gy-3">
             <h4 class="mb-3 lead">معلومات تتعلق بقبول المعيد</h4>
-            <div class="col-4">
+            <div class="col-12 col-lg-4">
                 <div class="form-floating mb-3">
                     <input class="form-control" type="text" name="nominationDecisionNumber"
                         id="nominationDecisionNumber" placeholder="nominationDecisionNumber" required />
                     <label for="nominationDecisionNumber">رقم القرار</label>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-12 col-lg-4">
                 <div class="form-floating mb-3">
                     <select class="form-control" name="nominationDecisionType" required id="nominationDecisionType">
                         <option value="">...</option>
@@ -181,7 +181,7 @@
                     <label for="nominationDecisionType">نوع القرار</label>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-12 col-lg-4">
                 <div class="form-floating mb-3">
                     <input class="form-control" type="date" name="nominationDecisionDate" id="nominationDecisionDate"
                         placeholder="nominationDecisionDate" lang="ar" required />
@@ -189,35 +189,35 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-12 col-lg-6">
                 <label for="cc-name" class="form-label">الجامعة</label>
                 <input type="text" class="form-control" name="university" maxlength="100" required />
 
                 <div class="invalid-feedback">الجامعة مطلوبة</div>
             </div>
-            <div class="col-md-6">
+            <div class="col-12 col-lg-6">
                 <label for="cc-name" class="form-label">الكلية</label>
                 <input type="text" class="form-control" name="college" maxlength="100" required />
 
                 <div class="invalid-feedback">الكلية مطلوبة</div>
             </div>
-            <div class="col-md-6">
+            <div class="col-12 col-lg-6">
                 <label for="cc-name" class="form-label">القسم</label>
                 <input type="text" class="form-control" name="section" maxlength="100" />
             </div>
-            <div class="col-md-6">
+            <div class="col-12 col-lg-6">
                 <label for="cc-name" class="form-label">الاختصاص</label>
                 <input type="text" class="form-control" name="specialization" maxlength="100" />
             </div>
 
-            <div class="col-md-6">
+            <div class="col-12 col-lg-6">
                 <label for="cc-name" class="form-label">اللغة</label>
                 <input type="text" class="form-control" id="cc-name" name="language" maxlength="50" required />
 
                 <div class="invalid-feedback">اللغة مطلوبة</div>
             </div>
 
-            <div class="col-md-6" id="state-father">
+            <div class="col-12 col-lg-6" id="state-father">
                 <label for="cc-number" class="form-label">نوع القبول</label>
                 <select class="form-select" id="state" name="nominationReason" required>
                     <option value="">اختر...</option>
@@ -230,14 +230,14 @@
         <hr class="my-4" />
 
         <div class="row gy-3 mt-2 justify-content-around">
-            <div class="col-6 row">
+            <div class="col-12 col-lg-6 row">
                 <div class="mt-2" id="above-highd">
                     <button id="highD" type="button" class="btn d-block mx-auto btn-outline-secondary">
                         إضافة دراسات عليا
                     </button>
                 </div>
             </div>
-            <div class="col-6 row">
+            <div class="col-12 col-lg-6 row">
                 <div class="mt-2" id="above-highc">
                     <button id="highC" type="button" class="btn d-block mx-auto btn-outline-secondary">
                         إضافة شهادات تفوق

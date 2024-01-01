@@ -49,6 +49,11 @@
     left: 0;
     top: 0
   }
+  @media screen and (max-width: 1000px){
+    .weather-info h4, .weather-info h6, .weather-info .font-weight-normal{
+      font-size: 16px !important;
+    }
+  }
 </style>
 <script src="{% static 'js/chart.js' %}">
 
@@ -60,13 +65,12 @@
 
 
 <div class="row align-items-center">
-  <div class="col-md-6 grid-margin stretch-card">
+  <div class="col-md-6 grid-margin stretch-card d-none d-lg-block">
     <div class="card tale-bg">
       <div class="card-people mt-auto">
         <img src="{% static 'images/people.svg' %}" alt="people">
         <div class="weather-info">
           <div class="d-flex">
-
             <div class="ml-2">
               <h4 class="location font-weight-normal">سوريا</h4>
               <h6 class="font-weight-normal">حمص</h6>
@@ -79,7 +83,7 @@
       </div>
     </div>
   </div>
-  <div class="col-md-6 grid-margin transparent">
+  <div class=" col-12 col-lg-6 grid-margin transparent">
     <div class="row">
       <div class="col-md-6 mb-4 stretch-card transparent">
         <div class="card card-dark-blue">
@@ -126,7 +130,7 @@
 </div>
 
 
-<div class="row justify-content-center">
+<div class="row justify-content-center d-none d-lg-block">
   <div class="col-lg-10 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
@@ -149,7 +153,7 @@
     <div class="card row" style='background: inherit'>
       <div class="card-body row justify-content-around cardss">
         {% if user.is_superuser %}
-        <div class="col-5 mb-3">
+        <div class="col-12 col-lg-5 mb-3">
           <div class="card card-inverse-light border-dark mb-3 mx-auto" style="background-color:#ffffff;">
             <h5 class="card-header">
               <i class="fa-solid fa-user-tie"></i>
@@ -164,7 +168,7 @@
             </div>
           </div>
         </div>
-        <div class="col-5 mb-3">
+        <div class="col-12 col-lg-5 mb-3">
           <div class="card card-inverse-light border-dark mb-3 mx-auto" style="background-color:#ffffff;">
             <h5 class="card-header">
               <i class="fa-solid fa-server"></i>
@@ -180,7 +184,7 @@
           </div>
         </div>
         {% endif %}
-        <div class="col-5 mb-3">
+        <div class="col-12 col-lg-5 mb-3">
           <div class="card card-inverse-light border-dark mb-3 mx-auto" style="background-color:#ffffff;">
             <h5 class="card-header">
               <i class="fa-solid fa-user-graduate"></i>
@@ -196,7 +200,7 @@
           </div>
         </div>
 
-        <div class="col-5 mb-3">
+        <div class="col-12 col-lg-5 mb-3">
           <div class="card card-inverse-light border-dark mb-3 mx-auto" style="background-color:#ffffff;">
             <h5 class="card-header">
               <i class="fa-solid fa-users"></i>
@@ -211,7 +215,7 @@
             </div>
           </div>
         </div>
-        <div class="col-5 mb-3">
+        <div class="col-12 col-lg-5 mb-3">
           <div class="card card-inverse-light border-dark mb-3 mx-auto" style="background-color:#ffffff;">
             <h5 class="card-header">
               <i class="fa-solid fa-filter"></i>
@@ -226,7 +230,7 @@
             </div>
           </div>
         </div>
-        <div class="col-5 mb-3">
+        <div class="col-12 col-lg-5 mb-3">
           <div class="card card-inverse-light border-dark mb-3 mx-auto" style="background-color:#ffffff;">
             <h5 class="card-header">
               <i class="fa-solid fa-envelope"></i>

@@ -55,7 +55,7 @@ main {
 }
 
 .main-panel {
-    margin-right: 300px;
+    margin-right: 240px;
     overflow-y: auto;
     max-height: 90vh;
 }

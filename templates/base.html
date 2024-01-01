@@ -63,16 +63,16 @@
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
             <a class="navbar-brand brand-logo " href="{% url 'app:home' %}"><img src="{% static 'images/logo.svg' %}"
                     class="mr-2 h-100 w-auto" alt="logo"></a>
-            <a class="navbar-brand brand-logo-mini" href="{% url 'app:home' %}"><img
+            <!-- <a class="navbar-brand brand-logo-mini" href="{% url 'app:home' %}"><img
                     src="{% static 'images/logo-mini.png' %}" alt="logo" style="width: 54px; height: auto"
-                    class="mr-2"></a>
+                    class="mr-2"></a> -->
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
             {% if user.is_superuser %}
             <ul class="navbar-nav mr-lg-2">
-                <li class="nav-item nav-search d-none d-lg-block btn btn-primary dt"><a href="/app/upload">رفع</a>
+                <li class="nav-item nav-search  d-lg-block btn btn-primary dt"><a href="/app/upload">رفع</a>
                 </li>
-                <li class="nav-item nav-search d-none d-lg-block btn btn-primary dt"><a href="#" data-bs-toggle="modal"
+                <li class="nav-item nav-search  d-lg-block btn btn-primary dt"><a href="#" data-bs-toggle="modal"
                         data-bs-target="#downloadd">تنزيل</a>
                 </li>
             </ul>
@@ -233,9 +233,9 @@
     </script>
 
     <script src="{% static 'js/skydash/template.js' %}"></script>
-    <script src="{% static 'bootstrap-5.2.0/dist/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'bootstrap-5.2.0/dist/js/bootstrap.min.js' %}"></script>
     <!-- <script src="{% static 'js/popper.min.js' %}"></script> -->
-    <script type="text/javascript" src="{% static 'js/toastify-js' %}"></script>
+    <script type="text/javascript" src="{% static 'toastify-js' %}"></script>
 
     {% if messages %}
     <!-- asda  -->

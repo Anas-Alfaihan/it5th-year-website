@@ -76,7 +76,7 @@ $(document).ready(function () {
                 </select>
     
 </div>
-<div class="col-6 mb-3">
+<div class="col-12 col-lg-6 mb-3">
     <label class="form-label">الجامعة</label>
     <input
         type="text"
@@ -86,7 +86,7 @@ $(document).ready(function () {
         required
     />
 </div>
-<div class="col-6 mb-3">
+<div class="col-12 col-lg-6 mb-3">
     <label class="form-label">الكلية</label>
     <input
         type="text"
@@ -96,7 +96,7 @@ $(document).ready(function () {
         required
     />
 </div>
-<div class="col-6 mb-3">
+<div class="col-12 col-lg-6 mb-3">
     <label class="form-label">القسم</label>
     <input
         type="text"
@@ -106,7 +106,7 @@ $(document).ready(function () {
         required
     />
 </div>
-<div class="col-6 mb-3">
+<div class="col-12 col-lg-6 mb-3">
     <label class="form-label">الاختصاص</label>
     <input
         type="text"
@@ -116,7 +116,7 @@ $(document).ready(function () {
         required
     />
 </div>
-<div class="col-6 mb-3">
+<div class="col-12 col-lg-6 mb-3">
     <label class="form-label">سنة الشهادة</label>
     <input
         type="text"
@@ -128,7 +128,7 @@ $(document).ready(function () {
     />
     <div class="invalid-feedback">أدخل بتنسيق 2018-2019</div>
 </div>
-<div class="col-6 mb-3">
+<div class="col-12 col-lg-6 mb-3">
     <label class="form-label">المعدل</label>
     <input
         type="number"
